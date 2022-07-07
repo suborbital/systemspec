@@ -25,19 +25,19 @@ func (s *FQFNSuite) TestParse() {
 			Identifier: "com.suborbital.acmeco",
 			Namespace:  "api-users",
 			Fn:         "add-user",
-			Hash:       "98qhrfgo3089hafrouhqf48",
+			Ref:        "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"fully-qualified two-level namespace", "fqfn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/add-user", FQFN{
 			Identifier: "com.suborbital.acmeco",
 			Namespace:  "api/users",
 			Fn:         "add-user",
-			Hash:       "98qhrfgo3089hafrouhqf48",
+			Ref:        "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"fully-qualified multi-level namespace", "fqfn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/auora/add-user", FQFN{
 			Identifier: "com.suborbital.acmeco",
 			Namespace:  "api/users/auora",
 			Fn:         "add-user",
-			Hash:       "98qhrfgo3089hafrouhqf48",
+			Ref:        "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"uri for single-application func with single-level namespace", "/api-users/add-user", FQFN{
 			Namespace: "api-users",
@@ -54,17 +54,17 @@ func (s *FQFNSuite) TestParse() {
 		{"uri for versioned single-application func with single-level namespace", "/ref/98qhrfgo3089hafrouhqf48/api-users/add-user", FQFN{
 			Namespace: "api-users",
 			Fn:        "add-user",
-			Hash:      "98qhrfgo3089hafrouhqf48",
+			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"uri for versioned single-application func with two-level namespace", "/ref/98qhrfgo3089hafrouhqf48/api/users/add-user", FQFN{
 			Namespace: "api/users",
 			Fn:        "add-user",
-			Hash:      "98qhrfgo3089hafrouhqf48",
+			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"uri for versioned single-application func with multi-level namespace", "/ref/98qhrfgo3089hafrouhqf48/api/users/auora/add-user", FQFN{
 			Namespace: "api/users/auora",
 			Fn:        "add-user",
-			Hash:      "98qhrfgo3089hafrouhqf48",
+			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"uri for multi-application func with single-level namespace", "/com.suborbital.acmeco/api-users/add-user", FQFN{
 			Identifier: "com.suborbital.acmeco",
@@ -85,19 +85,19 @@ func (s *FQFNSuite) TestParse() {
 			Identifier: "com.suborbital.acmeco",
 			Namespace:  "api-users",
 			Fn:         "add-user",
-			Hash:       "98qhrfgo3089hafrouhqf48",
+			Ref:        "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"uri for versioned multi-application func with two-level namespace", "/ref/98qhrfgo3089hafrouhqf48/com.suborbital.acmeco/api/users/add-user", FQFN{
 			Identifier: "com.suborbital.acmeco",
 			Namespace:  "api/users",
 			Fn:         "add-user",
-			Hash:       "98qhrfgo3089hafrouhqf48",
+			Ref:        "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"uri for versioned multi-application func with multi-level namespace", "/ref/98qhrfgo3089hafrouhqf48/com.suborbital.acmeco/api/users/auora/add-user", FQFN{
 			Identifier: "com.suborbital.acmeco",
 			Namespace:  "api/users/auora",
 			Fn:         "add-user",
-			Hash:       "98qhrfgo3089hafrouhqf48",
+			Ref:        "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"malformed—doesn't start with right prefix 1", "fqfn:com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/auora/add-user", FQFN{}, errWrongPrefix},
 		{"malformed—doesn't start with right prefix 2", "https://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/auora/add-user", FQFN{}, errWrongPrefix},
@@ -139,7 +139,7 @@ func (s *FQFNSuite) TestMigrateV1ToV2() {
 			Identifier: "com.suborbital.test",
 			Namespace:  "default",
 			Fn:         "get-file",
-			Hash:       "98qhrfgo3089hafrouhqf48",
+			Ref:        "98qhrfgo3089hafrouhqf48",
 		}, nil},
 	} {
 		s.Run(tt.name, func() {

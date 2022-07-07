@@ -9,9 +9,9 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////////
 // An FQFN (fully-qualified function name) is a "globally unique"
-// name for a specific function from a specific application hash
+// name for a specific function from a specific application ref
 // example: fqfn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api-users/add-user
-// i.e. fqfn://<identifier>/<hash>/<namespace>/<funcname>
+// i.e. fqfn://<identifier>/<ref>/<namespace>/<funcname>
 //
 // These URI forms are also supported:
 //
@@ -42,11 +42,11 @@ type FQFN struct {
 	Identifier string `json:"identifier"`
 	Namespace  string `json:"namespace"`
 	Fn         string `json:"fn"`
-	Hash       string `json:"hash"`
+	Ref        string `json:"ref"`
 }
 
 var errWrongPrefix = errors.New("FQFN must begin with 'fqfn://' or '/'")
-var errMustBeFullyQualified = errors.New("FQFN text format must contain an identifier, hash, namespace, and function name")
+var errMustBeFullyQualified = errors.New("FQFN text format must contain an identifier, ref, namespace, and function name")
 var errTooFewParts = errors.New("FQFN must contain at least a namespace and function name")
 var errMalformedIdentifier = errors.New("identifier must contain exactly two dots")
 var errTrailingSlash = errors.New("FQFN must not end in a trailing slash")
@@ -68,7 +68,7 @@ func parseTextFormat(fqfnString string) (FQFN, error) {
 
 	segments := strings.Split(fqfnString, "/")
 
-	// There should be at least four segments representing the ident, hash, namespace, and name.
+	// There should be at least four segments representing the ident, ref, namespace, and name.
 	// Additional segments would be the result of multi-level namespaces.
 	if len(segments) < 4 {
 		return FQFN{}, errMustBeFullyQualified
@@ -85,7 +85,7 @@ func parseTextFormat(fqfnString string) (FQFN, error) {
 		return FQFN{}, errMalformedIdentifier
 	}
 
-	hash := segments[1]
+	ref := segments[1]
 
 	// Reconstruct the namespace
 	namespace := strings.Join(segments[2:len(segments)-1], "/")
@@ -97,7 +97,7 @@ func parseTextFormat(fqfnString string) (FQFN, error) {
 		Identifier: identifier,
 		Namespace:  namespace,
 		Fn:         fn,
-		Hash:       hash,
+		Ref:        ref,
 	}
 
 	return fqfn, nil
@@ -118,10 +118,10 @@ func parseUriFormat(fqfnString string) (FQFN, error) {
 		return FQFN{}, errTrailingSlash
 	}
 
-	// Check for a hash
-	var hash string
+	// Check for a ref
+	var ref string
 	if segments[0] == "ref" {
-		hash = segments[1]
+		ref = segments[1]
 		segments = segments[2:]
 
 		// There should be at least two more segments
@@ -152,14 +152,14 @@ func parseUriFormat(fqfnString string) (FQFN, error) {
 		Identifier: identifier,
 		Namespace:  namespace,
 		Fn:         fn,
-		Hash:       hash,
+		Ref:        ref,
 	}
 
 	return fqfn, nil
 }
 
-func MigrateV1ToV2(name, hash string) (FQFN, error) {
-	// Parse V1 format and swap version for hash
+func MigrateV1ToV2(name, ref string) (FQFN, error) {
+	// Parse V1 format and swap version for ref
 
 	// if the name contains a #, parse that out as the identifier.
 	identifier := ""
@@ -189,7 +189,7 @@ func MigrateV1ToV2(name, hash string) (FQFN, error) {
 		Identifier: identifier,
 		Namespace:  namespace,
 		Fn:         name,
-		Hash:       hash,
+		Ref:        ref,
 	}
 
 	return fqfn, nil
@@ -197,11 +197,11 @@ func MigrateV1ToV2(name, hash string) (FQFN, error) {
 
 // HeadlessURLPath returns the headless URL path for a function.
 func (f FQFN) HeadlessURLPath() string {
-	return fmt.Sprintf("/%s/%s/%s/%s", f.Identifier, f.Namespace, f.Fn, f.Hash)
+	return fmt.Sprintf("/%s/%s/%s/%s", f.Identifier, f.Namespace, f.Fn, f.Ref)
 }
 
-func FromParts(ident, namespace, fn, hash string) string {
-	return fmt.Sprintf("fqfn://%s/%s/%s/%s", ident, hash, namespace, fn)
+func FromParts(ident, namespace, fn, ref string) string {
+	return fmt.Sprintf("fqfn://%s/%s/%s/%s", ident, ref, namespace, fn)
 }
 
 func FromURL(u *url.URL) (string, error) {
@@ -217,5 +217,5 @@ func FromURL(u *url.URL) (string, error) {
 
 	ident := strings.Join([]string{identParts[2], identParts[1], identParts[0]}, ".")
 
-	return FromParts(ident, fqfn.Namespace, fqfn.Fn, fqfn.Hash), nil
+	return FromParts(ident, fqfn.Namespace, fqfn.Fn, fqfn.Ref), nil
 }
