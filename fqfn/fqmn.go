@@ -1,17 +1,16 @@
-package fqfn
+package fqmn
 
 import (
 	"errors"
 	"fmt"
-	"net/url"
 	"strings"
 )
 
 ////////////////////////////////////////////////////////////////////////////////////
-// An FQFN (fully-qualified function name) is a "globally unique"
+// An FQMN (fully-qualified function name) is a "globally unique"
 // name for a specific function from a specific application ref
-// example: fqfn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api-users/add-user
-// i.e. fqfn://<identifier>/<ref>/<namespace>/<funcname>
+// example: fqmn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api-users/add-user
+// i.e. fqmn://<identifier>/<ref>/<namespace>/<funcname>
 //
 // These URI forms are also supported:
 //
@@ -37,53 +36,48 @@ const (
 	NamespaceDefault = "default"
 )
 
-// FQFN is a parsed fqfn.
-type FQFN struct {
+// FQMN is a parsed fqmn.
+type FQMN struct {
 	Identifier string `json:"identifier"`
 	Namespace  string `json:"namespace"`
 	Fn         string `json:"fn"`
 	Ref        string `json:"ref"`
 }
 
-var errWrongPrefix = errors.New("FQFN must begin with 'fqfn://' or '/'")
-var errMustBeFullyQualified = errors.New("FQFN text format must contain an identifier, ref, namespace, and function name")
-var errTooFewParts = errors.New("FQFN must contain at least a namespace and function name")
-var errMalformedIdentifier = errors.New("identifier must contain exactly two dots")
-var errTrailingSlash = errors.New("FQFN must not end in a trailing slash")
+var errWrongPrefix = errors.New("FQMN must begin with 'fqmn://' or '/'")
+var errMustBeFullyQualified = errors.New("FQMN text format must contain an identifier, ref, namespace, and function name")
+var errTooFewParts = errors.New("FQMN must contain at least a namespace and function name")
+var errTrailingSlash = errors.New("FQMN must not end in a trailing slash")
 
-func Parse(fqfnString string) (FQFN, error) {
-	if strings.HasPrefix(fqfnString, "fqfn://") {
-		return parseTextFormat(fqfnString)
+func Parse(fqmnString string) (FQMN, error) {
+	if strings.HasPrefix(fqmnString, "fqmn://") {
+		return parseTextFormat(fqmnString)
 	}
 
-	if strings.HasPrefix(fqfnString, "/") {
-		return parseUriFormat(fqfnString)
+	if strings.HasPrefix(fqmnString, "/") {
+		return parseUriFormat(fqmnString)
 	}
 
-	return FQFN{}, errWrongPrefix
+	return FQMN{}, errWrongPrefix
 }
 
-func parseTextFormat(fqfnString string) (FQFN, error) {
-	fqfnString = strings.TrimPrefix(fqfnString, "fqfn://")
+func parseTextFormat(fqmnString string) (FQMN, error) {
+	fqmnString = strings.TrimPrefix(fqmnString, "fqmn://")
 
-	segments := strings.Split(fqfnString, "/")
+	segments := strings.Split(fqmnString, "/")
 
 	// There should be at least four segments representing the ident, ref, namespace, and name.
 	// Additional segments would be the result of multi-level namespaces.
 	if len(segments) < 4 {
-		return FQFN{}, errMustBeFullyQualified
+		return FQMN{}, errMustBeFullyQualified
 	}
 
 	// If the last segment is empty, there was a trailing slash
 	if segments[len(segments)-1] == "" {
-		return FQFN{}, errTrailingSlash
+		return FQMN{}, errTrailingSlash
 	}
 
 	identifier := segments[0]
-
-	if strings.Count(identifier, ".") != 2 {
-		return FQFN{}, errMalformedIdentifier
-	}
 
 	ref := segments[1]
 
@@ -93,29 +87,29 @@ func parseTextFormat(fqfnString string) (FQFN, error) {
 	// The function name is just the last element
 	fn := segments[len(segments)-1]
 
-	fqfn := FQFN{
+	fqmn := FQMN{
 		Identifier: identifier,
 		Namespace:  namespace,
 		Fn:         fn,
 		Ref:        ref,
 	}
 
-	return fqfn, nil
+	return fqmn, nil
 }
 
-func parseUriFormat(fqfnString string) (FQFN, error) {
-	segments := strings.Split(fqfnString, "/")
+func parseUriFormat(fqmnString string) (FQMN, error) {
+	segments := strings.Split(fqmnString, "/")
 	// The first segment will be empty since the string starts with '/'
 	segments = segments[1:]
 
 	// There should be at least two segments
 	if len(segments) < 2 {
-		return FQFN{}, errTooFewParts
+		return FQMN{}, errTooFewParts
 	}
 
 	// If the last segment is empty, there was a trailing slash
 	if segments[len(segments)-1] == "" {
-		return FQFN{}, errTrailingSlash
+		return FQMN{}, errTrailingSlash
 	}
 
 	// Check for a ref
@@ -126,7 +120,7 @@ func parseUriFormat(fqfnString string) (FQFN, error) {
 
 		// There should be at least two more segments
 		if len(segments) < 2 {
-			return FQFN{}, errTooFewParts
+			return FQMN{}, errTooFewParts
 		}
 	}
 
@@ -138,7 +132,7 @@ func parseUriFormat(fqfnString string) (FQFN, error) {
 
 		// There _still_ should be at least two more segments
 		if len(segments) < 2 {
-			return FQFN{}, errTooFewParts
+			return FQMN{}, errTooFewParts
 		}
 	}
 
@@ -148,17 +142,17 @@ func parseUriFormat(fqfnString string) (FQFN, error) {
 	// The function name is just the last element
 	fn := segments[len(segments)-1]
 
-	fqfn := FQFN{
+	fqmn := FQMN{
 		Identifier: identifier,
 		Namespace:  namespace,
 		Fn:         fn,
 		Ref:        ref,
 	}
 
-	return fqfn, nil
+	return fqmn, nil
 }
 
-func MigrateV1ToV2(name, ref string) (FQFN, error) {
+func MigrateV1ToV2(name, ref string) (FQMN, error) {
 	// Parse V1 format and swap version for ref
 
 	// if the name contains a #, parse that out as the identifier.
@@ -185,37 +179,21 @@ func MigrateV1ToV2(name, ref string) (FQFN, error) {
 		name = versionParts[0]
 	}
 
-	fqfn := FQFN{
+	fqmn := FQMN{
 		Identifier: identifier,
 		Namespace:  namespace,
 		Fn:         name,
 		Ref:        ref,
 	}
 
-	return fqfn, nil
+	return fqmn, nil
 }
 
 // HeadlessURLPath returns the headless URL path for a function.
-func (f FQFN) HeadlessURLPath() string {
+func (f FQMN) HeadlessURLPath() string {
 	return fmt.Sprintf("/%s/%s/%s/%s", f.Identifier, f.Namespace, f.Fn, f.Ref)
 }
 
 func FromParts(ident, namespace, fn, ref string) string {
-	return fmt.Sprintf("fqfn://%s/%s/%s/%s", ident, ref, namespace, fn)
-}
-
-func FromURL(u *url.URL) (string, error) {
-	fqfn, err := parseUriFormat(u.Path)
-	if err != nil {
-		return "", err
-	}
-
-	identParts := strings.Split(u.Host, ".")
-	if len(identParts) != 3 {
-		return "", errMalformedIdentifier
-	}
-
-	ident := strings.Join([]string{identParts[2], identParts[1], identParts[0]}, ".")
-
-	return FromParts(ident, fqfn.Namespace, fqfn.Fn, fqfn.Ref), nil
+	return fmt.Sprintf("fqmn://%s/%s/%s/%s", ident, ref, namespace, fn)
 }
