@@ -67,15 +67,15 @@ func Parse(fqmnString string) (FQMN, error) {
 func parseTextFormat(fqmnString string) (FQMN, error) {
 	fqmnString = strings.TrimPrefix(fqmnString, "fqmn://")
 
-	segments := strings.SplitN(fqmnString, "@", 2)
+	refSegments := strings.SplitN(fqmnString, "@", 2)
 	var ref string
-	if len(segments) == 2 {
-		ref = segments[1]
+	if len(refSegments) == 2 {
+		ref = refSegments[1]
 	}
 
-	fqmnString = segments[0]
+	fqmnString = refSegments[0]
 
-	segments = strings.Split(fqmnString, "/")
+	segments := strings.Split(fqmnString, "/")
 
 	// There should be at least three segments representing the tenant, namespace, and modname.
 	// Additional segments would be the result of multi-level namespaces.
