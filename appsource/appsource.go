@@ -5,18 +5,14 @@ import (
 
 	"github.com/suborbital/appspec/capabilities"
 	"github.com/suborbital/appspec/directive"
-	"github.com/suborbital/appspec/fqfn"
 )
 
 var (
-	ErrRunnableNotFound     = errors.New("failed to find requested Runnable")
+	ErrModuleNotFound       = errors.New("failed to find requested module")
+	ErrTenantNotFound       = errors.New("failed to find requested tenant")
+	ErrNamespaceNotFound    = errors.New("failed to find requested namespace")
 	ErrAuthenticationFailed = errors.New("failed to authenticate")
 )
-
-// AuthFunc is a function that receives an application identifier
-// and returns an authentication token, used for any authenticated
-// AppSource calls in a multi-application system.
-type AuthFunc func(appIdent string) string
 
 // AppSource describes how an entire system relays its state to a client
 type AppSource interface {
@@ -29,35 +25,28 @@ type AppSource interface {
 	// Overview returns a the system overview, used for incremental sync of the system's applications
 	Overview() (*Overview, error)
 
-	// ApplicationOverview returns the overview for the requested application
-	ApplicationOverview(ident, appVersion string) (*ApplicationOverview, error)
+	// TenantOverview returns the overview for the requested tenant
+	TenantOverview(ident string) (*TenantOverview, error)
 
-	// GetFunction attempts to find the given Function by its fqfn, and returns ErrRunnableNotFound if it cannot.
-	GetFunction(fqfn fqfn.FQFN) (*directive.Runnable, error)
+	// GetModule attempts to find the given module by its fqmn, and returns ErrRunnableNotFound if it cannot.
+	GetModule(FQFN string) (*Module, error)
 
-	// Handlers returns the handlers for the app.
-	Handlers(ident, appVersion string) ([]directive.Handler, error)
-
-	// Schedules returns the requested schedules for the app.
-	Schedules(ident, appVersion string) ([]directive.Schedule, error)
+	// Workflows returns the requested workflows for the app.
+	Workflows(ident, namespace string, version int64) ([]directive.Schedule, error)
 
 	// Connections returns the connections needed for the app.
-	Connections(ident, appVersion string) (*directive.Connections, error)
+	Connections(ident, namespace string, version int64) (*directive.Connections, error)
 
 	// Authentication provides any auth headers or metadata for the app.
-	Authentication(ident, appVersion string) (*directive.Authentication, error)
+	Authentication(ident, namespace string, version int64) (*directive.Authentication, error)
 
 	// Capabilities provides the application's configured capabilities.
-	Capabilities(ident, namespace, appVersion string) (*capabilities.CapabilityConfig, error)
+	Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error)
 
 	// StaticFile is a source of static files for the application
 	// TODO: refactor this into a set of capabilities / profiles.
-	StaticFile(identifier, appVersion, path string) ([]byte, error)
+	StaticFile(identifier, namespace, path string, version int64) ([]byte, error)
 
 	// Queries returns the database queries that should be made available.
-	Queries(ident, appVersion string) []directive.DBQuery
-
-	// UseAuthenticationFunc sets an auth function to be used when making authenticated calls as a client using transport-specific methods.
-	// AppSource servers should not use this, and instead validate provided auth info within their implementaitons.
-	UseAuthenticationFunc(AuthFunc)
+	Queries(ident, namespace string, version int64) ([]directive.DBQuery, error)
 }

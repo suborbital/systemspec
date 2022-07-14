@@ -7,6 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/suborbital/appspec/appsource"
 	"github.com/suborbital/appspec/bundle"
 	"github.com/suborbital/appspec/capabilities"
 	"github.com/suborbital/appspec/directive"
@@ -15,14 +16,14 @@ import (
 // BundleSource is an AppSource backed by a bundle file.
 type BundleSource struct {
 	path   string
-	opts   Options
+	opts   appsource.Options
 	bundle *bundle.Bundle
 
 	lock sync.RWMutex
 }
 
 // NewBundleSource creates a new BundleSource that looks for a bundle at [path].
-func NewBundleSource(path string) AppSource {
+func NewBundleSource(path string) appsource.AppSource {
 	b := &BundleSource{
 		path: path,
 		lock: sync.RWMutex{},
@@ -32,7 +33,7 @@ func NewBundleSource(path string) AppSource {
 }
 
 // Start initializes the app source.
-func (b *BundleSource) Start(opts Options) error {
+func (b *BundleSource) Start(opts appsource.Options) error {
 	b.opts = opts
 
 	if err := b.findBundle(); err != nil {
@@ -42,134 +43,171 @@ func (b *BundleSource) Start(opts Options) error {
 	return nil
 }
 
+// State returns the state of the entire system
+func (b *BundleSource) State() (*appsource.State, error) {
+	s := &appsource.State{
+		SystemVersion: 1,
+	}
+
+	return s, nil
+}
+
+// Overview gets the overview for the entire system.
+func (b *BundleSource) Overview() (*appsource.Overview, error) {
+	ovv := &appsource.Overview{
+		State: appsource.State{
+			SystemVersion: 1,
+		},
+		TenantRefs: appsource.References{
+			Identifiers: map[string]int64{
+				b.bundle.Directive.Identifier: 1,
+			},
+		},
+	}
+
+	return ovv, nil
+}
+
 // Runnables returns the Runnables for the app.
-func (b *BundleSource) Runnables(identifier, version string) []directive.Runnable {
-	if !b.checkIdentifierVersion(identifier, version) {
-		return nil
+func (b *BundleSource) TenantOverview(ident string) (*appsource.TenantOverview, error) {
+	if !b.checkIdentifier(ident) {
+		return nil, appsource.ErrTenantNotFound
 	}
 
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil {
-		return nil
+		return nil, appsource.ErrTenantNotFound
 	}
 
-	return b.bundle.Directive.Runnables
+	modules := make([]appsource.Module, len(b.bundle.Directive.Runnables))
+
+	for i, r := range b.bundle.Directive.Runnables {
+		m := appsource.Module{
+			Name:      r.Name,
+			Namespace: r.Namespace,
+			Ref:       "",
+			FQFN:      r.FQFN,
+			Revisions: []appsource.ModuleRevision{},
+		}
+
+		modules[i] = m
+	}
+
+	ovv := &appsource.TenantOverview{
+		Identifier: ident,
+		Version:    1,
+		Modules:    modules,
+	}
+
+	return ovv, nil
 }
 
 // FindRunnable searches for and returns the requested runnable
-// otherwise ErrRunnableNotFound.
-func (b *BundleSource) FindRunnable(fqfn, _ string) (*directive.Runnable, error) {
+// otherwise appsource.ErrFunctionNotFound.
+func (b *BundleSource) GetModule(FQFN string) (*appsource.Module, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil {
-		return nil, ErrRunnableNotFound
+		return nil, appsource.ErrModuleNotFound
 	}
 
-	for i, r := range b.bundle.Directive.Runnables {
-		if r.FQFN == fqfn {
-			return &b.bundle.Directive.Runnables[i], nil
+	for _, r := range b.bundle.Directive.Runnables {
+		if r.FQFN == FQFN {
+			m := &appsource.Module{
+				Name:      r.Name,
+				Namespace: r.Namespace,
+				Ref:       "",
+				FQFN:      r.FQFN,
+				Revisions: []appsource.ModuleRevision{},
+			}
+
+			return m, nil
 		}
 	}
 
-	return nil, ErrRunnableNotFound
-}
-
-// Handlers returns the handlers for the app.
-func (b *BundleSource) Handlers(identifier, version string) []directive.Handler {
-	if !b.checkIdentifierVersion(identifier, version) {
-		return nil
-	}
-
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	if b.bundle == nil {
-		return []directive.Handler{}
-	}
-
-	return b.bundle.Directive.Handlers
+	return nil, appsource.ErrModuleNotFound
 }
 
 // Schedules returns the schedules for the app.
-func (b *BundleSource) Schedules(identifier, version string) []directive.Schedule {
-	if !b.checkIdentifierVersion(identifier, version) {
-		return nil
+func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]directive.Schedule, error) {
+	if !b.checkIdentifier(ident) {
+		return nil, appsource.ErrTenantNotFound
 	}
 
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil {
-		return []directive.Schedule{}
+		return nil, appsource.ErrTenantNotFound
 	}
 
-	return b.bundle.Directive.Schedules
+	return b.bundle.Directive.Schedules, nil
 }
 
 // Connections returns the Connections for the app.
-func (b *BundleSource) Connections(identifier, version string) directive.Connections {
-	if !b.checkIdentifierVersion(identifier, version) {
-		return directive.Connections{}
-	}
-
+func (b *BundleSource) Connections(ident, namespace string, version int64) (*directive.Connections, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil || b.bundle.Directive.Connections == nil {
-		return directive.Connections{}
+		return nil, appsource.ErrTenantNotFound
 	}
 
-	return *b.bundle.Directive.Connections
+	if !b.checkIdentifier(ident) {
+		return nil, appsource.ErrTenantNotFound
+	}
+
+	return b.bundle.Directive.Connections, nil
 }
 
 // Authentication returns the Authentication for the app.
-func (b *BundleSource) Authentication(identifier, version string) directive.Authentication {
-	if !b.checkIdentifierVersion(identifier, version) {
-		return directive.Authentication{}
-	}
-
+func (b *BundleSource) Authentication(ident, namespace string, version int64) (*directive.Authentication, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil || b.bundle.Directive.Authentication == nil {
-		return directive.Authentication{}
+		return nil, appsource.ErrTenantNotFound
 	}
 
-	return *b.bundle.Directive.Authentication
+	if !b.checkIdentifier(ident) {
+		return nil, appsource.ErrTenantNotFound
+	}
+
+	return b.bundle.Directive.Authentication, nil
 }
 
 // Capabilities returns the configuration for the app's capabilities.
 
-func (b *BundleSource) Capabilities(identifier, namespace, version string) *capabilities.CapabilityConfig {
+func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error) {
 	defaultConfig := capabilities.DefaultCapabilityConfig()
-
-	if !b.checkIdentifierVersion(identifier, version) {
-		return &defaultConfig
-	}
 
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil || b.bundle.Directive.Capabilities == nil {
-		return &defaultConfig
+		return &defaultConfig, nil
 	}
 
-	return b.bundle.Directive.Capabilities
+	if !b.checkIdentifier(ident) {
+		return &defaultConfig, nil
+	}
+
+	return b.bundle.Directive.Capabilities, nil
 }
 
 // File returns a requested file.
-func (b *BundleSource) File(identifier, version, filename string) ([]byte, error) {
-	if !b.checkIdentifierVersion(identifier, version) {
-		return nil, os.ErrNotExist
-	}
-
+func (b *BundleSource) StaticFile(ident, namespace, filename string, version int64) ([]byte, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil {
+		return nil, os.ErrNotExist
+	}
+
+	if !b.checkIdentifier(ident) {
 		return nil, os.ErrNotExist
 	}
 
@@ -177,35 +215,19 @@ func (b *BundleSource) File(identifier, version, filename string) ([]byte, error
 }
 
 // Queries returns the Queries available to the app.
-func (b *BundleSource) Queries(identifier, version string) []directive.DBQuery {
-	if !b.checkIdentifierVersion(identifier, version) {
-		return nil
-	}
-
+func (b *BundleSource) Queries(ident, namespace string, version int64) ([]directive.DBQuery, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil || b.bundle.Directive.Queries == nil {
-		return nil
+		return nil, appsource.ErrTenantNotFound
 	}
 
-	return b.bundle.Directive.Queries
-}
-
-func (b *BundleSource) Applications() []Meta {
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	if b.bundle == nil {
-		return nil
+	if !b.checkIdentifier(ident) {
+		return nil, appsource.ErrTenantNotFound
 	}
 
-	return []Meta{
-		{
-			Identifier: b.bundle.Directive.Identifier,
-			AppVersion: b.bundle.Directive.AppVersion,
-		},
-	}
+	return b.bundle.Directive.Queries, nil
 }
 
 // findBundle loops forever until it finds a bundle at the configured path.
@@ -237,9 +259,8 @@ func (b *BundleSource) findBundle() error {
 	return nil
 }
 
-// checkIdentifierVersion checks whether the passed in identifier and version are for the current app running in the
+// checkIdentifier checks whether the passed in identifier and version are for the current app running in the
 // bundle or not. Returns true only if both match.
-func (b *BundleSource) checkIdentifierVersion(identifier, version string) bool {
-	return b.bundle.Directive.Identifier == identifier &&
-		b.bundle.Directive.AppVersion == version
+func (b *BundleSource) checkIdentifier(identifier string) bool {
+	return b.bundle.Directive.Identifier == identifier
 }
