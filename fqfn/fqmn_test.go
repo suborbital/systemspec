@@ -21,97 +21,67 @@ func (s *FQFNSuite) TestParse() {
 		fqmn FQMN
 		error
 	}{
-		{"fully-qualified single-level namespace", "fqmn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api-users/add-user", FQMN{
-			Identifier: "com.suborbital.acmeco",
-			Namespace:  "api-users",
-			Fn:         "add-user",
-			Ref:        "98qhrfgo3089hafrouhqf48",
-		}, nil},
-		{"fully-qualified two-level namespace", "fqmn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/add-user", FQMN{
-			Identifier: "com.suborbital.acmeco",
-			Namespace:  "api/users",
-			Fn:         "add-user",
-			Ref:        "98qhrfgo3089hafrouhqf48",
-		}, nil},
-		{"fully-qualified multi-level namespace", "fqmn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/auora/add-user", FQMN{
-			Identifier: "com.suborbital.acmeco",
-			Namespace:  "api/users/auora",
-			Fn:         "add-user",
-			Ref:        "98qhrfgo3089hafrouhqf48",
-		}, nil},
-		{"uri for single-application func with single-level namespace", "/api-users/add-user", FQMN{
+		{"text format single-level namespace", "fqmn://suborbital.acmeco/api-users/add-user", FQMN{
+			Tenant:    "suborbital.acmeco",
 			Namespace: "api-users",
-			Fn:        "add-user",
+			Module:    "add-user",
 		}, nil},
-		{"uri for single-application func with two-level namespace", "/api/users/add-user", FQMN{
+		{"text format two-level namespace", "fqmn://suborbital.acmeco/api/users/add-user", FQMN{
+			Tenant:    "suborbital.acmeco",
 			Namespace: "api/users",
-			Fn:        "add-user",
+			Module:    "add-user",
 		}, nil},
-		{"uri for single-application func with multi-level namespace", "/api/users/auora/add-user", FQMN{
+		{"text format multi-level namespace", "fqmn://suborbital.acmeco/api/users/auora/add-user", FQMN{
+			Tenant:    "suborbital.acmeco",
 			Namespace: "api/users/auora",
-			Fn:        "add-user",
+			Module:    "add-user",
 		}, nil},
-		{"uri for versioned single-application func with single-level namespace", "/ref/98qhrfgo3089hafrouhqf48/api-users/add-user", FQMN{
+		{"text format single-level namespace with ref", "fqmn://suborbital.acmeco/api-users/add-user@98qhrfgo3089hafrouhqf48", FQMN{
+			Tenant:    "suborbital.acmeco",
 			Namespace: "api-users",
-			Fn:        "add-user",
+			Module:    "add-user",
 			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
-		{"uri for versioned single-application func with two-level namespace", "/ref/98qhrfgo3089hafrouhqf48/api/users/add-user", FQMN{
+		{"text format two-level namespace with ref", "fqmn://suborbital.acmeco/api/users/add-user@98qhrfgo3089hafrouhqf48", FQMN{
+			Tenant:    "suborbital.acmeco",
 			Namespace: "api/users",
-			Fn:        "add-user",
+			Module:    "add-user",
 			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
-		{"uri for versioned single-application func with multi-level namespace", "/ref/98qhrfgo3089hafrouhqf48/api/users/auora/add-user", FQMN{
+		{"text format multi-level namespace with ref", "fqmn://suborbital.acmeco/api/users/auora/add-user@98qhrfgo3089hafrouhqf48", FQMN{
+			Tenant:    "suborbital.acmeco",
 			Namespace: "api/users/auora",
-			Fn:        "add-user",
+			Module:    "add-user",
 			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
-		{"uri for multi-application func with single-level namespace", "/com.suborbital.acmeco/api-users/add-user", FQMN{
-			Identifier: "com.suborbital.acmeco",
-			Namespace:  "api-users",
-			Fn:         "add-user",
+		{"module by name with single-level namespace", "/name/api-users/add-user", FQMN{
+			Namespace: "api-users",
+			Module:    "add-user",
 		}, nil},
-		{"uri for multi-application func with two-level namespace", "/com.suborbital.acmeco/api/users/add-user", FQMN{
-			Identifier: "com.suborbital.acmeco",
-			Namespace:  "api/users",
-			Fn:         "add-user",
+		{"module by name with two-level namespace", "/name/api/users/add-user", FQMN{
+			Namespace: "api/users",
+			Module:    "add-user",
 		}, nil},
-		{"uri for multi-application func with multi-level namespace", "/com.suborbital.acmeco/api/users/auora/add-user", FQMN{
-			Identifier: "com.suborbital.acmeco",
-			Namespace:  "api/users/auora",
-			Fn:         "add-user",
+		{"module by name with multi-level namespace", "/name/api/users/auora/add-user", FQMN{
+			Namespace: "api/users/auora",
+			Module:    "add-user",
 		}, nil},
-		{"uri for versioned multi-application func with single-level namespace", "/ref/98qhrfgo3089hafrouhqf48/com.suborbital.acmeco/api-users/add-user", FQMN{
-			Identifier: "com.suborbital.acmeco",
-			Namespace:  "api-users",
-			Fn:         "add-user",
-			Ref:        "98qhrfgo3089hafrouhqf48",
+		{"by reference", "/ref/98qhrfgo3089hafrouhqf48", FQMN{
+			Ref: "98qhrfgo3089hafrouhqf48",
 		}, nil},
-		{"uri for versioned multi-application func with two-level namespace", "/ref/98qhrfgo3089hafrouhqf48/com.suborbital.acmeco/api/users/add-user", FQMN{
-			Identifier: "com.suborbital.acmeco",
-			Namespace:  "api/users",
-			Fn:         "add-user",
-			Ref:        "98qhrfgo3089hafrouhqf48",
-		}, nil},
-		{"uri for versioned multi-application func with multi-level namespace", "/ref/98qhrfgo3089hafrouhqf48/com.suborbital.acmeco/api/users/auora/add-user", FQMN{
-			Identifier: "com.suborbital.acmeco",
-			Namespace:  "api/users/auora",
-			Fn:         "add-user",
-			Ref:        "98qhrfgo3089hafrouhqf48",
-		}, nil},
-		{"malformed—doesn't start with right prefix 1", "fqmn:com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/auora/add-user", FQMN{}, errWrongPrefix},
-		{"malformed—doesn't start with right prefix 2", "https://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/auora/add-user", FQMN{}, errWrongPrefix},
-		{"malformed—not fully-qualified 1", "fqmn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48", FQMN{}, errMustBeFullyQualified},
-		{"malformed—not fully-qualified 2", "fqmn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/add-user", FQMN{}, errMustBeFullyQualified},
-		{"malformed—not enough parts 1", "/add-user", FQMN{}, errTooFewParts},
-		{"malformed—not enough parts 2", "/com.suborbital.acmeco", FQMN{}, errTooFewParts},
-		{"malformed—not enough parts 3", "/com.suborbital.acmeco/add-user", FQMN{}, errTooFewParts},
-		{"malformed—not enough parts 4", "/ref/98qhrfgo3089hafrouhqf48", FQMN{}, errTooFewParts},
-		{"malformed—not enough parts 5", "/ref/98qhrfgo3089hafrouhqf48/add-user", FQMN{}, errTooFewParts},
-		{"malformed—not enough parts 6", "/ref/98qhrfgo3089hafrouhqf48/com.suborbital.acmeco", FQMN{}, errTooFewParts},
-		{"malformed—not enough parts 7", "/ref/98qhrfgo3089hafrouhqf48/com.suborbital.acmeco/add-user", FQMN{}, errTooFewParts},
-		{"malformed—trailing slash 1", "fqmn://com.suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/add-user/", FQMN{}, errTrailingSlash},
-		{"malformed—trailing slash 2", "/ref/98qhrfgo3089hafrouhqf48/com.suborbital.acmeco/api/users/auora/add-user/", FQMN{}, errTrailingSlash},
+		{"malformed—doesn't start with right prefix 1", "fqmn:suborbital.acmeco/api/users/auora/add-user@98qhrfgo3089hafrouhqf48", FQMN{}, errWrongPrefix},
+		{"malformed—doesn't start with right prefix 2", "https://suborbital.acmeco/api/users/auora/add-user@98qhrfgo3089hafrouhqf48", FQMN{}, errWrongPrefix},
+		{"malformed—doesn't start with right prefix 3", "/module/api/users/auora/add-user", FQMN{}, errWrongPrefix},
+		{"malformed—doesn't start with right prefix 4", "/reference/98qhrfgo3089hafrouhqf48", FQMN{}, errWrongPrefix},
+		{"malformed—not fully-qualified 1", "fqmn://suborbital.acmeco@98qhrfgo3089hafrouhqf48", FQMN{}, errMustBeFullyQualified},
+		{"malformed—not fully-qualified 2", "fqmn://suborbital.acmeco/add-user@98qhrfgo3089hafrouhqf48", FQMN{}, errMustBeFullyQualified},
+		{"malformed—not enough parts 1", "/name/add-user", FQMN{}, errTooFewParts},
+		{"malformed—not enough parts 2", "/name/suborbital.acmeco", FQMN{}, errTooFewParts},
+		{"malformed—not a reference", "/ref/98qhrfgo3089hafrouhqf48/add-user", FQMN{}, errMalformedRef},
+		{"malformed—not a reference", "/ref/98qhrfgo3089hafrouhqf48/suborbital.acmeco", FQMN{}, errMalformedRef},
+		{"malformed—not a reference", "/ref/98qhrfgo3089hafrouhqf48/suborbital.acmeco/add-user", FQMN{}, errMalformedRef},
+		{"malformed—trailing slash 1", "fqmn://suborbital.acmeco/98qhrfgo3089hafrouhqf48/api/users/add-user/", FQMN{}, errTrailingSlash},
+		{"malformed—trailing slash 2", "/ref/98qhrfgo3089hafrouhqf48/", FQMN{}, errTrailingSlash},
 	} {
 		s.Run(tt.name, func() {
 			fqmn, err := Parse(tt.text)
@@ -121,7 +91,7 @@ func (s *FQFNSuite) TestParse() {
 				return
 			}
 
-			s.Assertions.Equal(fqmn, tt.fqmn)
+			s.Assertions.Equal(tt.fqmn, fqmn)
 		})
 	}
 }
@@ -134,11 +104,11 @@ func (s *FQFNSuite) TestMigrateV1ToV2() {
 		fqmn FQMN
 		error
 	}{
-		{"migrates v1 to v2", "com.suborbital.test#default::get-file@v0.0.1", "98qhrfgo3089hafrouhqf48", FQMN{
-			Identifier: "com.suborbital.test",
-			Namespace:  "default",
-			Fn:         "get-file",
-			Ref:        "98qhrfgo3089hafrouhqf48",
+		{"migrates v1 to v2", "suborbital.test#default::get-file@v0.0.1", "98qhrfgo3089hafrouhqf48", FQMN{
+			Tenant:    "suborbital.test",
+			Namespace: "default",
+			Module:    "get-file",
+			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
 	} {
 		s.Run(tt.name, func() {
