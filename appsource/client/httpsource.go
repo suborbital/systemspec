@@ -26,7 +26,7 @@ type HTTPSource struct {
 }
 
 // NewHTTPSource creates a new HTTPSource that looks for a bundle at [host].
-func NewHTTPSource(host, authHeader string) appsource.AppSource {
+func NewHTTPSource(host string, creds appsource.CredentialSupplier) appsource.AppSource {
 	if !strings.HasPrefix(host, "http://") && !strings.HasPrefix(host, "https://") {
 		host = fmt.Sprintf("http://%s", host)
 	}
@@ -210,7 +210,7 @@ func (h *HTTPSource) pingServer() error {
 			continue
 		}
 
-		h.opts.Logger().Debug("connected to remote source at", h.host)
+		h.opts.Logger().Info("connected to remote source at", h.host)
 
 		break
 	}

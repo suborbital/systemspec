@@ -15,9 +15,6 @@ const (
 	suborbitalHeadlessStateHeader  = "X-Suborbital-State"
 	suborbitalHeadlessParamsHeader = "X-Suborbital-Params"
 	suborbitalRequestIDHeader      = "X-Suborbital-RequestID"
-	atmoHeadlessStateHeader        = "X-Atmo-State"     // deprecated
-	atmoHeadlessParamsHeader       = "X-Atmo-Params"    // deprecated
-	atmoRequestIDHeader            = "X-Atmo-RequestID" // deprecated
 )
 
 // CoordinatedRequest represents a request whose fulfillment can be coordinated across multiple hosts
@@ -47,7 +44,7 @@ func FromVKRequest(r *http.Request, ctx *vk.Ctx) (*CoordinatedRequest, error) {
 
 	flatHeaders := map[string]string{}
 	for k, v := range r.Header {
-		//we lowercase the key to have case-insensitive lookup later
+		// we lowercase the key to have case-insensitive lookup later
 		flatHeaders[strings.ToLower(k)] = v[0]
 	}
 
@@ -73,29 +70,18 @@ func FromVKRequest(r *http.Request, ctx *vk.Ctx) (*CoordinatedRequest, error) {
 // UseHeadlessHeaders adds the values in the state and params headers JSON to the CoordinatedRequest's State and Params
 func (c *CoordinatedRequest) UseHeadlessHeaders(r *http.Request, ctx *vk.Ctx) error {
 	// fill in initial state from the state header
-	stateJSON := r.Header.Get(atmoHeadlessStateHeader)
-	if err := c.addState(stateJSON); err != nil {
-		return err
-	}
-
-	stateJSON = r.Header.Get(suborbitalHeadlessStateHeader)
+	stateJSON := r.Header.Get(suborbitalHeadlessStateHeader)
 	if err := c.addState(stateJSON); err != nil {
 		return err
 	}
 
 	// fill in the URL params from the Params header
-	paramsJSON := r.Header.Get(atmoHeadlessParamsHeader)
-	if err := c.addParams(paramsJSON); err != nil {
-		return err
-	}
-
-	paramsJSON = r.Header.Get(suborbitalHeadlessParamsHeader)
+	paramsJSON := r.Header.Get(suborbitalHeadlessParamsHeader)
 	if err := c.addParams(paramsJSON); err != nil {
 		return err
 	}
 
 	// add the request ID as response header(s)
-	ctx.RespHeaders.Add(atmoRequestIDHeader, ctx.RequestID())
 	ctx.RespHeaders.Add(suborbitalRequestIDHeader, ctx.RequestID())
 
 	return nil
