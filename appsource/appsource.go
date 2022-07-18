@@ -8,49 +8,45 @@ import (
 )
 
 var (
-	ErrRunnableNotFound     = errors.New("failed to find requested Runnable")
+	ErrModuleNotFound       = errors.New("failed to find requested module")
+	ErrTenantNotFound       = errors.New("failed to find requested tenant")
+	ErrNamespaceNotFound    = errors.New("failed to find requested namespace")
 	ErrAuthenticationFailed = errors.New("failed to authenticate")
 )
 
-// Meta describes the metadata for an App.
-type Meta struct {
-	Identifier string `json:"identifier"`
-	AppVersion string `json:"appVersion"`
-	Domain     string `json:"domain"`
-}
-
+// AppSource describes how an entire system relays its state to a client
 type AppSource interface {
 	// Start indicates to the AppSource that it should prepare for app startup.
 	Start(opts Options) error
 
-	// Runnables returns all of the available Runnables.
-	Runnables(ident, version string) []directive.Runnable
+	// State returns the state of the entire system, used for cache invalidation and sync purposes
+	State() (*State, error)
 
-	// FindRunnable attempts to find the given Runnable by its fqfn, and returns ErrRunnableNotFound if it cannot.
-	FindRunnable(fqfn, authHeader string) (*directive.Runnable, error)
+	// Overview returns a the system overview, used for incremental sync of the system's applications
+	Overview() (*Overview, error)
 
-	// Handlers returns the handlers for the app.
-	Handlers(ident, version string) []directive.Handler
+	// TenantOverview returns the overview for the requested tenant
+	TenantOverview(ident string) (*TenantOverview, error)
 
-	// Schedules returns the requested schedules for the app.
-	Schedules(ident, version string) []directive.Schedule
+	// GetModule attempts to find the given module by its fqmn, and returns ErrRunnableNotFound if it cannot.
+	GetModule(FQFN string) (*Module, error)
+
+	// Workflows returns the requested workflows for the app.
+	Workflows(ident, namespace string, version int64) ([]directive.Schedule, error)
 
 	// Connections returns the connections needed for the app.
-	Connections(ident, version string) directive.Connections
+	Connections(ident, namespace string, version int64) (*directive.Connections, error)
 
 	// Authentication provides any auth headers or metadata for the app.
-	Authentication(ident, version string) directive.Authentication
+	Authentication(ident, namespace string, version int64) (*directive.Authentication, error)
 
 	// Capabilities provides the application's configured capabilities.
-	Capabilities(ident, namespace, version string) *capabilities.CapabilityConfig
+	Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error)
 
-	// File is a source of files for the Runnables
+	// StaticFile is a source of static files for the application
 	// TODO: refactor this into a set of capabilities / profiles.
-	File(identifier, version, path string) ([]byte, error)
+	StaticFile(identifier, namespace, path string, version int64) ([]byte, error)
 
 	// Queries returns the database queries that should be made available.
-	Queries(ident, version string) []directive.DBQuery
-
-	// Applications returns a slice of Meta, metadata about the apps in that app source.
-	Applications() []Meta
+	Queries(ident, namespace string, version int64) ([]directive.DBQuery, error)
 }

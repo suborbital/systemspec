@@ -370,7 +370,7 @@ func TestDirectiveValidatorMissingFns(t *testing.T) {
 	}
 }
 
-func TestDirectiveFQFNs(t *testing.T) {
+func TestDirectiveFQMNs(t *testing.T) {
 	dir := &Directive{
 		Identifier:  "dev.suborbital.appname",
 		AppVersion:  "v0.1.1",
@@ -402,14 +402,14 @@ func TestDirectiveFQFNs(t *testing.T) {
 		return
 	}
 
-	fqfn1 := dir.fqfnForFunc(run1.Namespace, run1.Name)
+	FQMN1 := dir.FQMNForFunc(run1.Namespace, run1.Name)
 
-	if fqfn1 != "dev.suborbital.appname#default::getUser@v0.1.1" {
-		t.Error("fqfn1 should be 'dev.suborbital.appname#default::getUser@v0.1.1', got", fqfn1)
+	if FQMN1 != "dev.suborbital.appname#default::getUser@v0.1.1" {
+		t.Error("FQMN1 should be 'dev.suborbital.appname#default::getUser@v0.1.1', got", FQMN1)
 	}
 
-	if fqfn1 != run1.FQFN {
-		t.Errorf("fqfn1 %q did not match run1.FQFN %q", fqfn1, run1.FQFN)
+	if FQMN1 != run1.FQMN {
+		t.Errorf("FQMN1 %q did not match run1.FQMN %q", FQMN1, run1.FQMN)
 	}
 
 	run2 := dir.FindRunnable("db::getUserDetails")
@@ -418,14 +418,14 @@ func TestDirectiveFQFNs(t *testing.T) {
 		return
 	}
 
-	fqfn2 := dir.fqfnForFunc(run2.Namespace, run2.Name)
+	FQMN2 := dir.FQMNForFunc(run2.Namespace, run2.Name)
 
-	if fqfn2 != "dev.suborbital.appname#db::getUserDetails@v0.1.1" {
-		t.Error("fqfn2 should be 'dev.suborbital.appname#db::getUserDetails@v0.1.1', got", fqfn2)
+	if FQMN2 != "dev.suborbital.appname#db::getUserDetails@v0.1.1" {
+		t.Error("FQMN2 should be 'dev.suborbital.appname#db::getUserDetails@v0.1.1', got", FQMN2)
 	}
 
-	if fqfn2 != run2.FQFN {
-		t.Error("fqfn2 did not match run2.FQFN")
+	if FQMN2 != run2.FQMN {
+		t.Error("FQMN2 did not match run2.FQMN")
 	}
 
 	run3 := dir.FindRunnable("api::returnUser")
@@ -434,14 +434,14 @@ func TestDirectiveFQFNs(t *testing.T) {
 		return
 	}
 
-	fqfn3 := dir.fqfnForFunc(run3.Namespace, run3.Name)
+	FQMN3 := dir.FQMNForFunc(run3.Namespace, run3.Name)
 
-	if fqfn3 != "dev.suborbital.appname#api::returnUser@v0.1.1" {
-		t.Error("fqfn3 should be 'dev.suborbital.appname#api::returnUser@v0.1.1', got", fqfn3)
+	if FQMN3 != "dev.suborbital.appname#api::returnUser@v0.1.1" {
+		t.Error("FQMN3 should be 'dev.suborbital.appname#api::returnUser@v0.1.1', got", FQMN3)
 	}
 
-	if fqfn3 != run3.FQFN {
-		t.Error("fqfn1 did not match run1.FQFN")
+	if FQMN3 != run3.FQMN {
+		t.Error("FQMN1 did not match run1.FQMN")
 	}
 
 	run4 := dir.FindRunnable("dev.suborbital.appname#api::returnUser@v0.1.1")
@@ -450,14 +450,14 @@ func TestDirectiveFQFNs(t *testing.T) {
 		return
 	}
 
-	fqfn4 := dir.fqfnForFunc(run3.Namespace, run3.Name)
+	FQMN4 := dir.FQMNForFunc(run3.Namespace, run3.Name)
 
-	if fqfn4 != "dev.suborbital.appname#api::returnUser@v0.1.1" {
-		t.Error("fqfn4 should be 'dev.suborbital.appname#api::returnUser@v0.1.1', got", fqfn3)
+	if FQMN4 != "dev.suborbital.appname#api::returnUser@v0.1.1" {
+		t.Error("FQMN4 should be 'dev.suborbital.appname#api::returnUser@v0.1.1', got", FQMN3)
 	}
 
-	if fqfn4 != run4.FQFN {
-		t.Error("fqfn1 did not match run1.FQFN")
+	if FQMN4 != run4.FQMN {
+		t.Error("FQMN1 did not match run1.FQMN")
 	}
 
 	run5 := dir.FindRunnable("foo::bar")

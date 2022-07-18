@@ -10,14 +10,14 @@ import (
 	"golang.org/x/mod/semver"
 
 	"github.com/suborbital/appspec/directive/executable"
-	"github.com/suborbital/appspec/fqfn"
+	fqmn "github.com/suborbital/appspec/fqfn"
 )
 
 // Validate validates a directive
 func (d *Directive) Validate() (err error) {
 	problems := &problems{}
 
-	d.calculateFQFNs()
+	d.calculateFQMNs()
 
 	if d.Identifier == "" {
 		problems.add(errors.New("identifier is missing"))
@@ -60,7 +60,7 @@ func (d *Directive) Validate() (err error) {
 		}
 
 		// if the fn is in the default namespace, let it exist "naked" and namespaced.
-		if f.Namespace == fqfn.NamespaceDefault {
+		if f.Namespace == fqmn.NamespaceDefault {
 			fns[f.Name] = true
 			fns[namespaced] = true
 		} else {
@@ -257,7 +257,7 @@ func (d *Directive) validateSteps(exType executableType, name string, steps []ex
 			if runnable == nil {
 				problems.add(fmt.Errorf("%s for %s lists fn at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, fn.Fn))
 			} else {
-				fn.FQFN = runnable.FQFN
+				fn.FQFN = runnable.FQMN
 			}
 
 			for _, key := range fn.With {

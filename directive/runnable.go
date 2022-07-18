@@ -8,8 +8,8 @@ type Runnable struct {
 	Version      string         `yaml:"version" json:"version"`
 	DraftVersion string         `yaml:"draftVersion,omitempty" json:"draftVersion,omitempty"`
 	APIVersion   string         `yaml:"apiVersion,omitempty" json:"apiVersion,omitempty"`
-	FQFN         string         `yaml:"fqfn,omitempty" json:"fqfn,omitempty"`
-	FQFNURI      string         `yaml:"fqfnUri" json:"fqfnURI,omitempty"`
+	FQMN         string         `yaml:"fqfn,omitempty" json:"fqfn,omitempty"`
+	FQMNURI      string         `yaml:"fqfnUri" json:"fqfnURI,omitempty"`
 	ModuleRef    *WasmModuleRef `yaml:"-" json:"moduleRef,omitempty"`
 	TokenHash    []byte         `yaml:"-" json:"-"`
 }

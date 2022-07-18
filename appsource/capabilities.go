@@ -4,20 +4,26 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/suborbital/appspec/capabilities"
+	"github.com/suborbital/appspec/directive"
 	"github.com/suborbital/vektor/vlog"
 )
 
 // ResolveCapabilitiesFromSource takes the ident, namespace, and version, and looks up the capabilities for that trio from the
 // AppSource applying the user overrides over the default configurations.
-func ResolveCapabilitiesFromSource(source AppSource, ident, namespace, version string, log *vlog.Logger) (capabilities.CapabilityConfig, error) {
+func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, version int64, log *vlog.Logger) (*capabilities.CapabilityConfig, error) {
 	defaultConfig := capabilities.DefaultCapabilityConfig()
 
-	userConfig := source.Capabilities(ident, namespace, version)
-	if userConfig == nil {
-		return defaultConfig, nil
+	userConfig, err := source.Capabilities(ident, namespace, version)
+	if err != nil || userConfig == nil {
+		return &defaultConfig, nil
 	}
 
-	connections := source.Connections(ident, version)
+	connections, err := source.Connections(ident, namespace, version)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get Connections")
+	} else if connections == nil {
+		connections = &directive.Connections{}
+	}
 
 	if userConfig.Logger != nil {
 		defaultConfig.Logger = userConfig.Logger
@@ -52,11 +58,14 @@ func ResolveCapabilitiesFromSource(source AppSource, ident, namespace, version s
 	}
 
 	if connections.Database != nil {
-		queries := source.Queries(ident, version)
+		queries, err := source.Queries(ident, namespace, version)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get Queries")
+		}
 
 		dbConfig, err := connections.Database.ToRCAPConfig(queries)
 		if err != nil {
-			return defaultConfig, errors.Wrap(err, "failed to ToRCAPConfig")
+			return nil, errors.Wrap(err, "failed to ToRCAPConfig")
 		}
 
 		defaultConfig.DB = dbConfig
@@ -76,11 +85,11 @@ func ResolveCapabilitiesFromSource(source AppSource, ident, namespace, version s
 	}
 
 	f := func(pathName string) ([]byte, error) {
-		return source.File(ident, version, pathName)
+		return source.StaticFile(ident, namespace, pathName, version)
 	}
 
 	defaultConfig.Logger.Logger = log
 	defaultConfig.File.FileFunc = f
 
-	return defaultConfig, nil
+	return &defaultConfig, nil
 }

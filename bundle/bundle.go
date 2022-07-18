@@ -209,7 +209,7 @@ func Read(path string) (*Bundle, error) {
 			return nil, fmt.Errorf("unable to find Runnable for module %s", f.Name)
 		}
 
-		runnable.ModuleRef = directive.NewWasmModuleRef(f.Name, runnable.FQFN, wasmBytes)
+		runnable.ModuleRef = directive.NewWasmModuleRef(f.Name, runnable.FQMN, wasmBytes)
 	}
 
 	if bundle.Directive == nil {
