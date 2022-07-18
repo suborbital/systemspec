@@ -88,7 +88,7 @@ func (b *BundleSource) TenantOverview(ident string) (*appsource.TenantOverview, 
 			Name:      r.Name,
 			Namespace: r.Namespace,
 			Ref:       "",
-			FQFN:      r.FQFN,
+			FQFN:      r.FQMN,
 			Revisions: []appsource.ModuleRevision{},
 		}
 
@@ -115,12 +115,12 @@ func (b *BundleSource) GetModule(FQFN string) (*appsource.Module, error) {
 	}
 
 	for _, r := range b.bundle.Directive.Runnables {
-		if r.FQFN == FQFN {
+		if r.FQMN == FQFN {
 			m := &appsource.Module{
 				Name:      r.Name,
 				Namespace: r.Namespace,
 				Ref:       "",
-				FQFN:      r.FQFN,
+				FQFN:      r.FQMN,
 				Revisions: []appsource.ModuleRevision{},
 			}
 

@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/suborbital/appspec/appsource"
-	"github.com/suborbital/appspec/fqfn"
+	fqmn "github.com/suborbital/appspec/fqfn"
 	"github.com/suborbital/vektor/vk"
 )
 
@@ -89,7 +89,7 @@ func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
 		fn := ctx.Params.ByName("name")
 		version := ctx.Params.ByName("ref")
 
-		fqfnString := fqfn.FromParts(ident, namespace, fn, version)
+		fqfnString := fqmn.FromParts(ident, namespace, fn, version)
 
 		runnable, err := a.appSource.GetModule(fqfnString)
 		if err != nil {

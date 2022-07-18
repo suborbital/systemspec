@@ -8,7 +8,7 @@ import (
 
 	"github.com/suborbital/appspec/capabilities"
 	"github.com/suborbital/appspec/directive/executable"
-	"github.com/suborbital/appspec/fqfn"
+	fqmn "github.com/suborbital/appspec/fqfn"
 )
 
 // InputTypeRequest and others represent consts for Directives.
@@ -86,18 +86,21 @@ func (d *Directive) FindRunnable(name string) *Runnable {
 	// if this is an FQFN, parse the identifier and bail out
 	// if it doesn't match this Directive.
 
-	FQFN := fqfn.Parse(name)
-
-	if FQFN.Identifier != "" && FQFN.Identifier != d.Identifier {
+	FQMN, err := fqmn.Parse(name)
+	if err != nil {
 		return nil
 	}
 
-	if FQFN.Version != "" && FQFN.Version != d.AppVersion {
+	if FQMN.Tenant != "" && FQMN.Tenant != d.Identifier {
+		return nil
+	}
+
+	if FQMN.Ref != "" && FQMN.Ref != d.AppVersion {
 		return nil
 	}
 
 	for i, r := range d.Runnables {
-		if r.Name == FQFN.Fn && r.Namespace == FQFN.Namespace {
+		if r.Name == FQMN.Module && r.Namespace == FQMN.Namespace {
 			return &d.Runnables[i]
 		}
 	}
@@ -107,43 +110,43 @@ func (d *Directive) FindRunnable(name string) *Runnable {
 
 // Marshal outputs the YAML bytes of the Directive.
 func (d *Directive) Marshal() ([]byte, error) {
-	d.calculateFQFNs()
+	d.calculateFQMNs()
 
 	return yaml.Marshal(d)
 }
 
 // Unmarshal unmarshals YAML bytes into a Directive struct
-// it also calculates a map of FQFNs for later use.
+// it also calculates a map of FQMNs for later use.
 func (d *Directive) Unmarshal(in []byte) error {
 	if err := yaml.Unmarshal(in, d); err != nil {
 		return err
 	}
 
-	d.calculateFQFNs()
+	d.calculateFQMNs()
 
 	return nil
 }
 
-func (d *Directive) calculateFQFNs() {
+func (d *Directive) calculateFQMNs() {
 	for i, fn := range d.Runnables {
-		if fn.FQFN != "" {
+		if fn.FQMN != "" {
 			continue
 		}
 
 		if fn.Namespace == "" {
-			fn.Namespace = fqfn.NamespaceDefault
+			fn.Namespace = fqmn.NamespaceDefault
 		}
 
 		if fn.Version == "" {
 			fn.Version = d.AppVersion
 		}
 
-		d.Runnables[i].FQFN = d.fqfnForFunc(fn.Namespace, fn.Name)
+		d.Runnables[i].FQMN = d.FQMNForFunc(fn.Namespace, fn.Name)
 	}
 }
 
-func (d *Directive) fqfnForFunc(namespace, fn string) string {
-	return fqfn.FromParts(d.Identifier, namespace, fn, d.AppVersion)
+func (d *Directive) FQMNForFunc(namespace, fn string) string {
+	return fqmn.FromParts(d.Identifier, namespace, fn, d.AppVersion)
 }
 
 // NumberOfSeconds calculates the total time in seconds for the schedule's 'every' value.

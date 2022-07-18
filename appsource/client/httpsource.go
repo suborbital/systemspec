@@ -15,7 +15,7 @@ import (
 	"github.com/suborbital/appspec/appsource"
 	"github.com/suborbital/appspec/capabilities"
 	"github.com/suborbital/appspec/directive"
-	"github.com/suborbital/appspec/fqfn"
+	fqmn "github.com/suborbital/appspec/fqfn"
 )
 
 // HTTPSource is an AppSource backed by an HTTP client connected to a remote source.
@@ -86,8 +86,11 @@ func (h *HTTPSource) TenantOverview(ident string) (*appsource.TenantOverview, er
 // GetModule returns a nil error if a Runnable with the
 // provided FQFN can be made available at the next sync,
 // otherwise ErrRunnableNotFound is returned.
-func (h *HTTPSource) GetModule(FQFN string) (*appsource.Module, error) {
-	f := fqfn.Parse(FQFN)
+func (h *HTTPSource) GetModule(FQMN string) (*appsource.Module, error) {
+	f, err := fqmn.Parse(FQMN)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Parse FQMN")
+	}
 
 	path := fmt.Sprintf("/module%s", f.HeadlessURLPath())
 
@@ -113,7 +116,7 @@ func (h *HTTPSource) GetModule(FQFN string) (*appsource.Module, error) {
 		Name:      runnable.Name,
 		Namespace: runnable.Namespace,
 		Ref:       "",
-		FQFN:      runnable.FQFN,
+		FQFN:      runnable.FQMN,
 		Revisions: []appsource.ModuleRevision{},
 	}
 
