@@ -11,14 +11,14 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/directive"
+	"github.com/suborbital/appspec/tenant"
 )
 
 // Bundle represents a Runnable bundle.
 type Bundle struct {
-	filepath    string
-	Directive   *directive.Directive
-	staticFiles map[string]bool
+	filepath     string
+	TenantConfig *tenant.Config
+	staticFiles  map[string]bool
 }
 
 // StaticFile returns a static file from the bundle, if it exists.
@@ -163,24 +163,24 @@ func Read(path string) (*Bundle, error) {
 
 	// first, find the Directive.
 	for _, f := range r.File {
-		if f.Name == "Directive.yaml" {
-			directive, err := readDirective(f)
+		if f.Name == "tenant.yaml" {
+			directive, err := readTenantConfig(f)
 			if err != nil {
-				return nil, errors.Wrap(err, "failed to readDirective from bundle")
+				return nil, errors.Wrap(err, "failed to readTenantConfig from bundle")
 			}
 
-			bundle.Directive = directive
+			bundle.TenantConfig = directive
 			continue
 		}
 	}
 
-	if bundle.Directive == nil {
+	if bundle.TenantConfig == nil {
 		return nil, errors.New("bundle is missing Directive.yaml")
 	}
 
 	// Iterate through the files in the archive.
 	for _, f := range r.File {
-		if f.Name == "Directive.yaml" {
+		if f.Name == "tenant.yaml" {
 			// we already have a Directive by now.
 			continue
 		} else if strings.HasPrefix(f.Name, "static/") {
@@ -204,22 +204,22 @@ func Read(path string) (*Bundle, error) {
 			return nil, errors.Wrapf(err, "failed to read %s from bundle", f.Name)
 		}
 
-		runnable := bundle.Directive.FindRunnable(strings.TrimSuffix(f.Name, ".wasm"))
+		runnable := bundle.TenantConfig.FindModule(strings.TrimSuffix(f.Name, ".wasm"))
 		if runnable == nil {
 			return nil, fmt.Errorf("unable to find Runnable for module %s", f.Name)
 		}
 
-		runnable.ModuleRef = directive.NewWasmModuleRef(f.Name, runnable.FQMN, wasmBytes)
+		runnable.WasmRef = tenant.NewWasmModuleRef(f.Name, runnable.FQMN, wasmBytes)
 	}
 
-	if bundle.Directive == nil {
+	if bundle.TenantConfig == nil {
 		return nil, errors.New("bundle did not contain directive")
 	}
 
 	return bundle, nil
 }
 
-func readDirective(f *zip.File) (*directive.Directive, error) {
+func readTenantConfig(f *zip.File) (*tenant.Config, error) {
 	file, err := f.Open()
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to open %s from bundle", f.Name)
@@ -230,7 +230,7 @@ func readDirective(f *zip.File) (*directive.Directive, error) {
 		return nil, errors.Wrapf(err, "failed to read %s from bundle", f.Name)
 	}
 
-	d := &directive.Directive{}
+	d := &tenant.Config{}
 	if err := d.Unmarshal(directiveBytes); err != nil {
 		return nil, errors.Wrap(err, "failed to Unmarshal Directive")
 	}

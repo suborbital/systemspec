@@ -24,47 +24,47 @@ func (s *FQFNSuite) TestParse() {
 		{"text format single-level namespace", "fqmn://suborbital.acmeco/api-users/add-user", FQMN{
 			Tenant:    "suborbital.acmeco",
 			Namespace: "api-users",
-			Module:    "add-user",
+			Name:      "add-user",
 		}, nil},
 		{"text format two-level namespace", "fqmn://suborbital.acmeco/api/users/add-user", FQMN{
 			Tenant:    "suborbital.acmeco",
 			Namespace: "api/users",
-			Module:    "add-user",
+			Name:      "add-user",
 		}, nil},
 		{"text format multi-level namespace", "fqmn://suborbital.acmeco/api/users/auora/add-user", FQMN{
 			Tenant:    "suborbital.acmeco",
 			Namespace: "api/users/auora",
-			Module:    "add-user",
+			Name:      "add-user",
 		}, nil},
 		{"text format single-level namespace with ref", "fqmn://suborbital.acmeco/api-users/add-user@98qhrfgo3089hafrouhqf48", FQMN{
 			Tenant:    "suborbital.acmeco",
 			Namespace: "api-users",
-			Module:    "add-user",
+			Name:      "add-user",
 			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"text format two-level namespace with ref", "fqmn://suborbital.acmeco/api/users/add-user@98qhrfgo3089hafrouhqf48", FQMN{
 			Tenant:    "suborbital.acmeco",
 			Namespace: "api/users",
-			Module:    "add-user",
+			Name:      "add-user",
 			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"text format multi-level namespace with ref", "fqmn://suborbital.acmeco/api/users/auora/add-user@98qhrfgo3089hafrouhqf48", FQMN{
 			Tenant:    "suborbital.acmeco",
 			Namespace: "api/users/auora",
-			Module:    "add-user",
+			Name:      "add-user",
 			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
 		{"module by name with single-level namespace", "/name/api-users/add-user", FQMN{
 			Namespace: "api-users",
-			Module:    "add-user",
+			Name:      "add-user",
 		}, nil},
 		{"module by name with two-level namespace", "/name/api/users/add-user", FQMN{
 			Namespace: "api/users",
-			Module:    "add-user",
+			Name:      "add-user",
 		}, nil},
 		{"module by name with multi-level namespace", "/name/api/users/auora/add-user", FQMN{
 			Namespace: "api/users/auora",
-			Module:    "add-user",
+			Name:      "add-user",
 		}, nil},
 		{"by reference", "/ref/98qhrfgo3089hafrouhqf48", FQMN{
 			Ref: "98qhrfgo3089hafrouhqf48",
@@ -107,7 +107,7 @@ func (s *FQFNSuite) TestMigrateV1ToV2() {
 		{"migrates v1 to v2", "suborbital.test#default::get-file@v0.0.1", "98qhrfgo3089hafrouhqf48", FQMN{
 			Tenant:    "suborbital.test",
 			Namespace: "default",
-			Module:    "get-file",
+			Name:      "get-file",
 			Ref:       "98qhrfgo3089hafrouhqf48",
 		}, nil},
 	} {

@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/suborbital/appspec/capabilities"
-	"github.com/suborbital/appspec/directive"
+	"github.com/suborbital/appspec/tenant"
 	"github.com/suborbital/vektor/vlog"
 )
 
@@ -22,7 +22,7 @@ func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, ve
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get Connections")
 	} else if connections == nil {
-		connections = &directive.Connections{}
+		connections = []tenant.Connection{}
 	}
 
 	if userConfig.Logger != nil {
@@ -47,28 +47,34 @@ func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, ve
 		defaultConfig.Cache = userConfig.Cache
 	}
 
-	if connections.Redis != nil {
-		redisConfig := &capabilities.RedisConfig{
-			ServerAddress: connections.Redis.ServerAddress,
-			Username:      connections.Redis.Username,
-			Password:      connections.Redis.Password,
+	for _, c := range connections {
+		if c.Type == tenant.ConnectionTypeRedis {
+			config := c.Config.(*tenant.RedisConnection)
+
+			redisConfig := &capabilities.RedisConfig{
+				ServerAddress: config.ServerAddress,
+				Username:      config.Username,
+				Password:      config.Password,
+			}
+
+			defaultConfig.Cache.RedisConfig = redisConfig
 		}
 
-		defaultConfig.Cache.RedisConfig = redisConfig
-	}
+		if c.Type == tenant.ConnectionTypeMySQL || c.Type == tenant.ConnectionTypePostgres {
+			queries, err := source.Queries(ident, namespace, version)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to get Queries")
+			}
 
-	if connections.Database != nil {
-		queries, err := source.Queries(ident, namespace, version)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to get Queries")
+			config := c.Config.(*tenant.DBConnection)
+
+			dbConfig, err := config.ToRCAPConfig(queries)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to ToRCAPConfig")
+			}
+
+			defaultConfig.DB = dbConfig
 		}
-
-		dbConfig, err := connections.Database.ToRCAPConfig(queries)
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to ToRCAPConfig")
-		}
-
-		defaultConfig.DB = dbConfig
 	}
 
 	if userConfig.File != nil {

@@ -20,14 +20,14 @@ func TestRead(t *testing.T) {
 		return
 	}
 
-	if len(bundle.Directive.Runnables) == 0 {
+	if len(bundle.TenantConfig.Modules) == 0 {
 		t.Error("bundle had 0 runnables")
 		return
 	}
 
 	hasDefault := false
-	for _, r := range bundle.Directive.Runnables {
-		if r.Name == "helloworld-rs" && r.ModuleRef != nil {
+	for _, r := range bundle.TenantConfig.Modules {
+		if r.Name == "helloworld-rs" && r.WasmRef != nil {
 			hasDefault = true
 		}
 	}

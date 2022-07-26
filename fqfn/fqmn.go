@@ -36,7 +36,7 @@ const (
 type FQMN struct {
 	Tenant    string `json:"tenant"`
 	Namespace string `json:"namespace"`
-	Module    string `json:"module"`
+	Name      string `json:"name"`
 	Ref       string `json:"ref"`
 }
 
@@ -94,12 +94,12 @@ func parseTextFormat(fqmnString string) (FQMN, error) {
 	namespace := strings.Join(segments[1:len(segments)-1], "/")
 
 	// The module name is just the last element
-	module := segments[len(segments)-1]
+	name := segments[len(segments)-1]
 
 	fqmn := FQMN{
 		Tenant:    tenant,
 		Namespace: namespace,
-		Module:    module,
+		Name:      name,
 		Ref:       ref,
 	}
 
@@ -124,11 +124,11 @@ func parseNameUri(fqmnString string) (FQMN, error) {
 	namespace := strings.Join(segments[:len(segments)-1], "/")
 
 	// The function name is just the last element
-	module := segments[len(segments)-1]
+	name := segments[len(segments)-1]
 
 	fqmn := FQMN{
 		Namespace: namespace,
-		Module:    module,
+		Name:      name,
 	}
 
 	return fqmn, nil
@@ -187,7 +187,7 @@ func MigrateV1ToV2(name, ref string) (FQMN, error) {
 	fqmn := FQMN{
 		Tenant:    tenant,
 		Namespace: namespace,
-		Module:    name,
+		Name:      name,
 		Ref:       ref,
 	}
 
@@ -196,7 +196,7 @@ func MigrateV1ToV2(name, ref string) (FQMN, error) {
 
 // HeadlessURLPath returns the headless URL path for a function.
 func (f FQMN) HeadlessURLPath() string {
-	return fmt.Sprintf("/%s/%s/%s/%s", f.Tenant, f.Namespace, f.Module, f.Ref)
+	return fmt.Sprintf("/%s/%s/%s/%s", f.Tenant, f.Namespace, f.Name, f.Ref)
 }
 
 func FromParts(tenant, namespace, module, ref string) string {
