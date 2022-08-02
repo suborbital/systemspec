@@ -128,7 +128,7 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 			continue
 		}
 
-		c.validateSteps(executableTypeHandler, w.Name, w.Steps, map[string]bool{}, problems)
+		stepsState := c.validateSteps(executableTypeHandler, w.Name, w.Steps, map[string]bool{}, problems)
 
 		if w.Schedule != nil {
 			if w.Schedule.Every.Seconds == 0 && w.Schedule.Every.Minutes == 0 && w.Schedule.Every.Hours == 0 && w.Schedule.Every.Days == 0 {
@@ -139,6 +139,15 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 			initialState := map[string]bool{}
 			for k := range w.Schedule.State {
 				initialState[k] = true
+			}
+		}
+
+		lastStep := w.Steps[len(w.Steps)-1]
+		if w.Response == "" && lastStep.IsGroup() {
+			problems.add(fmt.Errorf("workflow for %s has group as last step but does not include 'response' field", w.Name))
+		} else if w.Response != "" {
+			if _, exists := stepsState[w.Response]; !exists {
+				problems.add(fmt.Errorf("workflow for %s lists response state key that does not exist: %s", w.Name, w.Response))
 			}
 		}
 	}

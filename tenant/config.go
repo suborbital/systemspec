@@ -2,8 +2,9 @@ package tenant
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
+
+	"github.com/pkg/errors"
 
 	"github.com/suborbital/appspec/capabilities"
 	fqmn "github.com/suborbital/appspec/fqfn"
@@ -46,12 +47,11 @@ type NamespaceConfig struct {
 
 // Workflow represents the mapping between an input and a composition of functions.
 type Workflow struct {
-	Name      string                  `yaml:"name" json:"name"`
-	Steps     []executable.Executable `yaml:"steps" json:"steps"`
-	Response  string                  `yaml:"response,omitempty" json:"response,omitempty"`
-	RespondTo string                  `yaml:"respondTo,omitempty" json:"respondTo,omitempty"`
-	Schedule  *Schedule               `yaml:"schedule,omitempty" json:"schedule,omitempty"`
-	Triggers  []Trigger               `yaml:"triggers" json:"triggers"`
+	Name     string                  `yaml:"name" json:"name"`
+	Steps    []executable.Executable `yaml:"steps" json:"steps"`
+	Response string                  `yaml:"response,omitempty" json:"response,omitempty"`
+	Schedule *Schedule               `yaml:"schedule,omitempty" json:"schedule,omitempty"`
+	Triggers []Trigger               `yaml:"triggers" json:"triggers"`
 }
 
 // Schedule represents the schedule settings for a workflow
@@ -94,6 +94,7 @@ func (c *Config) FindModule(name string) *Module {
 
 	FQMN, err := fqmn.Parse(name)
 	if err != nil {
+		fmt.Println(errors.Wrap(err, "failed to Parse fqmn"))
 		return nil
 	}
 
