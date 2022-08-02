@@ -10,7 +10,7 @@ import (
 	"github.com/suborbital/appspec/appsource"
 	"github.com/suborbital/appspec/bundle"
 	"github.com/suborbital/appspec/capabilities"
-	"github.com/suborbital/appspec/directive"
+	"github.com/suborbital/appspec/tenant"
 )
 
 // BundleSource is an AppSource backed by a bundle file.
@@ -60,7 +60,7 @@ func (b *BundleSource) Overview() (*appsource.Overview, error) {
 		},
 		TenantRefs: appsource.References{
 			Identifiers: map[string]int64{
-				b.bundle.Directive.Identifier: 1,
+				b.bundle.TenantConfig.Identifier: 1,
 			},
 		},
 	}
@@ -81,9 +81,9 @@ func (b *BundleSource) TenantOverview(ident string) (*appsource.TenantOverview, 
 		return nil, appsource.ErrTenantNotFound
 	}
 
-	modules := make([]appsource.Module, len(b.bundle.Directive.Runnables))
+	modules := make([]appsource.Module, len(b.bundle.TenantConfig.Modules))
 
-	for i, r := range b.bundle.Directive.Runnables {
+	for i, r := range b.bundle.TenantConfig.Modules {
 		m := appsource.Module{
 			Name:      r.Name,
 			Namespace: r.Namespace,
@@ -114,7 +114,7 @@ func (b *BundleSource) GetModule(FQFN string) (*appsource.Module, error) {
 		return nil, appsource.ErrModuleNotFound
 	}
 
-	for _, r := range b.bundle.Directive.Runnables {
+	for _, r := range b.bundle.TenantConfig.Modules {
 		if r.FQMN == FQFN {
 			m := &appsource.Module{
 				Name:      r.Name,
@@ -132,7 +132,7 @@ func (b *BundleSource) GetModule(FQFN string) (*appsource.Module, error) {
 }
 
 // Schedules returns the schedules for the app.
-func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]directive.Schedule, error) {
+func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error) {
 	if !b.checkIdentifier(ident) {
 		return nil, appsource.ErrTenantNotFound
 	}
@@ -144,15 +144,25 @@ func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]dire
 		return nil, appsource.ErrTenantNotFound
 	}
 
-	return b.bundle.Directive.Schedules, nil
+	if namespace == "default" {
+		return b.bundle.TenantConfig.DefaultNamespace.Workflows, nil
+	}
+
+	for _, n := range b.bundle.TenantConfig.Namespaces {
+		if n.Namespace == namespace {
+			return n.Workflows, nil
+		}
+	}
+
+	return nil, appsource.ErrNamespaceNotFound
 }
 
 // Connections returns the Connections for the app.
-func (b *BundleSource) Connections(ident, namespace string, version int64) (*directive.Connections, error) {
+func (b *BundleSource) Connections(ident, namespace string, version int64) ([]tenant.Connection, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	if b.bundle == nil || b.bundle.Directive.Connections == nil {
+	if b.bundle == nil || b.bundle.TenantConfig.DefaultNamespace.Connections == nil {
 		return nil, appsource.ErrTenantNotFound
 	}
 
@@ -160,15 +170,25 @@ func (b *BundleSource) Connections(ident, namespace string, version int64) (*dir
 		return nil, appsource.ErrTenantNotFound
 	}
 
-	return b.bundle.Directive.Connections, nil
+	if namespace == "default" {
+		return b.bundle.TenantConfig.DefaultNamespace.Connections, nil
+	}
+
+	for _, n := range b.bundle.TenantConfig.Namespaces {
+		if n.Namespace == namespace {
+			return n.Connections, nil
+		}
+	}
+
+	return nil, appsource.ErrTenantNotFound
 }
 
 // Authentication returns the Authentication for the app.
-func (b *BundleSource) Authentication(ident, namespace string, version int64) (*directive.Authentication, error) {
+func (b *BundleSource) Authentication(ident, namespace string, version int64) (*tenant.Authentication, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	if b.bundle == nil || b.bundle.Directive.Authentication == nil {
+	if b.bundle == nil || b.bundle.TenantConfig.DefaultNamespace.Authentication == nil {
 		return nil, appsource.ErrTenantNotFound
 	}
 
@@ -176,7 +196,17 @@ func (b *BundleSource) Authentication(ident, namespace string, version int64) (*
 		return nil, appsource.ErrTenantNotFound
 	}
 
-	return b.bundle.Directive.Authentication, nil
+	if namespace == "default" {
+		return b.bundle.TenantConfig.DefaultNamespace.Authentication, nil
+	}
+
+	for _, n := range b.bundle.TenantConfig.Namespaces {
+		if n.Namespace == namespace {
+			return n.Authentication, nil
+		}
+	}
+
+	return nil, appsource.ErrTenantNotFound
 }
 
 // Capabilities returns the configuration for the app's capabilities.
@@ -187,7 +217,7 @@ func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*ca
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	if b.bundle == nil || b.bundle.Directive.Capabilities == nil {
+	if b.bundle == nil || b.bundle.TenantConfig.DefaultNamespace.Capabilities == nil {
 		return &defaultConfig, nil
 	}
 
@@ -195,7 +225,17 @@ func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*ca
 		return &defaultConfig, nil
 	}
 
-	return b.bundle.Directive.Capabilities, nil
+	if namespace == "default" {
+		return b.bundle.TenantConfig.DefaultNamespace.Capabilities, nil
+	}
+
+	for _, n := range b.bundle.TenantConfig.Namespaces {
+		if n.Namespace == namespace {
+			return n.Capabilities, nil
+		}
+	}
+
+	return nil, appsource.ErrTenantNotFound
 }
 
 // File returns a requested file.
@@ -215,11 +255,11 @@ func (b *BundleSource) StaticFile(ident, namespace, filename string, version int
 }
 
 // Queries returns the Queries available to the app.
-func (b *BundleSource) Queries(ident, namespace string, version int64) ([]directive.DBQuery, error) {
+func (b *BundleSource) Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	if b.bundle == nil || b.bundle.Directive.Queries == nil {
+	if b.bundle == nil || b.bundle.TenantConfig.DefaultNamespace.Queries == nil {
 		return nil, appsource.ErrTenantNotFound
 	}
 
@@ -227,7 +267,17 @@ func (b *BundleSource) Queries(ident, namespace string, version int64) ([]direct
 		return nil, appsource.ErrTenantNotFound
 	}
 
-	return b.bundle.Directive.Queries, nil
+	if namespace == "default" {
+		return b.bundle.TenantConfig.DefaultNamespace.Queries, nil
+	}
+
+	for _, n := range b.bundle.TenantConfig.Namespaces {
+		if n.Namespace == namespace {
+			return n.Queries, nil
+		}
+	}
+
+	return nil, appsource.ErrTenantNotFound
 }
 
 // findBundle loops forever until it finds a bundle at the configured path.
@@ -249,7 +299,7 @@ func (b *BundleSource) findBundle() error {
 
 		b.bundle = bdl
 
-		if err := b.bundle.Directive.Validate(); err != nil {
+		if err := b.bundle.TenantConfig.Validate(); err != nil {
 			return errors.Wrap(err, "failed to Validate Directive")
 		}
 
@@ -262,5 +312,5 @@ func (b *BundleSource) findBundle() error {
 // checkIdentifier checks whether the passed in identifier and version are for the current app running in the
 // bundle or not. Returns true only if both match.
 func (b *BundleSource) checkIdentifier(identifier string) bool {
-	return b.bundle.Directive.Identifier == identifier
+	return b.bundle.TenantConfig.Identifier == identifier
 }

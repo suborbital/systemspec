@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/suborbital/appspec/capabilities"
-	"github.com/suborbital/appspec/directive"
+	"github.com/suborbital/appspec/tenant"
 )
 
 var (
@@ -32,13 +32,13 @@ type AppSource interface {
 	GetModule(FQFN string) (*Module, error)
 
 	// Workflows returns the requested workflows for the app.
-	Workflows(ident, namespace string, version int64) ([]directive.Schedule, error)
+	Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error)
 
 	// Connections returns the connections needed for the app.
-	Connections(ident, namespace string, version int64) (*directive.Connections, error)
+	Connections(ident, namespace string, version int64) ([]tenant.Connection, error)
 
 	// Authentication provides any auth headers or metadata for the app.
-	Authentication(ident, namespace string, version int64) (*directive.Authentication, error)
+	Authentication(ident, namespace string, version int64) (*tenant.Authentication, error)
 
 	// Capabilities provides the application's configured capabilities.
 	Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error)
@@ -48,5 +48,5 @@ type AppSource interface {
 	StaticFile(identifier, namespace, path string, version int64) ([]byte, error)
 
 	// Queries returns the database queries that should be made available.
-	Queries(ident, namespace string, version int64) ([]directive.DBQuery, error)
+	Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error)
 }

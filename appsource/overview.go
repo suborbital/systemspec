@@ -1,6 +1,6 @@
 package appsource
 
-import "github.com/suborbital/appspec/directive"
+import "github.com/suborbital/appspec/tenant"
 
 // State describes the state of the entire system
 type State struct {
@@ -21,10 +21,10 @@ type References struct {
 
 // TenantOverview describes the metadata for a tenant
 type TenantOverview struct {
-	Identifier string               `json:"identifier"`
-	Version    int64                `json:"version"`
-	Modules    []Module             `json:"modules"`
-	Directive  *directive.Directive `json:"directive,omitempty"`
+	Identifier string         `json:"identifier"`
+	Version    int64          `json:"version"`
+	Modules    []Module       `json:"modules"`
+	Config     *tenant.Config `json:"config,omitempty"`
 }
 
 // Module is the metadata for a Module that belongs to a tenant

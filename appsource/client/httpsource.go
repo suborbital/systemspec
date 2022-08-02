@@ -14,8 +14,8 @@ import (
 
 	"github.com/suborbital/appspec/appsource"
 	"github.com/suborbital/appspec/capabilities"
-	"github.com/suborbital/appspec/directive"
 	fqmn "github.com/suborbital/appspec/fqfn"
+	"github.com/suborbital/appspec/tenant"
 )
 
 // HTTPSource is an AppSource backed by an HTTP client connected to a remote source.
@@ -94,7 +94,7 @@ func (h *HTTPSource) GetModule(FQMN string) (*appsource.Module, error) {
 
 	path := fmt.Sprintf("/module%s", f.HeadlessURLPath())
 
-	runnable := directive.Runnable{}
+	runnable := tenant.Module{}
 	if resp, err := h.authedGet(path, h.authHeader, &runnable); err != nil {
 		h.opts.Logger().Error(errors.Wrapf(err, "failed to get %s", path))
 
@@ -124,8 +124,8 @@ func (h *HTTPSource) GetModule(FQMN string) (*appsource.Module, error) {
 }
 
 // Workflows returns the Workflows for the app.
-func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]directive.Schedule, error) {
-	workflows := make([]directive.Schedule, 0)
+func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error) {
+	workflows := make([]tenant.Workflow, 0)
 
 	if _, err := h.get(fmt.Sprintf("/workflows/%s/%s/%d", ident, namespace, version), &workflows); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /workflows"))
@@ -136,8 +136,8 @@ func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]direct
 }
 
 // Connections returns the Connections for the app.
-func (h *HTTPSource) Connections(ident, namespace string, version int64) (*directive.Connections, error) {
-	connections := &directive.Connections{}
+func (h *HTTPSource) Connections(ident, namespace string, version int64) ([]tenant.Connection, error) {
+	connections := []tenant.Connection{}
 
 	if _, err := h.get(fmt.Sprintf("/connections/%s/%s/%d", ident, namespace, version), connections); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /connections"))
@@ -148,8 +148,8 @@ func (h *HTTPSource) Connections(ident, namespace string, version int64) (*direc
 }
 
 // Authentication returns the Authentication for the app.
-func (h *HTTPSource) Authentication(ident, namespace string, version int64) (*directive.Authentication, error) {
-	authentication := &directive.Authentication{}
+func (h *HTTPSource) Authentication(ident, namespace string, version int64) (*tenant.Authentication, error) {
+	authentication := &tenant.Authentication{}
 
 	if _, err := h.get(fmt.Sprintf("/authentication/%s/%s/%d", ident, namespace, version), authentication); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /authentication"))
@@ -190,8 +190,8 @@ func (h *HTTPSource) StaticFile(ident, namespace, filename string, version int64
 }
 
 // Queries returns the Queries for the app.
-func (h *HTTPSource) Queries(ident, namespace string, version int64) ([]directive.DBQuery, error) {
-	queries := make([]directive.DBQuery, 0)
+func (h *HTTPSource) Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error) {
+	queries := make([]tenant.DBQuery, 0)
 
 	if _, err := h.get(fmt.Sprintf("/queries/%s/%s/%d", ident, namespace, version), &queries); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /queries"))
