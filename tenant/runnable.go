@@ -18,14 +18,14 @@ type Module struct {
 // This is a duplicate of sat/engine/moduleref/WasmModuleRef (for JSON serialization purposes)
 type WasmModuleRef struct {
 	Name string `json:"name"`
-	FQFN string `json:"fqfn"`
+	FQMN string `json:"fqmn"`
 	Data []byte `json:"data"`
 }
 
-func NewWasmModuleRef(name, fqfn string, data []byte) *WasmModuleRef {
+func NewWasmModuleRef(name, fqmn string, data []byte) *WasmModuleRef {
 	w := &WasmModuleRef{
 		Name: name,
-		FQFN: fqfn,
+		FQMN: fqmn,
 		Data: data,
 	}
 
