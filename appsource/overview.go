@@ -21,22 +21,8 @@ type References struct {
 
 // TenantOverview describes the metadata for a tenant
 type TenantOverview struct {
-	Identifier string         `json:"identifier"`
-	Version    int64          `json:"version"`
-	Modules    []Module       `json:"modules"`
-	Config     *tenant.Config `json:"config,omitempty"`
-}
-
-// Module is the metadata for a Module that belongs to a tenant
-type Module struct {
-	Name      string           `json:"name"`
-	Namespace string           `json:"namespace"`
-	Ref       string           `json:"ref"`
-	FQFN      string           `json:"fqfn"`
-	Revisions []ModuleRevision `json:"revisions"`
-}
-
-// ModuleRevision is a revision of a module
-type ModuleRevision struct {
-	Ref string `json:"ref"`
+	Identifier string          `json:"identifier"`
+	Version    int64           `json:"version"`
+	Modules    []tenant.Module `json:"modules"`
+	Config     *tenant.Config  `json:"config,omitempty"`
 }

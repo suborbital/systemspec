@@ -29,7 +29,7 @@ type AppSource interface {
 	TenantOverview(ident string) (*TenantOverview, error)
 
 	// GetModule attempts to find the given module by its fqmn, and returns ErrRunnableNotFound if it cannot.
-	GetModule(FQFN string) (*Module, error)
+	GetModule(FQFN string) (*tenant.Module, error)
 
 	// Workflows returns the requested workflows for the app.
 	Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error)

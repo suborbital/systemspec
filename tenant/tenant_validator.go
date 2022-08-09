@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	fqmn "github.com/suborbital/appspec/fqfn"
+	"github.com/suborbital/appspec/fqmn"
 	"github.com/suborbital/appspec/tenant/executable"
 )
 

@@ -14,7 +14,7 @@ import (
 
 	"github.com/suborbital/appspec/appsource"
 	"github.com/suborbital/appspec/capabilities"
-	fqmn "github.com/suborbital/appspec/fqfn"
+	"github.com/suborbital/appspec/fqmn"
 	"github.com/suborbital/appspec/tenant"
 )
 
@@ -86,7 +86,7 @@ func (h *HTTPSource) TenantOverview(ident string) (*appsource.TenantOverview, er
 // GetModule returns a nil error if a Runnable with the
 // provided FQFN can be made available at the next sync,
 // otherwise ErrRunnableNotFound is returned.
-func (h *HTTPSource) GetModule(FQMN string) (*appsource.Module, error) {
+func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 	f, err := fqmn.Parse(FQMN)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to Parse FQMN")
@@ -112,12 +112,12 @@ func (h *HTTPSource) GetModule(FQMN string) (*appsource.Module, error) {
 		runnable.TokenHash = appsource.TokenHash(h.authHeader)
 	}
 
-	m := &appsource.Module{
+	m := &tenant.Module{
 		Name:      runnable.Name,
 		Namespace: runnable.Namespace,
 		Ref:       "",
-		FQFN:      runnable.FQMN,
-		Revisions: []appsource.ModuleRevision{},
+		FQMN:      runnable.FQMN,
+		Revisions: []tenant.ModuleRevision{},
 	}
 
 	return m, nil

@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/suborbital/appspec/appsource"
-	fqmn "github.com/suborbital/appspec/fqfn"
+	fqmn "github.com/suborbital/appspec/fqmn"
 	"github.com/suborbital/vektor/vk"
 )
 

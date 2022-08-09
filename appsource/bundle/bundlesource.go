@@ -81,15 +81,15 @@ func (b *BundleSource) TenantOverview(ident string) (*appsource.TenantOverview, 
 		return nil, appsource.ErrTenantNotFound
 	}
 
-	modules := make([]appsource.Module, len(b.bundle.TenantConfig.Modules))
+	modules := make([]tenant.Module, len(b.bundle.TenantConfig.Modules))
 
 	for i, r := range b.bundle.TenantConfig.Modules {
-		m := appsource.Module{
+		m := tenant.Module{
 			Name:      r.Name,
 			Namespace: r.Namespace,
 			Ref:       "",
-			FQFN:      r.FQMN,
-			Revisions: []appsource.ModuleRevision{},
+			FQMN:      r.FQMN,
+			Revisions: []tenant.ModuleRevision{},
 		}
 
 		modules[i] = m
@@ -106,7 +106,7 @@ func (b *BundleSource) TenantOverview(ident string) (*appsource.TenantOverview, 
 
 // FindRunnable searches for and returns the requested runnable
 // otherwise appsource.ErrFunctionNotFound.
-func (b *BundleSource) GetModule(FQFN string) (*appsource.Module, error) {
+func (b *BundleSource) GetModule(FQFN string) (*tenant.Module, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
@@ -116,12 +116,12 @@ func (b *BundleSource) GetModule(FQFN string) (*appsource.Module, error) {
 
 	for _, r := range b.bundle.TenantConfig.Modules {
 		if r.FQMN == FQFN {
-			m := &appsource.Module{
+			m := &tenant.Module{
 				Name:      r.Name,
 				Namespace: r.Namespace,
 				Ref:       "",
-				FQFN:      r.FQMN,
-				Revisions: []appsource.ModuleRevision{},
+				FQMN:      r.FQMN,
+				Revisions: []tenant.ModuleRevision{},
 			}
 
 			return m, nil
