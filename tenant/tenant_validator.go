@@ -191,13 +191,13 @@ func (c *Config) validateSteps(exType executableType, name string, steps []execu
 		}
 
 		// this function is key as it compartmentalizes 'step validation', and importantly it
-		// ensures that a Runnable is available to handle it and binds it by setting the FQFN field.
-		validateFn := func(fn *executable.CallableFn) {
-			runnable := c.FindModule(fn.Fn)
+		// ensures that a Runnable is available to handle it and binds it by setting the FQMN field.
+		validateFn := func(fn *executable.ExecutableMod) {
+			runnable := c.FindModule(fn.FQMN)
 			if runnable == nil {
-				problems.add(fmt.Errorf("%s for %s lists fn at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, fn.Fn))
+				problems.add(fmt.Errorf("%s for %s lists fn at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, fn.FQMN))
 			} else {
-				fn.FQFN = runnable.FQMN
+				fn.FQMN = runnable.FQMN
 			}
 
 			for _, key := range fn.With {
@@ -232,7 +232,7 @@ func (c *Config) validateSteps(exType executableType, name string, steps []execu
 				}
 			}
 
-			key := fn.Fn
+			key := fn.FQMN
 			if fn.As != "" {
 				key = fn.As
 			}
@@ -240,9 +240,9 @@ func (c *Config) validateSteps(exType executableType, name string, steps []execu
 			fnsToAdd = append(fnsToAdd, key)
 		}
 
-		// the steps below are referenced by index (j) to ensure the addition of the FQFN in validateFn 'sticks'.
+		// the steps below are referenced by index (j) to ensure the addition of the FQMN in validateFn 'sticks'.
 		if s.IsFn() {
-			validateFn(&steps[j].CallableFn)
+			validateFn(&steps[j].ExecutableMod)
 		} else if s.IsGroup() {
 			for p := range s.Group {
 				validateFn(&steps[j].Group[p])

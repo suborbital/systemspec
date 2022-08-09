@@ -37,18 +37,18 @@ func TestYAMLMarshalUnmarshal(t *testing.T) {
 					},
 					Steps: []executable.Executable{
 						{
-							Group: []executable.CallableFn{
+							Group: []executable.ExecutableMod{
 								{
-									Fn: "/name/db/getUser",
+									FQMN: "/name/db/getUser",
 								},
 								{
-									Fn: "/name/db/getUserDetails",
+									FQMN: "/name/db/getUserDetails",
 								},
 							},
 						},
 						{
-							CallableFn: executable.CallableFn{
-								Fn: "/name/api/returnUser",
+							ExecutableMod: executable.ExecutableMod{
+								FQMN: "/name/api/returnUser",
 							},
 						},
 					},
@@ -114,17 +114,17 @@ func TestDirectiveValidatorGroupLast(t *testing.T) {
 					},
 					Steps: []executable.Executable{
 						{
-							CallableFn: executable.CallableFn{
-								Fn: "/name/api/returnUser",
+							ExecutableMod: executable.ExecutableMod{
+								FQMN: "/name/api/returnUser",
 							},
 						},
 						{
-							Group: []executable.CallableFn{
+							Group: []executable.ExecutableMod{
 								{
-									Fn: "/name/db/getUser",
+									FQMN: "/name/db/getUser",
 								},
 								{
-									Fn: "/name/db/getUserDetails",
+									FQMN: "/name/db/getUserDetails",
 								},
 							},
 						},
@@ -170,12 +170,12 @@ func TestDirectiveValidatorMissingFns(t *testing.T) {
 					},
 					Steps: []executable.Executable{
 						{
-							Group: []executable.CallableFn{
+							Group: []executable.ExecutableMod{
 								{
-									Fn: "/name/db/getUser",
+									FQMN: "/name/db/getUser",
 								},
 								{
-									Fn: "/name/db/getFoobar",
+									FQMN: "/name/db/getFoobar",
 								},
 							},
 						},
@@ -322,15 +322,15 @@ func TestDirectiveValidatorWithMissingState(t *testing.T) {
 					},
 					Steps: []executable.Executable{
 						{
-							Group: []executable.CallableFn{
+							Group: []executable.ExecutableMod{
 								{
-									Fn: "/name/db/getUser",
+									FQMN: "/name/db/getUser",
 									With: map[string]string{
 										"data": "someData",
 									},
 								},
 								{
-									Fn: "/name/db/getFoobar",
+									FQMN: "/name/db/getFoobar",
 								},
 							},
 						},
