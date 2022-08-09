@@ -1,4 +1,4 @@
-package appsource
+package client
 
 import (
 	"encoding/json"

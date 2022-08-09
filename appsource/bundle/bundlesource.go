@@ -1,4 +1,4 @@
-package appsource
+package bundle
 
 import (
 	"os"
