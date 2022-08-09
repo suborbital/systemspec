@@ -12,9 +12,9 @@ import (
 )
 
 const (
-	suborbitalHeadlessStateHeader  = "X-Suborbital-State"
-	suborbitalHeadlessParamsHeader = "X-Suborbital-Params"
-	suborbitalRequestIDHeader      = "X-Suborbital-RequestID"
+	suborbitalStateHeader     = "X-Suborbital-State"
+	suborbitalParamsHeader    = "X-Suborbital-Params"
+	suborbitalRequestIDHeader = "X-Suborbital-RequestID"
 )
 
 // CoordinatedRequest represents a request whose fulfillment can be coordinated across multiple hosts
@@ -67,16 +67,16 @@ func FromVKRequest(r *http.Request, ctx *vk.Ctx) (*CoordinatedRequest, error) {
 	return req, nil
 }
 
-// UseHeadlessHeaders adds the values in the state and params headers JSON to the CoordinatedRequest's State and Params
-func (c *CoordinatedRequest) UseHeadlessHeaders(r *http.Request, ctx *vk.Ctx) error {
+// UseSuborbitalHeaders adds the values in the state and params headers JSON to the CoordinatedRequest's State and Params
+func (c *CoordinatedRequest) UseSuborbitalHeaders(r *http.Request, ctx *vk.Ctx) error {
 	// fill in initial state from the state header
-	stateJSON := r.Header.Get(suborbitalHeadlessStateHeader)
+	stateJSON := r.Header.Get(suborbitalStateHeader)
 	if err := c.addState(stateJSON); err != nil {
 		return err
 	}
 
 	// fill in the URL params from the Params header
-	paramsJSON := r.Header.Get(suborbitalHeadlessParamsHeader)
+	paramsJSON := r.Header.Get(suborbitalParamsHeader)
 	if err := c.addParams(paramsJSON); err != nil {
 		return err
 	}

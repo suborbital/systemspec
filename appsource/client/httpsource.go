@@ -92,7 +92,7 @@ func (h *HTTPSource) GetModule(FQMN string) (*appsource.Module, error) {
 		return nil, errors.Wrap(err, "failed to Parse FQMN")
 	}
 
-	path := fmt.Sprintf("/module%s", f.HeadlessURLPath())
+	path := fmt.Sprintf("/module%s", f.URLPath())
 
 	runnable := tenant.Module{}
 	if resp, err := h.authedGet(path, h.authHeader, &runnable); err != nil {

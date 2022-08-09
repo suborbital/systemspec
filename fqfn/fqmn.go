@@ -194,11 +194,12 @@ func MigrateV1ToV2(name, ref string) (FQMN, error) {
 	return fqmn, nil
 }
 
-// HeadlessURLPath returns the headless URL path for a function.
-func (f FQMN) HeadlessURLPath() string {
+// URLPath returns the URL path for a function.
+func (f FQMN) URLPath() string {
 	return fmt.Sprintf("/%s/%s/%s/%s", f.Tenant, f.Namespace, f.Name, f.Ref)
 }
 
+// FromParts returns an FQMN from the provided parts
 func FromParts(tenant, namespace, module, ref string) string {
 	return fmt.Sprintf("fqmn://%s/%s/%s/%s", tenant, ref, namespace, module)
 }
