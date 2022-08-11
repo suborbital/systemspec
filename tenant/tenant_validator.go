@@ -9,7 +9,7 @@ import (
 	"github.com/suborbital/appspec/tenant/executable"
 )
 
-// Validate validates a directive
+// Validate validates a Config
 func (c *Config) Validate() (err error) {
 	problems := &problems{}
 

@@ -300,7 +300,7 @@ func (b *BundleSource) findBundle() error {
 		b.bundle = bdl
 
 		if err := b.bundle.TenantConfig.Validate(); err != nil {
-			return errors.Wrap(err, "failed to Validate Directive")
+			return errors.Wrap(err, "failed to Validate tenant config")
 		}
 
 		break

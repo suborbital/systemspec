@@ -42,7 +42,7 @@ func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, ve
 	}
 
 	// defaultConfig for the cache can come from either the capabilities
-	// and/or connections sections of the directive.
+	// and/or connections sections of the tenant config.
 	if userConfig.Cache != nil {
 		defaultConfig.Cache = userConfig.Cache
 	}

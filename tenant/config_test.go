@@ -84,7 +84,7 @@ func TestYAMLMarshalUnmarshal(t *testing.T) {
 	}
 }
 
-func TestDirectiveValidatorGroupLast(t *testing.T) {
+func TestConfigValidatorGroupLast(t *testing.T) {
 	dir := Config{
 		Identifier:    "dev.suborbital.appname",
 		TenantVersion: 1,
@@ -141,7 +141,7 @@ func TestDirectiveValidatorGroupLast(t *testing.T) {
 	}
 }
 
-func TestDirectiveValidatorMissingFns(t *testing.T) {
+func TestConfigValidatorMissingFns(t *testing.T) {
 	dir := Config{
 		Identifier:    "dev.suborbital.appname",
 		TenantVersion: 1,
@@ -192,7 +192,7 @@ func TestDirectiveValidatorMissingFns(t *testing.T) {
 	}
 }
 
-func TestDirectiveFQMNs(t *testing.T) {
+func TestConfigFQMNs(t *testing.T) {
 	dir := &Config{
 		Identifier:    "dev.suborbital.appname",
 		TenantVersion: 1,
@@ -293,7 +293,7 @@ func TestDirectiveFQMNs(t *testing.T) {
 	}
 }
 
-func TestDirectiveValidatorWithMissingState(t *testing.T) {
+func TestConfigValidatorWithMissingState(t *testing.T) {
 	dir := Config{
 		Identifier:    "dev.suborbital.appname",
 		TenantVersion: 1,

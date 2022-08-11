@@ -11,7 +11,7 @@ import (
 	"github.com/suborbital/appspec/tenant/executable"
 )
 
-// InputTypeRequest and others represent consts for Directives.
+// InputTypeRequest and others represent consts for the tenantConfig.
 const (
 	InputTypeRequest  = "request"
 	InputTypeStream   = "stream"
@@ -90,7 +90,7 @@ type Authentication struct {
 
 func (c *Config) FindModule(name string) *Module {
 	// if this is an FQMN, parse the identifier and bail out
-	// if it doesn't match this Directive.
+	// if it doesn't match this tenant.
 
 	FQMN, err := fqmn.Parse(name)
 	if err != nil {
@@ -111,7 +111,7 @@ func (c *Config) FindModule(name string) *Module {
 	return nil
 }
 
-// Marshal outputs the JSON bytes of the Directive.
+// Marshal outputs the JSON bytes of the config.
 func (c *Config) Marshal() ([]byte, error) {
 	c.calculateFQMNs()
 
