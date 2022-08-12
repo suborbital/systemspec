@@ -21,8 +21,7 @@ type References struct {
 
 // TenantOverview describes the metadata for a tenant
 type TenantOverview struct {
-	Identifier string          `json:"identifier"`
-	Version    int64           `json:"version"`
-	Modules    []tenant.Module `json:"modules"`
-	Config     *tenant.Config  `json:"config,omitempty"`
+	Identifier string         `json:"identifier"`
+	Version    int64          `json:"version"`
+	Config     *tenant.Config `json:"config,omitempty"`
 }

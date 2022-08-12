@@ -81,24 +81,10 @@ func (b *BundleSource) TenantOverview(ident string) (*appsource.TenantOverview, 
 		return nil, appsource.ErrTenantNotFound
 	}
 
-	modules := make([]tenant.Module, len(b.bundle.TenantConfig.Modules))
-
-	for i, r := range b.bundle.TenantConfig.Modules {
-		m := tenant.Module{
-			Name:      r.Name,
-			Namespace: r.Namespace,
-			Ref:       "",
-			FQMN:      r.FQMN,
-			Revisions: []tenant.ModuleRevision{},
-		}
-
-		modules[i] = m
-	}
-
 	ovv := &appsource.TenantOverview{
 		Identifier: ident,
-		Version:    1,
-		Modules:    modules,
+		Version:    b.bundle.TenantConfig.TenantVersion,
+		Config:     b.bundle.TenantConfig,
 	}
 
 	return ovv, nil
@@ -114,17 +100,9 @@ func (b *BundleSource) GetModule(FQMN string) (*tenant.Module, error) {
 		return nil, appsource.ErrModuleNotFound
 	}
 
-	for _, r := range b.bundle.TenantConfig.Modules {
+	for i, r := range b.bundle.TenantConfig.Modules {
 		if r.FQMN == FQMN {
-			m := &tenant.Module{
-				Name:      r.Name,
-				Namespace: r.Namespace,
-				Ref:       "",
-				FQMN:      r.FQMN,
-				Revisions: []tenant.ModuleRevision{},
-			}
-
-			return m, nil
+			return &b.bundle.TenantConfig.Modules[i], nil
 		}
 	}
 
