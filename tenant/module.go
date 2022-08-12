@@ -5,10 +5,10 @@ type Module struct {
 	Name       string           `yaml:"name" json:"name"`
 	Namespace  string           `yaml:"namespace" json:"namespace"`
 	Lang       string           `yaml:"lang" json:"lang"`
-	Ref        string           `yaml:"version" json:"version"`
+	Ref        string           `yaml:"ref" json:"ref"`
 	DraftRef   string           `yaml:"draftVersion,omitempty" json:"draftVersion,omitempty"`
 	APIVersion string           `yaml:"apiVersion,omitempty" json:"apiVersion,omitempty"`
-	FQMN       string           `yaml:"fqfn,omitempty" json:"fqfn,omitempty"`
+	FQMN       string           `yaml:"fqmn,omitempty" json:"fqmn,omitempty"`
 	FQMNURI    string           `yaml:"fqmnUri" json:"fqmnURI,omitempty"`
 	Revisions  []ModuleRevision `yaml:"revisions" json:"revisions"`
 	WasmRef    *WasmModuleRef   `yaml:"-" json:"moduleRef,omitempty"`

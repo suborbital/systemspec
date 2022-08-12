@@ -6,15 +6,15 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type FQFNSuite struct {
+type FQMNSuite struct {
 	suite.Suite
 }
 
-func TestFQFNSuite(t *testing.T) {
-	suite.Run(t, &FQFNSuite{})
+func TestFQMNSuite(t *testing.T) {
+	suite.Run(t, &FQMNSuite{})
 }
 
-func (s *FQFNSuite) TestParse() {
+func (s *FQMNSuite) TestParse() {
 	for _, tt := range []struct {
 		name string
 		text string
@@ -96,7 +96,7 @@ func (s *FQFNSuite) TestParse() {
 	}
 }
 
-func (s *FQFNSuite) TestMigrateV1ToV2() {
+func (s *FQMNSuite) TestMigrateV1ToV2() {
 	for _, tt := range []struct {
 		name string
 		text string

@@ -61,7 +61,7 @@ func Parse(fqmnString string) (FQMN, error) {
 		return parseRefUri(fqmnString)
 	}
 
-	return FQMN{}, errWrongPrefix
+	return FQMN{}, errors.Wrapf(errWrongPrefix, "failed to parse string %q", fqmnString)
 }
 
 func parseTextFormat(fqmnString string) (FQMN, error) {

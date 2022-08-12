@@ -34,7 +34,7 @@ type Config struct {
 
 // NamespaceConfig is the configuration for a namespace
 type NamespaceConfig struct {
-	Namespace      string                         `yaml:"namespace" json:"namespace"`
+	Name           string                         `yaml:"name" json:"name"`
 	Workflows      []Workflow                     `yaml:"workflows,omitempty" json:"workflows,omitempty"`
 	Queries        []DBQuery                      `yaml:"queries,omitempty" json:"queries,omitempty"`
 	Capabilities   *capabilities.CapabilityConfig `yaml:"capabilities,omitempty" json:"capabilities,omitempty"`

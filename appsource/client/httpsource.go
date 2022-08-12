@@ -84,7 +84,7 @@ func (h *HTTPSource) TenantOverview(ident string) (*appsource.TenantOverview, er
 }
 
 // GetModule returns a nil error if a Runnable with the
-// provided FQFN can be made available at the next sync,
+// provided FQMN can be made available at the next sync,
 // otherwise ErrRunnableNotFound is returned.
 func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 	f, err := fqmn.Parse(FQMN)

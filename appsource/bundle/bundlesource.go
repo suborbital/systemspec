@@ -106,7 +106,7 @@ func (b *BundleSource) TenantOverview(ident string) (*appsource.TenantOverview, 
 
 // FindRunnable searches for and returns the requested runnable
 // otherwise appsource.ErrFunctionNotFound.
-func (b *BundleSource) GetModule(FQFN string) (*tenant.Module, error) {
+func (b *BundleSource) GetModule(FQMN string) (*tenant.Module, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
@@ -115,7 +115,7 @@ func (b *BundleSource) GetModule(FQFN string) (*tenant.Module, error) {
 	}
 
 	for _, r := range b.bundle.TenantConfig.Modules {
-		if r.FQMN == FQFN {
+		if r.FQMN == FQMN {
 			m := &tenant.Module{
 				Name:      r.Name,
 				Namespace: r.Namespace,
@@ -149,7 +149,7 @@ func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]tena
 	}
 
 	for _, n := range b.bundle.TenantConfig.Namespaces {
-		if n.Namespace == namespace {
+		if n.Name == namespace {
 			return n.Workflows, nil
 		}
 	}
@@ -175,7 +175,7 @@ func (b *BundleSource) Connections(ident, namespace string, version int64) ([]te
 	}
 
 	for _, n := range b.bundle.TenantConfig.Namespaces {
-		if n.Namespace == namespace {
+		if n.Name == namespace {
 			return n.Connections, nil
 		}
 	}
@@ -201,7 +201,7 @@ func (b *BundleSource) Authentication(ident, namespace string, version int64) (*
 	}
 
 	for _, n := range b.bundle.TenantConfig.Namespaces {
-		if n.Namespace == namespace {
+		if n.Name == namespace {
 			return n.Authentication, nil
 		}
 	}
@@ -230,7 +230,7 @@ func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*ca
 	}
 
 	for _, n := range b.bundle.TenantConfig.Namespaces {
-		if n.Namespace == namespace {
+		if n.Name == namespace {
 			return n.Capabilities, nil
 		}
 	}
@@ -272,7 +272,7 @@ func (b *BundleSource) Queries(ident, namespace string, version int64) ([]tenant
 	}
 
 	for _, n := range b.bundle.TenantConfig.Namespaces {
-		if n.Namespace == namespace {
+		if n.Name == namespace {
 			return n.Queries, nil
 		}
 	}

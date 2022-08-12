@@ -89,14 +89,14 @@ func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
 		fn := ctx.Params.ByName("name")
 		version := ctx.Params.ByName("ref")
 
-		fqfnString := fqmn.FromParts(ident, namespace, fn, version)
+		fqmnString := fqmn.FromParts(ident, namespace, fn, version)
 
-		runnable, err := a.appSource.GetModule(fqfnString)
+		runnable, err := a.appSource.GetModule(fqmnString)
 		if err != nil {
 			ctx.Log.Error(errors.Wrap(err, "failed to GetFunction"))
 
 			if errors.Is(err, appsource.ErrModuleNotFound) {
-				return nil, vk.Wrap(http.StatusNotFound, fmt.Errorf("failed to find function %s", fqfnString))
+				return nil, vk.Wrap(http.StatusNotFound, fmt.Errorf("failed to find function %s", fqmnString))
 			} else if errors.Is(err, appsource.ErrAuthenticationFailed) {
 				return nil, vk.E(http.StatusUnauthorized, "unauthorized")
 			}
