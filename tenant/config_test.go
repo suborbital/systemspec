@@ -220,7 +220,7 @@ func TestConfigFQMNs(t *testing.T) {
 		return
 	}
 
-	mod1 := dir.FindModule("/name/default/getUser")
+	mod1, _ := dir.FindModule("/name/default/getUser")
 	if mod1 == nil {
 		t.Error("failed to FindModule for getUser")
 		return
@@ -236,7 +236,7 @@ func TestConfigFQMNs(t *testing.T) {
 		t.Errorf("FQMN1 %q did not match mod1.FQMN %q", FQMN1, mod1.FQMN)
 	}
 
-	mod2 := dir.FindModule("/name/db/getUserDetails")
+	mod2, _ := dir.FindModule("/name/db/getUserDetails")
 	if mod2 == nil {
 		t.Error("failed to FindModule for /name/db/getUserDetails")
 		return
@@ -252,7 +252,7 @@ func TestConfigFQMNs(t *testing.T) {
 		t.Error("FQMN2 did not match mod2.FQMN")
 	}
 
-	mod3 := dir.FindModule("/name/api/returnUser")
+	mod3, _ := dir.FindModule("/name/api/returnUser")
 	if mod3 == nil {
 		t.Error("failed to FindModule for /name/api/returnUser")
 		return
@@ -287,7 +287,7 @@ func TestConfigFQMNs(t *testing.T) {
 	// 	t.Error("FQMN4 did not match mod4.FQMN")
 	// }
 
-	mod5 := dir.FindModule("foo::bar")
+	mod5, _ := dir.FindModule("foo::bar")
 	if mod5 != nil {
 		t.Error("should not have found a Runnable for foo::bar")
 	}

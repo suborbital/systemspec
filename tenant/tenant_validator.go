@@ -192,49 +192,51 @@ func (c *Config) validateSteps(exType executableType, name string, steps []execu
 
 		// this function is key as it compartmentalizes 'step validation', and importantly it
 		// ensures that a Runnable is available to handle it and binds it by setting the FQMN field.
-		validateFn := func(fn *executable.ExecutableMod) {
-			runnable := c.FindModule(fn.FQMN)
-			if runnable == nil {
-				problems.add(fmt.Errorf("%s for %s lists fn at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, fn.FQMN))
+		validateFn := func(mod *executable.ExecutableMod) {
+			runnable, err := c.FindModule(mod.FQMN)
+			if err != nil {
+				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not have a properly formed FQMN: %s", exType, name, j, mod.FQMN))
+			} else if runnable == nil {
+				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, mod.FQMN))
 			} else {
-				fn.FQMN = runnable.FQMN
+				mod.FQMN = runnable.FQMN
 			}
 
-			for _, key := range fn.With {
+			for _, key := range mod.With {
 				if _, exists := fullState[key]; !exists {
 					problems.add(fmt.Errorf("%s for %s has 'with' value at step %d referencing a key that is not yet available in the handler's state: %s", exType, name, j, key))
 				}
 			}
 
-			if fn.OnErr != nil {
+			if mod.OnErr != nil {
 				// if codes are specificed, 'other' should be used, not 'any'.
-				if len(fn.OnErr.Code) > 0 && fn.OnErr.Any != "" {
+				if len(mod.OnErr.Code) > 0 && mod.OnErr.Any != "" {
 					problems.add(fmt.Errorf("%s for %s has 'onErr.any' value at step %d while specific codes are specified, use 'other' instead", exType, name, j))
-				} else if fn.OnErr.Any != "" {
-					if fn.OnErr.Any != "continue" && fn.OnErr.Any != "return" {
-						problems.add(fmt.Errorf("%s for %s has 'onErr.any' value at step %d with an invalid error directive: %s", exType, name, j, fn.OnErr.Any))
+				} else if mod.OnErr.Any != "" {
+					if mod.OnErr.Any != "continue" && mod.OnErr.Any != "return" {
+						problems.add(fmt.Errorf("%s for %s has 'onErr.any' value at step %d with an invalid error directive: %s", exType, name, j, mod.OnErr.Any))
 					}
 				}
 
 				// if codes are NOT specificed, 'any' should be used, not 'other'.
-				if len(fn.OnErr.Code) == 0 && fn.OnErr.Other != "" {
+				if len(mod.OnErr.Code) == 0 && mod.OnErr.Other != "" {
 					problems.add(fmt.Errorf("%s for %s has 'onErr.other' value at step %d while specific codes are not specified, use 'any' instead", exType, name, j))
-				} else if fn.OnErr.Other != "" {
-					if fn.OnErr.Other != "continue" && fn.OnErr.Other != "return" {
-						problems.add(fmt.Errorf("%s for %s has 'onErr.any' value at step %d with an invalid error directive: %s", exType, name, j, fn.OnErr.Other))
+				} else if mod.OnErr.Other != "" {
+					if mod.OnErr.Other != "continue" && mod.OnErr.Other != "return" {
+						problems.add(fmt.Errorf("%s for %s has 'onErr.any' value at step %d with an invalid error directive: %s", exType, name, j, mod.OnErr.Other))
 					}
 				}
 
-				for code, val := range fn.OnErr.Code {
+				for code, val := range mod.OnErr.Code {
 					if val != "return" && val != "continue" {
 						problems.add(fmt.Errorf("%s for %s has 'onErr.code' value at step %d with an invalid error directive for code %d: %s", exType, name, j, code, val))
 					}
 				}
 			}
 
-			key := fn.FQMN
-			if fn.As != "" {
-				key = fn.As
+			key := mod.FQMN
+			if mod.As != "" {
+				key = mod.As
 			}
 
 			fnsToAdd = append(fnsToAdd, key)
