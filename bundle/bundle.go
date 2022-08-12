@@ -84,7 +84,7 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 
 	// Add the Wasm modules to the archive.
 	for _, file := range modules {
-		if file.Name() == "tenant.yaml" || file.Name() == "tenant.yml" {
+		if file.Name() == "tenant.json" {
 			// only allow the canonical tenant config that's passed in.
 			continue
 		}
@@ -124,8 +124,8 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 }
 
 func writeTenantConfig(w *zip.Writer, tenantConfigBytes []byte) error {
-	if err := writeFile(w, "tenant.yaml", tenantConfigBytes); err != nil {
-		return errors.Wrap(err, "failed to writeFile for tenant.yaml")
+	if err := writeFile(w, "tenant.json", tenantConfigBytes); err != nil {
+		return errors.Wrap(err, "failed to writeFile for tenant.json")
 	}
 
 	return nil
@@ -163,7 +163,7 @@ func Read(path string) (*Bundle, error) {
 
 	// first, find the tenant config.
 	for _, f := range r.File {
-		if f.Name == "tenant.yaml" {
+		if f.Name == "tenant.json" {
 			tenantConfig, err := readTenantConfig(f)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to readTenantConfig from bundle")
@@ -175,12 +175,12 @@ func Read(path string) (*Bundle, error) {
 	}
 
 	if bundle.TenantConfig == nil {
-		return nil, errors.New("bundle is missing tenant.yaml")
+		return nil, errors.New("bundle is missing tenant.json")
 	}
 
 	// Iterate through the files in the archive.
 	for _, f := range r.File {
-		if f.Name == "tenant.yaml" {
+		if f.Name == "tenant.json" {
 			// we already have a tenant config by now.
 			continue
 		} else if strings.HasPrefix(f.Name, "static/") {
