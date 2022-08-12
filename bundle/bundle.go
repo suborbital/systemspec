@@ -11,7 +11,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/fqmn"
 	"github.com/suborbital/appspec/tenant"
 )
 
@@ -206,13 +205,13 @@ func Read(path string) (*Bundle, error) {
 		}
 
 		// for now, the bundle spec only supports the default namespace
-		FQMN := fqmn.FromParts(bundle.TenantConfig.Identifier, "default", strings.TrimSuffix(f.Name, ".wasm"), "")
+		FQMN := fmt.Sprintf("/name/default/%s", strings.TrimSuffix(f.Name, ".wasm"))
 
 		runnable, err := bundle.TenantConfig.FindModule(FQMN)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to FindModule for %s", FQMN)
+			return nil, errors.Wrapf(err, "failed to FindModule for %s (%s)", f.Name, FQMN)
 		} else if runnable == nil {
-			return nil, fmt.Errorf("unable to find Module for Wasm file %s", f.Name)
+			return nil, fmt.Errorf("unable to find Module for Wasm file %s (%s)", f.Name, FQMN)
 		}
 
 		runnable.WasmRef = tenant.NewWasmModuleRef(f.Name, runnable.FQMN, wasmBytes)
