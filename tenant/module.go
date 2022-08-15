@@ -11,7 +11,7 @@ type Module struct {
 	FQMN       string           `yaml:"fqmn,omitempty" json:"fqmn,omitempty"`
 	FQMNURI    string           `yaml:"fqmnUri" json:"fqmnURI,omitempty"`
 	Revisions  []ModuleRevision `yaml:"revisions" json:"revisions"`
-	WasmRef    *WasmModuleRef   `yaml:"-" json:"moduleRef,omitempty"`
+	WasmRef    *WasmModuleRef   `yaml:"-" json:"wasmRef,omitempty"`
 	TokenHash  []byte           `yaml:"-" json:"-"`
 }
 
