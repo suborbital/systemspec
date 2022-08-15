@@ -131,7 +131,7 @@ func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]tenant
 func (h *HTTPSource) Connections(ident, namespace string, version int64) ([]tenant.Connection, error) {
 	connections := []tenant.Connection{}
 
-	if _, err := h.get(fmt.Sprintf("/appsource/v1/connections/%s/%s/%d", ident, namespace, version), connections); err != nil {
+	if _, err := h.get(fmt.Sprintf("/appsource/v1/connections/%s/%s/%d", ident, namespace, version), &connections); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /connections"))
 		return nil, errors.Wrap(err, "failed to get /connections")
 	}
