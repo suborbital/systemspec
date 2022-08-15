@@ -94,8 +94,8 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 
 	path := fmt.Sprintf("/appsource/v1/module%s", f.URLPath())
 
-	runnable := tenant.Module{}
-	if resp, err := h.authedGet(path, h.authHeader, &runnable); err != nil {
+	module := &tenant.Module{}
+	if resp, err := h.authedGet(path, h.authHeader, module); err != nil {
 		h.opts.Logger().Error(errors.Wrapf(err, "failed to get %s", path))
 
 		if resp.StatusCode == http.StatusUnauthorized {
@@ -107,20 +107,12 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 
 	if h.authHeader != "" {
 		// if we get this far, we assume the token was used to successfully get
-		// the runnable from the control plane, and should therefore be used to
+		// the module from the control plane, and should therefore be used to
 		// authenticate further calls for this function, so we cache its hash.
-		runnable.TokenHash = appsource.TokenHash(h.authHeader)
+		module.TokenHash = appsource.TokenHash(h.authHeader)
 	}
 
-	m := &tenant.Module{
-		Name:      runnable.Name,
-		Namespace: runnable.Namespace,
-		Ref:       "",
-		FQMN:      runnable.FQMN,
-		Revisions: []tenant.ModuleRevision{},
-	}
-
-	return m, nil
+	return module, nil
 }
 
 // Workflows returns the Workflows for the app.
