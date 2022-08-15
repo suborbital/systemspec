@@ -204,7 +204,7 @@ func (h *HTTPSource) Queries(ident, namespace string, version int64) ([]tenant.D
 // pingServer loops forever until it finds a server at the configured host.
 func (h *HTTPSource) pingServer() error {
 	for {
-		if _, err := h.get("/meta", nil); err != nil {
+		if _, err := h.get("/state", nil); err != nil {
 
 			h.opts.Logger().Warn("failed to connect to remote source, will retry:", err.Error())
 
