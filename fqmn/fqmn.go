@@ -196,7 +196,7 @@ func MigrateV1ToV2(name, ref string) (FQMN, error) {
 
 // URLPath returns the URL path for a function.
 func (f FQMN) URLPath() string {
-	return fmt.Sprintf("/%s/%s/%s/%s", f.Tenant, f.Namespace, f.Name, f.Ref)
+	return fmt.Sprintf("/%s/%s/%s/%s", f.Tenant, f.Ref, f.Namespace, f.Name)
 }
 
 // FromParts returns an FQMN from the provided parts
