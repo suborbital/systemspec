@@ -140,7 +140,7 @@ func (b *BundleSource) Connections(ident, namespace string, version int64) ([]te
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
-	if b.bundle == nil || b.bundle.TenantConfig.DefaultNamespace.Connections == nil {
+	if b.bundle == nil {
 		return nil, appsource.ErrTenantNotFound
 	}
 
