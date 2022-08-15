@@ -201,5 +201,5 @@ func (f FQMN) URLPath() string {
 
 // FromParts returns an FQMN from the provided parts
 func FromParts(tenant, namespace, module, ref string) string {
-	return fmt.Sprintf("fqmn://%s/%s/%s/%s", tenant, ref, namespace, module)
+	return fmt.Sprintf("fqmn://%s/%s/%s@%s", tenant, namespace, module, ref)
 }
