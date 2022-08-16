@@ -1,18 +1,18 @@
-# Velocity Application Spec
+# DeltaV System Spec
 
-This repository contains the specification and canonical Go implementions of the core Velocity system. Velocity uses a fairly straightforward control plane / data plane architecture which allows the system as a whole to be distributed in various ways. There are five main components:
+This repository contains the specification and canonical Go implementions of the core DeltaV system. DeltaV uses a control plane / data plane architecture which allows the system as a whole to be distributed in various ways. There are five main components:
 
 ## AppSource
-The main interface that allows a Velocity data plane instance to learn its state from a Velocity control plane server.
+The main interface that allows a DeltaV data plane instance to learn its state from a DeltaV control plane server.
 
-## Directive
-Also known as the `velocity.yaml` file, this defines the declarative YAML schema for describing a Velocity application
+## Tenant
+Also known as the `tenant.yaml` file or 'tenant config', this defines the declarative schema for describing a DeltaV tenant
 
 ## Bundle
-The format used to package (and unpackage) Velocity applications into a deploy-able archive.
+The format used to package (and unpackage) DeltaV tenants into a deploy-able archive.
 
-## FQFN
-The fully-qualified function name spec is a globally adressable name and URI scheme that makes calling versioned functions easy to reason about.
+## FQMN
+The 'fully-qualified module name' spec is a globally adressable name and URI scheme that makes calling versioned modules easy to reason about.
 
 ## Capabilities
-Configuration and implementation of the capabilities available to Velocity functions.
+Configuration and implementation of the capabilities available to DeltaV modules.

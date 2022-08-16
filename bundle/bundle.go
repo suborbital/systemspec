@@ -66,9 +66,9 @@ func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
 // Write writes a runnable bundle
 // based loosely on https://golang.org/src/archive/zip/example_test.go
 // staticFiles should be a map of *relative* filepaths to their associated files, with or without the `static/` prefix.
-func Write(directiveBytes []byte, modules []os.File, staticFiles map[string]os.File, targetPath string) error {
-	if directiveBytes == nil || len(directiveBytes) == 0 {
-		return errors.New("directive must be provided")
+func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]os.File, targetPath string) error {
+	if tenantConfigBytes == nil || len(tenantConfigBytes) == 0 {
+		return errors.New("tenant config must be provided")
 	}
 
 	// Create a buffer to write our archive to.
@@ -77,15 +77,15 @@ func Write(directiveBytes []byte, modules []os.File, staticFiles map[string]os.F
 	// Create a new zip archive.
 	w := zip.NewWriter(buf)
 
-	// Add Directive to archive.
-	if err := writeDirective(w, directiveBytes); err != nil {
-		return errors.Wrap(err, "failed to writeDirective")
+	// Add tenant config to archive.
+	if err := writeTenantConfig(w, tenantConfigBytes); err != nil {
+		return errors.Wrap(err, "failed to writeTenantConfig")
 	}
 
 	// Add the Wasm modules to the archive.
 	for _, file := range modules {
-		if file.Name() == "Directive.yaml" || file.Name() == "Directive.yml" {
-			// only allow the canonical directive that's passed in.
+		if file.Name() == "tenant.json" {
+			// only allow the canonical tenant config that's passed in.
 			continue
 		}
 
@@ -123,9 +123,9 @@ func Write(directiveBytes []byte, modules []os.File, staticFiles map[string]os.F
 	return nil
 }
 
-func writeDirective(w *zip.Writer, directiveBytes []byte) error {
-	if err := writeFile(w, "Directive.yaml", directiveBytes); err != nil {
-		return errors.Wrap(err, "failed to writeFile for Directive")
+func writeTenantConfig(w *zip.Writer, tenantConfigBytes []byte) error {
+	if err := writeFile(w, "tenant.json", tenantConfigBytes); err != nil {
+		return errors.Wrap(err, "failed to writeFile for tenant.json")
 	}
 
 	return nil
@@ -161,27 +161,27 @@ func Read(path string) (*Bundle, error) {
 		staticFiles: map[string]bool{},
 	}
 
-	// first, find the Directive.
+	// first, find the tenant config.
 	for _, f := range r.File {
-		if f.Name == "tenant.yaml" {
-			directive, err := readTenantConfig(f)
+		if f.Name == "tenant.json" {
+			tenantConfig, err := readTenantConfig(f)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to readTenantConfig from bundle")
 			}
 
-			bundle.TenantConfig = directive
+			bundle.TenantConfig = tenantConfig
 			continue
 		}
 	}
 
 	if bundle.TenantConfig == nil {
-		return nil, errors.New("bundle is missing Directive.yaml")
+		return nil, errors.New("bundle is missing tenant.json")
 	}
 
 	// Iterate through the files in the archive.
 	for _, f := range r.File {
-		if f.Name == "tenant.yaml" {
-			// we already have a Directive by now.
+		if f.Name == "tenant.json" {
+			// we already have a tenant config by now.
 			continue
 		} else if strings.HasPrefix(f.Name, "static/") {
 			// build up the list of available static files in the bundle for quick reference later.
@@ -204,16 +204,21 @@ func Read(path string) (*Bundle, error) {
 			return nil, errors.Wrapf(err, "failed to read %s from bundle", f.Name)
 		}
 
-		runnable := bundle.TenantConfig.FindModule(strings.TrimSuffix(f.Name, ".wasm"))
-		if runnable == nil {
-			return nil, fmt.Errorf("unable to find Runnable for module %s", f.Name)
+		// for now, the bundle spec only supports the default namespace
+		FQMN := fmt.Sprintf("/name/default/%s", strings.TrimSuffix(f.Name, ".wasm"))
+
+		runnable, err := bundle.TenantConfig.FindModule(FQMN)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to FindModule for %s (%s)", f.Name, FQMN)
+		} else if runnable == nil {
+			return nil, fmt.Errorf("unable to find Module for Wasm file %s (%s)", f.Name, FQMN)
 		}
 
 		runnable.WasmRef = tenant.NewWasmModuleRef(f.Name, runnable.FQMN, wasmBytes)
 	}
 
 	if bundle.TenantConfig == nil {
-		return nil, errors.New("bundle did not contain directive")
+		return nil, errors.New("bundle did not contain tenantConfig")
 	}
 
 	return bundle, nil
@@ -225,14 +230,14 @@ func readTenantConfig(f *zip.File) (*tenant.Config, error) {
 		return nil, errors.Wrapf(err, "failed to open %s from bundle", f.Name)
 	}
 
-	directiveBytes, err := ioutil.ReadAll(file)
+	tenantConfigBytes, err := ioutil.ReadAll(file)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to read %s from bundle", f.Name)
 	}
 
 	d := &tenant.Config{}
-	if err := d.Unmarshal(directiveBytes); err != nil {
-		return nil, errors.Wrap(err, "failed to Unmarshal Directive")
+	if err := d.Unmarshal(tenantConfigBytes); err != nil {
+		return nil, errors.Wrap(err, "failed to Unmarshal tenant config")
 	}
 
 	return d, nil

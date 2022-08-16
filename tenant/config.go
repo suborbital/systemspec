@@ -7,11 +7,11 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/suborbital/appspec/capabilities"
-	fqmn "github.com/suborbital/appspec/fqfn"
+	fqmn "github.com/suborbital/appspec/fqmn"
 	"github.com/suborbital/appspec/tenant/executable"
 )
 
-// InputTypeRequest and others represent consts for Directives.
+// InputTypeRequest and others represent consts for the tenantConfig.
 const (
 	InputTypeRequest  = "request"
 	InputTypeStream   = "stream"
@@ -34,7 +34,7 @@ type Config struct {
 
 // NamespaceConfig is the configuration for a namespace
 type NamespaceConfig struct {
-	Namespace      string                         `yaml:"namespace" json:"namespace"`
+	Name           string                         `yaml:"name" json:"name"`
 	Workflows      []Workflow                     `yaml:"workflows,omitempty" json:"workflows,omitempty"`
 	Queries        []DBQuery                      `yaml:"queries,omitempty" json:"queries,omitempty"`
 	Capabilities   *capabilities.CapabilityConfig `yaml:"capabilities,omitempty" json:"capabilities,omitempty"`
@@ -88,30 +88,29 @@ type Authentication struct {
 	Domains map[string]capabilities.AuthHeader `yaml:"domains,omitempty" json:"domains,omitempty"`
 }
 
-func (c *Config) FindModule(name string) *Module {
+func (c *Config) FindModule(name string) (*Module, error) {
 	// if this is an FQMN, parse the identifier and bail out
-	// if it doesn't match this Directive.
+	// if it doesn't match this tenant.
 
 	FQMN, err := fqmn.Parse(name)
 	if err != nil {
-		fmt.Println(errors.Wrap(err, "failed to Parse fqmn"))
-		return nil
+		return nil, errors.Wrap(err, "failed to fqmn.Parse")
 	}
 
 	if FQMN.Tenant != "" && FQMN.Tenant != c.Identifier {
-		return nil
+		return nil, nil
 	}
 
 	for i, r := range c.Modules {
 		if r.Name == FQMN.Name && r.Namespace == FQMN.Namespace {
-			return &c.Modules[i]
+			return &c.Modules[i], nil
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
-// Marshal outputs the JSON bytes of the Directive.
+// Marshal outputs the JSON bytes of the config.
 func (c *Config) Marshal() ([]byte, error) {
 	c.calculateFQMNs()
 

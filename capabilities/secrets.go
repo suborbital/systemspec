@@ -8,7 +8,7 @@ type SecretsCapability interface {
 // SecretsConfig is the configuration for environment secrets
 type SecretsConfig struct {
 	Enabled bool              `json:"enabled" yaml:"enabled"`
-	Env     *EnvSecretsConfig `json:"env,omitempty" yaml:"enabled,omitempty"`
+	Env     *EnvSecretsConfig `json:"env,omitempty" yaml:"env,omitempty"`
 }
 
 type EnvSecretsConfig struct {

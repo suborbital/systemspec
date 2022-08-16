@@ -1,4 +1,4 @@
-package appsource
+package server
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/suborbital/appspec/appsource"
-	fqmn "github.com/suborbital/appspec/fqfn"
+	fqmn "github.com/suborbital/appspec/fqmn"
 	"github.com/suborbital/vektor/vk"
 )
 
@@ -43,7 +43,7 @@ func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
 	v1.GET("/state", a.StateHandler())
 	v1.GET("/overview", a.OverviewHandler())
 	v1.GET("/tenant/:ident", a.TenantOverviewHandler())
-	v1.GET("/module/:ident/:namespace/:fn/:ref", a.GetModuleHandler())
+	v1.GET("/module/:ident/:ref/:namespace/:mod", a.GetModuleHandler())
 	v1.GET("/workflows/:ident/:namespace/:version", a.WorkflowsHandler())
 	v1.GET("/connections/:ident/:namespace/:version", a.ConnectionsHandler())
 	v1.GET("/authentication/:ident/:namespace/:version", a.AuthenticationHandler())
@@ -85,18 +85,18 @@ func (a *AppSourceVKRouter) TenantOverviewHandler() vk.HandlerFunc {
 func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
 	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
 		ident := ctx.Params.ByName("ident")
+		ref := ctx.Params.ByName("ref")
 		namespace := ctx.Params.ByName("namespace")
-		fn := ctx.Params.ByName("name")
-		version := ctx.Params.ByName("ref")
+		mod := ctx.Params.ByName("mod")
 
-		fqfnString := fqmn.FromParts(ident, namespace, fn, version)
+		fqmnString := fqmn.FromParts(ident, namespace, mod, ref)
 
-		runnable, err := a.appSource.GetModule(fqfnString)
+		runnable, err := a.appSource.GetModule(fqmnString)
 		if err != nil {
 			ctx.Log.Error(errors.Wrap(err, "failed to GetFunction"))
 
 			if errors.Is(err, appsource.ErrModuleNotFound) {
-				return nil, vk.Wrap(http.StatusNotFound, fmt.Errorf("failed to find function %s", fqfnString))
+				return nil, vk.Wrap(http.StatusNotFound, fmt.Errorf("failed to find function %s", fqmnString))
 			} else if errors.Is(err, appsource.ErrAuthenticationFailed) {
 				return nil, vk.E(http.StatusUnauthorized, "unauthorized")
 			}
