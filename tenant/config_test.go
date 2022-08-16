@@ -8,7 +8,7 @@ import (
 )
 
 func TestYAMLMarshalUnmarshal(t *testing.T) {
-	dir := Config{
+	conf := Config{
 		Identifier:    "dev.suborbital.appname",
 		TenantVersion: 1,
 		Modules: []Module{
@@ -57,7 +57,7 @@ func TestYAMLMarshalUnmarshal(t *testing.T) {
 		},
 	}
 
-	yamlBytes, err := dir.Marshal()
+	yamlBytes, err := conf.Marshal()
 	if err != nil {
 		t.Error(err)
 		return
@@ -85,7 +85,7 @@ func TestYAMLMarshalUnmarshal(t *testing.T) {
 }
 
 func TestConfigValidatorGroupLast(t *testing.T) {
-	dir := Config{
+	conf := Config{
 		Identifier:    "dev.suborbital.appname",
 		TenantVersion: 1,
 		Modules: []Module{
@@ -134,7 +134,7 @@ func TestConfigValidatorGroupLast(t *testing.T) {
 		},
 	}
 
-	if err := dir.Validate(); err == nil {
+	if err := conf.Validate(); err == nil {
 		t.Error("Config validation should have failed")
 	} else {
 		fmt.Println("Config validation properly failed:", err)
@@ -142,7 +142,7 @@ func TestConfigValidatorGroupLast(t *testing.T) {
 }
 
 func TestConfigValidatorMissingFns(t *testing.T) {
-	dir := Config{
+	conf := Config{
 		Identifier:    "dev.suborbital.appname",
 		TenantVersion: 1,
 		Modules: []Module{
@@ -185,7 +185,7 @@ func TestConfigValidatorMissingFns(t *testing.T) {
 		},
 	}
 
-	if err := dir.Validate(); err == nil {
+	if err := conf.Validate(); err == nil {
 		t.Error("Config validation should have failed")
 	} else {
 		fmt.Println("Config validation properly failed:", err)
@@ -193,7 +193,7 @@ func TestConfigValidatorMissingFns(t *testing.T) {
 }
 
 func TestConfigFQMNs(t *testing.T) {
-	dir := &Config{
+	conf := &Config{
 		Identifier:    "dev.suborbital.appname",
 		TenantVersion: 1,
 		Modules: []Module{
@@ -215,18 +215,18 @@ func TestConfigFQMNs(t *testing.T) {
 		},
 	}
 
-	if err := dir.Validate(); err != nil {
+	if err := conf.Validate(); err != nil {
 		t.Error("failed to Validate Config")
 		return
 	}
 
-	mod1, _ := dir.FindModule("/name/default/getUser")
+	mod1, _ := conf.FindModule("/name/default/getUser")
 	if mod1 == nil {
 		t.Error("failed to FindModule for getUser")
 		return
 	}
 
-	FQMN1 := dir.FQMNForFunc(mod1.Namespace, mod1.Name, "asdf")
+	FQMN1 := conf.FQMNForFunc(mod1.Namespace, mod1.Name, "asdf")
 
 	if FQMN1 != "fqmn://dev.suborbital.appname/default/getUser@asdf" {
 		t.Error("FQMN1 should be 'fqmn://dev.suborbital.appname/default/getUser@asdf', got", FQMN1)
@@ -236,13 +236,13 @@ func TestConfigFQMNs(t *testing.T) {
 		t.Errorf("FQMN1 %q did not match mod1.FQMN %q", FQMN1, mod1.FQMN)
 	}
 
-	mod2, _ := dir.FindModule("/name/db/getUserDetails")
+	mod2, _ := conf.FindModule("/name/db/getUserDetails")
 	if mod2 == nil {
 		t.Error("failed to FindModule for /name/db/getUserDetails")
 		return
 	}
 
-	FQMN2 := dir.FQMNForFunc(mod2.Namespace, mod2.Name, "asdf")
+	FQMN2 := conf.FQMNForFunc(mod2.Namespace, mod2.Name, "asdf")
 
 	if FQMN2 != "fqmn://dev.suborbital.appname/db/getUserDetails@asdf" {
 		t.Error("FQMN2 should be 'fqmn://dev.suborbital.appname/db/getUserDetails@asdf', got", FQMN2)
@@ -252,13 +252,13 @@ func TestConfigFQMNs(t *testing.T) {
 		t.Error("FQMN2 did not match mod2.FQMN")
 	}
 
-	mod3, _ := dir.FindModule("/name/api/returnUser")
+	mod3, _ := conf.FindModule("/name/api/returnUser")
 	if mod3 == nil {
 		t.Error("failed to FindModule for /name/api/returnUser")
 		return
 	}
 
-	FQMN3 := dir.FQMNForFunc(mod3.Namespace, mod3.Name, "asdf")
+	FQMN3 := conf.FQMNForFunc(mod3.Namespace, mod3.Name, "asdf")
 
 	if FQMN3 != "fqmn://dev.suborbital.appname/api/returnUser@asdf" {
 		t.Error("FQMN3 should be 'fqmn://dev.suborbital.appname/api/returnUser@asdf', got", FQMN3)
@@ -268,14 +268,14 @@ func TestConfigFQMNs(t *testing.T) {
 		t.Error("FQMN3 did not match mod3.FQMN")
 	}
 
-	mod5, _ := dir.FindModule("foo::bar")
+	mod5, _ := conf.FindModule("foo::bar")
 	if mod5 != nil {
 		t.Error("should not have found a Runnable for foo::bar")
 	}
 }
 
 func TestConfigValidatorWithMissingState(t *testing.T) {
-	dir := Config{
+	conf := Config{
 		Identifier:    "dev.suborbital.appname",
 		TenantVersion: 1,
 		Modules: []Module{
@@ -321,7 +321,7 @@ func TestConfigValidatorWithMissingState(t *testing.T) {
 		},
 	}
 
-	if err := dir.Validate(); err == nil {
+	if err := conf.Validate(); err == nil {
 		t.Error("Config validation should have failed")
 	} else {
 		fmt.Println("Config validation properly failed:", err)

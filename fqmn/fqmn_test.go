@@ -123,3 +123,29 @@ func (s *FQMNSuite) TestMigrateV1ToV2() {
 		})
 	}
 }
+
+func (s *FQMNSuite) TestFromParts() {
+	for _, tt := range []struct {
+		name      string
+		namespace string
+		ref       string
+		tenant    string
+		fqmn      string
+		error
+	}{
+		{
+			"foobar",
+			"default",
+			"asdf",
+			"com.suborbital.something",
+			"fqmn://com.suborbital.something/default/foobar@asdf",
+			nil,
+		},
+	} {
+		s.Run(tt.fqmn, func() {
+			fqmn := FromParts(tt.tenant, tt.namespace, tt.name, tt.ref)
+
+			s.Assertions.Equal(fqmn, tt.fqmn)
+		})
+	}
+}
