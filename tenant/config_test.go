@@ -228,8 +228,8 @@ func TestConfigFQMNs(t *testing.T) {
 
 	FQMN1 := dir.FQMNForFunc(mod1.Namespace, mod1.Name, "asdf")
 
-	if FQMN1 != "fqmn://dev.suborbital.appname/asdf/default/getUser" {
-		t.Error("FQMN1 should be 'fqmn://dev.suborbital.appname/asdf/default/getUser', got", FQMN1)
+	if FQMN1 != "fqmn://dev.suborbital.appname/default/getUser@asdf" {
+		t.Error("FQMN1 should be 'fqmn://dev.suborbital.appname/default/getUser@asdf', got", FQMN1)
 	}
 
 	if FQMN1 != mod1.FQMN {
@@ -244,8 +244,8 @@ func TestConfigFQMNs(t *testing.T) {
 
 	FQMN2 := dir.FQMNForFunc(mod2.Namespace, mod2.Name, "asdf")
 
-	if FQMN2 != "fqmn://dev.suborbital.appname/asdf/db/getUserDetails" {
-		t.Error("FQMN2 should be 'fqmn://dev.suborbital.appname/asdf/db/getUserDetails', got", FQMN2)
+	if FQMN2 != "fqmn://dev.suborbital.appname/db/getUserDetails@asdf" {
+		t.Error("FQMN2 should be 'fqmn://dev.suborbital.appname/db/getUserDetails@asdf', got", FQMN2)
 	}
 
 	if FQMN2 != mod2.FQMN {
@@ -260,32 +260,13 @@ func TestConfigFQMNs(t *testing.T) {
 
 	FQMN3 := dir.FQMNForFunc(mod3.Namespace, mod3.Name, "asdf")
 
-	if FQMN3 != "fqmn://dev.suborbital.appname/asdf/api/returnUser" {
-		t.Error("FQMN3 should be 'fqmn://dev.suborbital.appname/asdf/api/returnUser', got", FQMN3)
+	if FQMN3 != "fqmn://dev.suborbital.appname/api/returnUser@asdf" {
+		t.Error("FQMN3 should be 'fqmn://dev.suborbital.appname/api/returnUser@asdf', got", FQMN3)
 	}
 
 	if FQMN3 != mod3.FQMN {
 		t.Error("FQMN3 did not match mod3.FQMN")
 	}
-
-	////////////////////
-	// Commented out as the FQMN parser does not currently support /name FQMNs that include the tenant ident
-	///////////////////
-	// mod4 := dir.FindModule("/name/dev.suborbital.appname/api/returnUser")
-	// if mod4 == nil {
-	// 	t.Error("failed to FindModule for /name/dev.suborbital.appname/api/returnUser")
-	// 	return
-	// }
-
-	// FQMN4 := dir.FQMNForFunc(mod3.Namespace, mod3.Name, "asdf")
-
-	// if FQMN4 != "fqmn://dev.suborbital.appname/asdf/api/returnUser" {
-	// 	t.Error("FQMN4 should be 'fqmn://dev.suborbital.appname/asdf/api/returnUser', got", FQMN3)
-	// }
-
-	// if FQMN4 != mod4.FQMN {
-	// 	t.Error("FQMN4 did not match mod4.FQMN")
-	// }
 
 	mod5, _ := dir.FindModule("foo::bar")
 	if mod5 != nil {
