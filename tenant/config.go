@@ -139,11 +139,16 @@ func (c *Config) calculateFQMNs() {
 			mod.Namespace = fqmn.NamespaceDefault
 		}
 
-		c.Modules[i].FQMN = c.FQMNForFunc(mod.Namespace, mod.Name, mod.Ref)
+		var err error
+		c.Modules[i].FQMN, err = c.FQMNForFunc(mod.Namespace, mod.Name, mod.Ref)
+
+		if err != nil {
+			// ???????
+		}
 	}
 }
 
-func (c *Config) FQMNForFunc(namespace, fn, ref string) string {
+func (c *Config) FQMNForFunc(namespace, fn, ref string) (string, error) {
 	return fqmn.FromParts(c.Identifier, namespace, fn, ref)
 }
 
