@@ -139,12 +139,10 @@ func (c *Config) calculateFQMNs() {
 			mod.Namespace = fqmn.NamespaceDefault
 		}
 
-		var err error
-		c.Modules[i].FQMN, err = c.FQMNForFunc(mod.Namespace, mod.Name, mod.Ref)
-
-		if err != nil {
-			// ???????
-		}
+		// We deliberately ignore returned errors.
+		// The module will not be runnable, but it's not a problem for the
+		// system as a whole.
+		c.Modules[i].FQMN, _ = c.FQMNForFunc(mod.Namespace, mod.Name, mod.Ref)
 	}
 }
 
