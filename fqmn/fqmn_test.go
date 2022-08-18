@@ -141,9 +141,46 @@ func (s *FQMNSuite) TestFromParts() {
 			"fqmn://com.suborbital.something/default/foobar@asdf",
 			nil,
 		},
+		{
+			"",
+			"default",
+			"asdf",
+			"com.suborbital.something",
+			"",
+			ErrFQMNConstructionFailure,
+		},
+		{
+			"foobar",
+			"",
+			"asdf",
+			"com.suborbital.something",
+			"",
+			ErrFQMNConstructionFailure,
+		},
+		{
+			"foobar",
+			"default",
+			"",
+			"com.suborbital.something",
+			"",
+			ErrFQMNConstructionFailure,
+		},
+		{
+			"foobar",
+			"default",
+			"asdf",
+			"",
+			"",
+			ErrFQMNConstructionFailure,
+		},
 	} {
 		s.Run(tt.fqmn, func() {
-			fqmn := FromParts(tt.tenant, tt.namespace, tt.name, tt.ref)
+			fqmn, err := FromParts(tt.tenant, tt.namespace, tt.name, tt.ref)
+
+			if err != nil {
+				s.Assertions.ErrorIs(err, tt.error)
+				return
+			}
 
 			s.Assertions.Equal(fqmn, tt.fqmn)
 		})

@@ -41,6 +41,7 @@ type FQMN struct {
 }
 
 var ErrFQMNParseFailure = errors.New("FQMN failed to parse")
+var ErrFQMNConstructionFailure = errors.New("All FQMN must be defined")
 
 var errWrongPrefix = errors.Wrap(ErrFQMNParseFailure, "FQMN must begin with 'fqmn://', '/name', or '/ref'")
 var errMustBeFullyQualified = errors.Wrap(ErrFQMNParseFailure, "FQMN text format must contain an tenant, ref, namespace, and module name")
@@ -200,6 +201,9 @@ func (f FQMN) URLPath() string {
 }
 
 // FromParts returns an FQMN from the provided parts
-func FromParts(tenant, namespace, module, ref string) string {
-	return fmt.Sprintf("fqmn://%s/%s/%s@%s", tenant, namespace, module, ref)
+func FromParts(tenant, namespace, module, ref string) (string, error) {
+	if tenant == "" || namespace == "" || module == "" || ref == "" {
+		return "", ErrFQMNConstructionFailure
+	}
+	return fmt.Sprintf("fqmn://%s/%s/%s@%s", tenant, namespace, module, ref), nil
 }

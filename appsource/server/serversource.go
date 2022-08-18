@@ -89,7 +89,12 @@ func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
 		namespace := ctx.Params.ByName("namespace")
 		mod := ctx.Params.ByName("mod")
 
-		fqmnString := fqmn.FromParts(ident, namespace, mod, ref)
+		fqmnString, err := fqmn.FromParts(ident, namespace, mod, ref)
+		if err != nil {
+			ctx.Log.Error(errors.Wrap(err, "failed fqmn FromParts"))
+
+			return nil, vk.E(http.StatusInternalServerError, "something went wrong")
+		}
 
 		runnable, err := a.appSource.GetModule(fqmnString)
 		if err != nil {
