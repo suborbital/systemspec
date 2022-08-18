@@ -226,7 +226,7 @@ func TestConfigFQMNs(t *testing.T) {
 		return
 	}
 
-	FQMN1 := conf.FQMNForFunc(mod1.Namespace, mod1.Name, "asdf")
+	FQMN1, _ := conf.FQMNForFunc(mod1.Namespace, mod1.Name, "asdf")
 
 	if FQMN1 != "fqmn://dev.suborbital.appname/default/getUser@asdf" {
 		t.Error("FQMN1 should be 'fqmn://dev.suborbital.appname/default/getUser@asdf', got", FQMN1)
@@ -242,7 +242,7 @@ func TestConfigFQMNs(t *testing.T) {
 		return
 	}
 
-	FQMN2 := conf.FQMNForFunc(mod2.Namespace, mod2.Name, "asdf")
+	FQMN2, _ := conf.FQMNForFunc(mod2.Namespace, mod2.Name, "asdf")
 
 	if FQMN2 != "fqmn://dev.suborbital.appname/db/getUserDetails@asdf" {
 		t.Error("FQMN2 should be 'fqmn://dev.suborbital.appname/db/getUserDetails@asdf', got", FQMN2)
@@ -258,7 +258,7 @@ func TestConfigFQMNs(t *testing.T) {
 		return
 	}
 
-	FQMN3 := conf.FQMNForFunc(mod3.Namespace, mod3.Name, "asdf")
+	FQMN3, _ := conf.FQMNForFunc(mod3.Namespace, mod3.Name, "asdf")
 
 	if FQMN3 != "fqmn://dev.suborbital.appname/api/returnUser@asdf" {
 		t.Error("FQMN3 should be 'fqmn://dev.suborbital.appname/api/returnUser@asdf', got", FQMN3)
