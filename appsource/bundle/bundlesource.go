@@ -60,7 +60,7 @@ func (b *BundleSource) Overview() (*appsource.Overview, error) {
 		},
 		TenantRefs: appsource.References{
 			Identifiers: map[string]int64{
-				b.bundle.TenantConfig.Identifier: 1,
+				b.bundle.TenantConfig.Identifier: b.bundle.TenantConfig.TenantVersion,
 			},
 		},
 	}
