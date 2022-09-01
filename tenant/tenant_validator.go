@@ -203,8 +203,30 @@ func (c *Config) validateSteps(exType executableType, name string, steps []execu
 			}
 
 			for _, key := range mod.With {
+				// check if the literal key exists in state
 				if _, exists := fullState[key]; !exists {
-					problems.add(fmt.Errorf("%s for %s has 'with' value at step %d referencing a key that is not yet available in the handler's state: %s", exType, name, j, key))
+					// if not, iterate through the state keys
+					// and parse them as FQMNs. If the 'with'
+					// key matches a module's name, it's fine.
+
+					found := false
+
+					for stateKey := range fullState {
+						stateFQMN, err := fqmn.Parse(stateKey)
+						if err != nil {
+							// not a valid FQMN, that's fine
+							continue
+						} else {
+							if stateFQMN.Name == key {
+								found = true
+								break
+							}
+						}
+					}
+
+					if !found {
+						problems.add(fmt.Errorf("%s for %s has 'with' value at step %d referencing a key that is not yet available in the handler's state: %s", exType, name, j, key))
+					}
 				}
 			}
 
