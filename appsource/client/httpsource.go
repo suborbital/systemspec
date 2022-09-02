@@ -163,8 +163,8 @@ func (h *HTTPSource) Capabilities(ident, namespace string, version int64) (*capa
 }
 
 // StaticFile returns a requested file.
-func (h *HTTPSource) StaticFile(ident, namespace, filename string, version int64) ([]byte, error) {
-	path := fmt.Sprintf("/appsource/v1/file/%s/%s/%s/%d", ident, namespace, filename, version)
+func (h *HTTPSource) StaticFile(ident string, version int64, filename string) ([]byte, error) {
+	path := fmt.Sprintf("/appsource/v1/file/%s/%d/%s", ident, version, filename)
 
 	resp, err := h.get(path, nil)
 	if err != nil {

@@ -96,7 +96,7 @@ func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, lo
 	}
 
 	f := func(pathName string) ([]byte, error) {
-		return source.StaticFile(ident, namespace, pathName, tenantOverview.Config.TenantVersion)
+		return source.StaticFile(ident, tenantOverview.Config.TenantVersion, pathName)
 	}
 
 	defaultConfig.Logger.Logger = log
