@@ -50,8 +50,7 @@ func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
 	v1.GET("/capabilities/:ident/:namespace/:version", a.CapabilitiesHandler())
 	v1.GET("/queries/:ident/:namespace/:version", a.QueriesHandler())
 
-	// this is undefined right now. I'm not sure how to fetch one file without explicit ident / version info.
-	v1.GET("/file/:ident/:version/:filename", a.FileHandler())
+	v1.GET("/file/:ident/:version/*filename", a.FileHandler())
 
 	router.AddGroup(v1)
 
