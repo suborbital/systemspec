@@ -217,7 +217,7 @@ func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*ca
 }
 
 // File returns a requested file.
-func (b *BundleSource) StaticFile(ident, namespace, filename string, version int64) ([]byte, error) {
+func (b *BundleSource) StaticFile(ident string, tenantVersion int64, filename string) ([]byte, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 

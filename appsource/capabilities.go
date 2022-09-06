@@ -10,15 +10,20 @@ import (
 
 // ResolveCapabilitiesFromSource takes the ident, namespace, and version, and looks up the capabilities for that trio from the
 // AppSource applying the user overrides over the default configurations.
-func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, version int64, log *vlog.Logger) (*capabilities.CapabilityConfig, error) {
+func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, log *vlog.Logger) (*capabilities.CapabilityConfig, error) {
 	defaultConfig := capabilities.DefaultCapabilityConfig()
 
-	userConfig, err := source.Capabilities(ident, namespace, version)
+	tenantOverview, err := source.TenantOverview(ident)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get TenantOverview for %s", ident)
+	}
+
+	userConfig, err := source.Capabilities(ident, namespace, tenantOverview.Config.TenantVersion)
 	if err != nil || userConfig == nil {
 		return &defaultConfig, nil
 	}
 
-	connections, err := source.Connections(ident, namespace, version)
+	connections, err := source.Connections(ident, namespace, tenantOverview.Config.TenantVersion)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get Connections")
 	} else if connections == nil {
@@ -61,7 +66,7 @@ func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, ve
 		}
 
 		if c.Type == tenant.ConnectionTypeMySQL || c.Type == tenant.ConnectionTypePostgres {
-			queries, err := source.Queries(ident, namespace, version)
+			queries, err := source.Queries(ident, namespace, tenantOverview.Config.TenantVersion)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to get Queries")
 			}
@@ -91,7 +96,7 @@ func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, ve
 	}
 
 	f := func(pathName string) ([]byte, error) {
-		return source.StaticFile(ident, namespace, pathName, version)
+		return source.StaticFile(ident, tenantOverview.Config.TenantVersion, pathName)
 	}
 
 	defaultConfig.Logger.Logger = log

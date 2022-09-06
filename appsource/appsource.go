@@ -44,8 +44,7 @@ type AppSource interface {
 	Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error)
 
 	// StaticFile is a source of static files for the application
-	// TODO: refactor this into a set of capabilities / profiles.
-	StaticFile(identifier, namespace, path string, version int64) ([]byte, error)
+	StaticFile(identifier string, tenantVersion int64, path string) ([]byte, error)
 
 	// Queries returns the database queries that should be made available.
 	Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error)

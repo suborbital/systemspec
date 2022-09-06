@@ -50,8 +50,7 @@ func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
 	v1.GET("/capabilities/:ident/:namespace/:version", a.CapabilitiesHandler())
 	v1.GET("/queries/:ident/:namespace/:version", a.QueriesHandler())
 
-	// this is undefined right now. I'm not sure how to fetch one file without explicit ident / version info.
-	v1.GET("/file/:ident/:ref/:filename", a.FileHandler())
+	v1.GET("/file/:ident/:version/*filename", a.FileHandler())
 
 	router.AddGroup(v1)
 
@@ -172,15 +171,15 @@ func (a *AppSourceVKRouter) CapabilitiesHandler() vk.HandlerFunc {
 // FileHandler is a handler to fetch Files.
 func (a *AppSourceVKRouter) FileHandler() vk.HandlerFunc {
 	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
-		filename := ctx.Params.ByName("filename")
 		ident := ctx.Params.ByName("ident")
-		namespace := ctx.Params.ByName("namespace")
+		filename := ctx.Params.ByName("filename")
+
 		version, err := strconv.Atoi(ctx.Params.ByName("version"))
 		if err != nil {
 			return nil, vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		fileBytes, err := a.appSource.StaticFile(ident, namespace, filename, int64(version))
+		fileBytes, err := a.appSource.StaticFile(ident, int64(version), filename)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				return nil, vk.E(http.StatusNotFound, "not found")
