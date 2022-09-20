@@ -1,4 +1,4 @@
-package appsource
+package system
 
 import (
 	"errors"
@@ -14,9 +14,9 @@ var (
 	ErrAuthenticationFailed = errors.New("failed to authenticate")
 )
 
-// AppSource describes how an entire system relays its state to a client
-type AppSource interface {
-	// Start indicates to the AppSource that it should prepare for app startup.
+// Source describes how an entire system relays its state to a client
+type Source interface {
+	// Start indicates to the Source that it should prepare for app startup.
 	Start(opts Options) error
 
 	// State returns the state of the entire system, used for cache invalidation and sync purposes

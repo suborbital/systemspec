@@ -12,21 +12,21 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/appsource"
 	"github.com/suborbital/appspec/capabilities"
 	"github.com/suborbital/appspec/fqmn"
+	"github.com/suborbital/appspec/system"
 	"github.com/suborbital/appspec/tenant"
 )
 
-// HTTPSource is an AppSource backed by an HTTP client connected to a remote source.
+// HTTPSource is an Source backed by an HTTP client connected to a remote source.
 type HTTPSource struct {
 	host       string
 	authHeader string
-	opts       appsource.Options
+	opts       system.Options
 }
 
 // NewHTTPSource creates a new HTTPSource that looks for a bundle at [host].
-func NewHTTPSource(host string, creds appsource.CredentialSupplier) appsource.AppSource {
+func NewHTTPSource(host string, creds system.CredentialSupplier) system.Source {
 	if !strings.HasPrefix(host, "http://") && !strings.HasPrefix(host, "https://") {
 		host = fmt.Sprintf("http://%s", host)
 	}
@@ -39,7 +39,7 @@ func NewHTTPSource(host string, creds appsource.CredentialSupplier) appsource.Ap
 }
 
 // Start initializes the app source.
-func (h *HTTPSource) Start(opts appsource.Options) error {
+func (h *HTTPSource) Start(opts system.Options) error {
 	h.opts = opts
 
 	if err := h.pingServer(); err != nil {
@@ -50,9 +50,9 @@ func (h *HTTPSource) Start(opts appsource.Options) error {
 }
 
 // State returns the state of the entire system
-func (h *HTTPSource) State() (*appsource.State, error) {
-	s := &appsource.State{}
-	if _, err := h.get("/appsource/v1/state", s); err != nil {
+func (h *HTTPSource) State() (*system.State, error) {
+	s := &system.State{}
+	if _, err := h.get("/system/v1/state", s); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /state"))
 		return nil, errors.Wrap(err, "failed to get /state")
 	}
@@ -61,9 +61,9 @@ func (h *HTTPSource) State() (*appsource.State, error) {
 }
 
 // Overview gets the overview for the entire system.
-func (h *HTTPSource) Overview() (*appsource.Overview, error) {
-	ovv := &appsource.Overview{}
-	if _, err := h.get("/appsource/v1/overview", ovv); err != nil {
+func (h *HTTPSource) Overview() (*system.Overview, error) {
+	ovv := &system.Overview{}
+	if _, err := h.get("/system/v1/overview", ovv); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /overview"))
 		return nil, errors.Wrap(err, "failed to get /overview")
 	}
@@ -72,10 +72,10 @@ func (h *HTTPSource) Overview() (*appsource.Overview, error) {
 }
 
 // TenantOverview gets the overview for a given tenant.
-func (h *HTTPSource) TenantOverview(ident string) (*appsource.TenantOverview, error) {
-	ovv := &appsource.TenantOverview{}
+func (h *HTTPSource) TenantOverview(ident string) (*system.TenantOverview, error) {
+	ovv := &system.TenantOverview{}
 
-	if _, err := h.get(fmt.Sprintf("/appsource/v1/tenant/%s", ident), ovv); err != nil {
+	if _, err := h.get(fmt.Sprintf("/system/v1/tenant/%s", ident), ovv); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get tenant overview"))
 		return nil, errors.Wrap(err, "failed to get tenant overview")
 	}
@@ -92,24 +92,24 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 		return nil, errors.Wrap(err, "failed to Parse FQMN")
 	}
 
-	path := fmt.Sprintf("/appsource/v1/module%s", f.URLPath())
+	path := fmt.Sprintf("/system/v1/module%s", f.URLPath())
 
 	module := &tenant.Module{}
 	if resp, err := h.authedGet(path, h.authHeader, module); err != nil {
 		h.opts.Logger().Error(errors.Wrapf(err, "failed to get %s", path))
 
 		if resp.StatusCode == http.StatusUnauthorized {
-			return nil, appsource.ErrAuthenticationFailed
+			return nil, system.ErrAuthenticationFailed
 		}
 
-		return nil, appsource.ErrModuleNotFound
+		return nil, system.ErrModuleNotFound
 	}
 
 	if h.authHeader != "" {
 		// if we get this far, we assume the token was used to successfully get
 		// the module from the control plane, and should therefore be used to
 		// authenticate further calls for this function, so we cache its hash.
-		module.TokenHash = appsource.TokenHash(h.authHeader)
+		module.TokenHash = system.TokenHash(h.authHeader)
 	}
 
 	return module, nil
@@ -119,7 +119,7 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error) {
 	workflows := make([]tenant.Workflow, 0)
 
-	if _, err := h.get(fmt.Sprintf("/appsource/v1/workflows/%s/%s/%d", ident, namespace, version), &workflows); err != nil {
+	if _, err := h.get(fmt.Sprintf("/system/v1/workflows/%s/%s/%d", ident, namespace, version), &workflows); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /workflows"))
 		return nil, errors.Wrap(err, "failed to get /schedules")
 	}
@@ -131,7 +131,7 @@ func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]tenant
 func (h *HTTPSource) Connections(ident, namespace string, version int64) ([]tenant.Connection, error) {
 	connections := []tenant.Connection{}
 
-	if _, err := h.get(fmt.Sprintf("/appsource/v1/connections/%s/%s/%d", ident, namespace, version), &connections); err != nil {
+	if _, err := h.get(fmt.Sprintf("/system/v1/connections/%s/%s/%d", ident, namespace, version), &connections); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /connections"))
 		return nil, errors.Wrap(err, "failed to get /connections")
 	}
@@ -143,7 +143,7 @@ func (h *HTTPSource) Connections(ident, namespace string, version int64) ([]tena
 func (h *HTTPSource) Authentication(ident, namespace string, version int64) (*tenant.Authentication, error) {
 	authentication := &tenant.Authentication{}
 
-	if _, err := h.get(fmt.Sprintf("/appsource/v1/authentication/%s/%s/%d", ident, namespace, version), authentication); err != nil {
+	if _, err := h.get(fmt.Sprintf("/system/v1/authentication/%s/%s/%d", ident, namespace, version), authentication); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /authentication"))
 	}
 
@@ -154,7 +154,7 @@ func (h *HTTPSource) Authentication(ident, namespace string, version int64) (*te
 func (h *HTTPSource) Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error) {
 	capabilities := &capabilities.CapabilityConfig{}
 
-	if _, err := h.get(fmt.Sprintf("/appsource/v1/capabilities/%s/%s/%d", ident, namespace, version), capabilities); err != nil {
+	if _, err := h.get(fmt.Sprintf("/system/v1/capabilities/%s/%s/%d", ident, namespace, version), capabilities); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /capabilities"))
 		return nil, errors.Wrap(err, "failed to get /capabilities")
 	}
@@ -164,7 +164,7 @@ func (h *HTTPSource) Capabilities(ident, namespace string, version int64) (*capa
 
 // StaticFile returns a requested file.
 func (h *HTTPSource) StaticFile(ident string, version int64, filename string) ([]byte, error) {
-	path := fmt.Sprintf("/appsource/v1/file/%s/%d/%s", ident, version, filename)
+	path := fmt.Sprintf("/system/v1/file/%s/%d/%s", ident, version, filename)
 
 	resp, err := h.get(path, nil)
 	if err != nil {
@@ -185,7 +185,7 @@ func (h *HTTPSource) StaticFile(ident string, version int64, filename string) ([
 func (h *HTTPSource) Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error) {
 	queries := make([]tenant.DBQuery, 0)
 
-	if _, err := h.get(fmt.Sprintf("/appsource/v1/queries/%s/%s/%d", ident, namespace, version), &queries); err != nil {
+	if _, err := h.get(fmt.Sprintf("/system/v1/queries/%s/%s/%d", ident, namespace, version), &queries); err != nil {
 		h.opts.Logger().Error(errors.Wrap(err, "failed to get /queries"))
 		return nil, errors.Wrap(err, "failed to get /queries")
 	}
@@ -196,7 +196,7 @@ func (h *HTTPSource) Queries(ident, namespace string, version int64) ([]tenant.D
 // pingServer loops forever until it finds a server at the configured host.
 func (h *HTTPSource) pingServer() error {
 	for {
-		if _, err := h.get("/appsource/v1/state", nil); err != nil {
+		if _, err := h.get("/system/v1/state", nil); err != nil {
 
 			h.opts.Logger().Warn("failed to connect to remote source, will retry:", err.Error())
 

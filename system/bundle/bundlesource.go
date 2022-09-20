@@ -7,23 +7,23 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/appsource"
 	"github.com/suborbital/appspec/bundle"
 	"github.com/suborbital/appspec/capabilities"
+	"github.com/suborbital/appspec/system"
 	"github.com/suborbital/appspec/tenant"
 )
 
-// BundleSource is an AppSource backed by a bundle file.
+// BundleSource is an Source backed by a bundle file.
 type BundleSource struct {
 	path   string
-	opts   appsource.Options
+	opts   system.Options
 	bundle *bundle.Bundle
 
 	lock sync.RWMutex
 }
 
 // NewBundleSource creates a new BundleSource that looks for a bundle at [path].
-func NewBundleSource(path string) appsource.AppSource {
+func NewBundleSource(path string) system.Source {
 	b := &BundleSource{
 		path: path,
 		lock: sync.RWMutex{},
@@ -33,7 +33,7 @@ func NewBundleSource(path string) appsource.AppSource {
 }
 
 // Start initializes the app source.
-func (b *BundleSource) Start(opts appsource.Options) error {
+func (b *BundleSource) Start(opts system.Options) error {
 	b.opts = opts
 
 	if err := b.findBundle(); err != nil {
@@ -44,8 +44,8 @@ func (b *BundleSource) Start(opts appsource.Options) error {
 }
 
 // State returns the state of the entire system
-func (b *BundleSource) State() (*appsource.State, error) {
-	s := &appsource.State{
+func (b *BundleSource) State() (*system.State, error) {
+	s := &system.State{
 		SystemVersion: 1,
 	}
 
@@ -53,12 +53,12 @@ func (b *BundleSource) State() (*appsource.State, error) {
 }
 
 // Overview gets the overview for the entire system.
-func (b *BundleSource) Overview() (*appsource.Overview, error) {
-	ovv := &appsource.Overview{
-		State: appsource.State{
+func (b *BundleSource) Overview() (*system.Overview, error) {
+	ovv := &system.Overview{
+		State: system.State{
 			SystemVersion: 1,
 		},
-		TenantRefs: appsource.References{
+		TenantRefs: system.References{
 			Identifiers: map[string]int64{
 				b.bundle.TenantConfig.Identifier: b.bundle.TenantConfig.TenantVersion,
 			},
@@ -69,19 +69,19 @@ func (b *BundleSource) Overview() (*appsource.Overview, error) {
 }
 
 // Runnables returns the Runnables for the app.
-func (b *BundleSource) TenantOverview(ident string) (*appsource.TenantOverview, error) {
+func (b *BundleSource) TenantOverview(ident string) (*system.TenantOverview, error) {
 	if !b.checkIdentifier(ident) {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
-	ovv := &appsource.TenantOverview{
+	ovv := &system.TenantOverview{
 		Identifier: ident,
 		Version:    b.bundle.TenantConfig.TenantVersion,
 		Config:     b.bundle.TenantConfig,
@@ -91,13 +91,13 @@ func (b *BundleSource) TenantOverview(ident string) (*appsource.TenantOverview, 
 }
 
 // FindRunnable searches for and returns the requested runnable
-// otherwise appsource.ErrFunctionNotFound.
+// otherwise system.ErrFunctionNotFound.
 func (b *BundleSource) GetModule(FQMN string) (*tenant.Module, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil {
-		return nil, appsource.ErrModuleNotFound
+		return nil, system.ErrModuleNotFound
 	}
 
 	for i, r := range b.bundle.TenantConfig.Modules {
@@ -106,20 +106,20 @@ func (b *BundleSource) GetModule(FQMN string) (*tenant.Module, error) {
 		}
 	}
 
-	return nil, appsource.ErrModuleNotFound
+	return nil, system.ErrModuleNotFound
 }
 
 // Schedules returns the schedules for the app.
 func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error) {
 	if !b.checkIdentifier(ident) {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
 	if namespace == "default" {
@@ -132,7 +132,7 @@ func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]tena
 		}
 	}
 
-	return nil, appsource.ErrNamespaceNotFound
+	return nil, system.ErrNamespaceNotFound
 }
 
 // Connections returns the Connections for the app.
@@ -141,11 +141,11 @@ func (b *BundleSource) Connections(ident, namespace string, version int64) ([]te
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
 	if !b.checkIdentifier(ident) {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
 	if namespace == "default" {
@@ -158,7 +158,7 @@ func (b *BundleSource) Connections(ident, namespace string, version int64) ([]te
 		}
 	}
 
-	return nil, appsource.ErrTenantNotFound
+	return nil, system.ErrTenantNotFound
 }
 
 // Authentication returns the Authentication for the app.
@@ -167,11 +167,11 @@ func (b *BundleSource) Authentication(ident, namespace string, version int64) (*
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil || b.bundle.TenantConfig.DefaultNamespace.Authentication == nil {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
 	if !b.checkIdentifier(ident) {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
 	if namespace == "default" {
@@ -184,7 +184,7 @@ func (b *BundleSource) Authentication(ident, namespace string, version int64) (*
 		}
 	}
 
-	return nil, appsource.ErrTenantNotFound
+	return nil, system.ErrTenantNotFound
 }
 
 // Capabilities returns the configuration for the app's capabilities.
@@ -213,7 +213,7 @@ func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*ca
 		}
 	}
 
-	return nil, appsource.ErrTenantNotFound
+	return nil, system.ErrTenantNotFound
 }
 
 // File returns a requested file.
@@ -238,11 +238,11 @@ func (b *BundleSource) Queries(ident, namespace string, version int64) ([]tenant
 	defer b.lock.RUnlock()
 
 	if b.bundle == nil || b.bundle.TenantConfig.DefaultNamespace.Queries == nil {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
 	if !b.checkIdentifier(ident) {
-		return nil, appsource.ErrTenantNotFound
+		return nil, system.ErrTenantNotFound
 	}
 
 	if namespace == "default" {
@@ -255,7 +255,7 @@ func (b *BundleSource) Queries(ident, namespace string, version int64) ([]tenant
 		}
 	}
 
-	return nil, appsource.ErrTenantNotFound
+	return nil, system.ErrTenantNotFound
 }
 
 // findBundle loops forever until it finds a bundle at the configured path.

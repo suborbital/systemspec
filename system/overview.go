@@ -1,4 +1,4 @@
-package appsource
+package system
 
 import "github.com/suborbital/appspec/tenant"
 

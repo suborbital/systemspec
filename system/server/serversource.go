@@ -8,20 +8,20 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/appsource"
 	fqmn "github.com/suborbital/appspec/fqmn"
+	"github.com/suborbital/appspec/system"
 	"github.com/suborbital/vektor/vk"
 )
 
 // AppSourceVKRouter is a helper struct to generate a VK router that can serve
-// an HTTP AppSource based on an actual AppSource object.
+// an HTTP Source based on an actual Source object.
 type AppSourceVKRouter struct {
-	appSource appsource.AppSource
-	options   appsource.Options
+	appSource system.Source
+	options   system.Options
 }
 
 // NewAppSourceVKRouter creates a new AppSourceVKRouter.
-func NewAppSourceVKRouter(appSource appsource.AppSource, opts appsource.Options) *AppSourceVKRouter {
+func NewAppSourceVKRouter(appSource system.Source, opts system.Options) *AppSourceVKRouter {
 	h := &AppSourceVKRouter{
 		appSource: appSource,
 		options:   opts,
@@ -30,7 +30,7 @@ func NewAppSourceVKRouter(appSource appsource.AppSource, opts appsource.Options)
 	return h
 }
 
-// GenerateRouter generates a VK router that uses an AppSource to serve data.
+// GenerateRouter generates a VK router that uses an Source to serve data.
 func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
 	if err := a.appSource.Start(a.options); err != nil {
 		return nil, errors.Wrap(err, "failed to appSource.Start")
@@ -38,7 +38,7 @@ func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
 
 	router := vk.NewRouter(a.options.Logger(), "")
 
-	v1 := vk.Group("/appsource/v1")
+	v1 := vk.Group("/system/v1")
 
 	v1.GET("/state", a.StateHandler())
 	v1.GET("/overview", a.OverviewHandler())
@@ -99,9 +99,9 @@ func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
 		if err != nil {
 			ctx.Log.Error(errors.Wrap(err, "failed to GetFunction"))
 
-			if errors.Is(err, appsource.ErrModuleNotFound) {
+			if errors.Is(err, system.ErrModuleNotFound) {
 				return nil, vk.Wrap(http.StatusNotFound, fmt.Errorf("failed to find function %s", fqmnString))
-			} else if errors.Is(err, appsource.ErrAuthenticationFailed) {
+			} else if errors.Is(err, system.ErrAuthenticationFailed) {
 				return nil, vk.E(http.StatusUnauthorized, "unauthorized")
 			}
 
