@@ -18,7 +18,7 @@ import (
 	"github.com/suborbital/appspec/tenant"
 )
 
-// HTTPSource is an Source backed by an HTTP client connected to a remote source.
+// HTTPSource is a Source backed by an HTTP client connected to a remote source.
 type HTTPSource struct {
 	host       string
 	authHeader string

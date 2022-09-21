@@ -30,7 +30,7 @@ func NewAppSourceVKRouter(source system.Source, opts system.Options) *AppSourceV
 	return h
 }
 
-// GenerateRouter generates a VK router that uses an Source to serve data.
+// GenerateRouter generates a VK router that uses a Source to serve data.
 func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
 	if err := a.source.Start(a.options); err != nil {
 		return nil, errors.Wrap(err, "failed to source.Start")

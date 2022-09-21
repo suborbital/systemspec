@@ -13,7 +13,7 @@ import (
 	"github.com/suborbital/appspec/tenant"
 )
 
-// BundleSource is an Source backed by a bundle file.
+// BundleSource is a Source backed by a bundle file.
 type BundleSource struct {
 	path   string
 	opts   system.Options
@@ -90,8 +90,8 @@ func (b *BundleSource) TenantOverview(ident string) (*system.TenantOverview, err
 	return ovv, nil
 }
 
-// FindRunnable searches for and returns the requested module
-// otherwise system.ErrFunctionNotFound.
+// GetModule searches for and returns the requested module
+// otherwise system.ErrModuleNotFound.
 func (b *BundleSource) GetModule(FQMN string) (*tenant.Module, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
