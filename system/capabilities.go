@@ -1,4 +1,4 @@
-package appsource
+package system
 
 import (
 	"github.com/pkg/errors"
@@ -9,8 +9,8 @@ import (
 )
 
 // ResolveCapabilitiesFromSource takes the ident, namespace, and version, and looks up the capabilities for that trio from the
-// AppSource applying the user overrides over the default configurations.
-func ResolveCapabilitiesFromSource(source AppSource, ident, namespace string, log *vlog.Logger) (*capabilities.CapabilityConfig, error) {
+// Source applying the user overrides over the default configurations.
+func ResolveCapabilitiesFromSource(source Source, ident, namespace string, log *vlog.Logger) (*capabilities.CapabilityConfig, error) {
 	defaultConfig := capabilities.DefaultCapabilityConfig()
 
 	tenantOverview, err := source.TenantOverview(ident)

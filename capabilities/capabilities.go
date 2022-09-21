@@ -7,7 +7,7 @@ import (
 
 var ErrCapabilityNotAvailable = errors.New("capability not available")
 
-// Capabilities define the capabilities available to a Runnable
+// Capabilities define the capabilities available to a Module
 type Capabilities struct {
 	config CapabilityConfig
 

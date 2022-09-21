@@ -191,15 +191,15 @@ func (c *Config) validateSteps(exType executableType, name string, steps []execu
 		}
 
 		// this function is key as it compartmentalizes 'step validation', and importantly it
-		// ensures that a Runnable is available to handle it and binds it by setting the FQMN field.
+		// ensures that a Module is available to handle it and binds it by setting the FQMN field.
 		validateFn := func(mod *executable.ExecutableMod) {
-			runnable, err := c.FindModule(mod.FQMN)
+			module, err := c.FindModule(mod.FQMN)
 			if err != nil {
 				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not have a properly formed FQMN: %s", exType, name, j, mod.FQMN))
-			} else if runnable == nil {
+			} else if module == nil {
 				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, mod.FQMN))
 			} else {
-				mod.FQMN = runnable.FQMN
+				mod.FQMN = module.FQMN
 			}
 
 			for _, key := range mod.With {
