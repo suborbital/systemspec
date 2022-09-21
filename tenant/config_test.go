@@ -270,7 +270,7 @@ func TestConfigFQMNs(t *testing.T) {
 
 	mod5, _ := conf.FindModule("foo::bar")
 	if mod5 != nil {
-		t.Error("should not have found a Runnable for foo::bar")
+		t.Error("should not have found a Module for foo::bar")
 	}
 }
 

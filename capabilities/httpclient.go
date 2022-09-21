@@ -15,7 +15,7 @@ type HTTPConfig struct {
 	Rules   HTTPRules `json:"rules" yaml:"rules"`
 }
 
-// HTTPCapability gives Runnables the ability to make HTTP requests
+// HTTPCapability gives Modules the ability to make HTTP requests
 type HTTPCapability interface {
 	Do(auth AuthCapability, method, urlString string, body []byte, headers http.Header) (*http.Response, error)
 }

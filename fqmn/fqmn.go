@@ -9,7 +9,7 @@ import (
 
 ////////////////////////////////////////////////////////////////////////////////////
 // An FQMN (fully-qualified module name) is a "globally unique"
-// name for a specific module from a specific application ref
+// name for a specific module from a specific tenant ref
 // example: fqmn://suborbital.acmeco/api-users/add-user@98qhrfgo3089hafrouhqf48
 // i.e. fqmn://<tenant>/<namespace>/<modname>@<ref>
 //
@@ -169,7 +169,7 @@ func MigrateV1ToV2(name, ref string) (FQMN, error) {
 		name = tenantParts[1]
 	}
 
-	// if a Runnable is referenced with its namespace, i.e. users#getUser
+	// if a Module is referenced with its namespace, i.e. users#getUser
 	// then we need to parse that and ensure we only match that namespace.
 
 	namespace := NamespaceDefault
@@ -179,7 +179,7 @@ func MigrateV1ToV2(name, ref string) (FQMN, error) {
 		name = namespaceParts[1]
 	}
 
-	// next, if the name contains an @, parse the name and ignore app version.
+	// next, if the name contains an @, parse the name and ignore tenant version.
 	versionParts := strings.SplitN(name, "@", 2)
 	if len(versionParts) == 2 {
 		name = versionParts[0]

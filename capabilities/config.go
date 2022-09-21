@@ -7,7 +7,7 @@ import (
 
 var ErrCapabilityNotEnabled = errors.New("capability is not enabled")
 
-// CapabilityConfig is configuration for a Runnable's capabilities
+// CapabilityConfig is configuration for a Module's capabilities
 // NOTE: if any of the individual configs are nil, it will cause a crash,
 // but we need to be able to determine if they're set or not, hence the pointers
 // we are going to leave capabilities undocumented until we come up with a more elegant solution

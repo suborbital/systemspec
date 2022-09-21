@@ -38,7 +38,7 @@ func NewHTTPSource(host string, creds system.CredentialSupplier) system.Source {
 	return h
 }
 
-// Start initializes the app source.
+// Start initializes the system source.
 func (h *HTTPSource) Start(opts system.Options) error {
 	h.opts = opts
 
@@ -83,7 +83,7 @@ func (h *HTTPSource) TenantOverview(ident string) (*system.TenantOverview, error
 	return ovv, nil
 }
 
-// GetModule returns a nil error if a Runnable with the
+// GetModule returns a nil error if a Module with the
 // provided FQMN can be made available at the next sync,
 // otherwise ErrRunnableNotFound is returned.
 func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
@@ -115,7 +115,7 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 	return module, nil
 }
 
-// Workflows returns the Workflows for the app.
+// Workflows returns the Workflows for the system.
 func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error) {
 	workflows := make([]tenant.Workflow, 0)
 
@@ -127,7 +127,7 @@ func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]tenant
 	return workflows, nil
 }
 
-// Connections returns the Connections for the app.
+// Connections returns the Connections for the system.
 func (h *HTTPSource) Connections(ident, namespace string, version int64) ([]tenant.Connection, error) {
 	connections := []tenant.Connection{}
 
@@ -139,7 +139,7 @@ func (h *HTTPSource) Connections(ident, namespace string, version int64) ([]tena
 	return connections, nil
 }
 
-// Authentication returns the Authentication for the app.
+// Authentication returns the Authentication for the system.
 func (h *HTTPSource) Authentication(ident, namespace string, version int64) (*tenant.Authentication, error) {
 	authentication := &tenant.Authentication{}
 
@@ -150,7 +150,7 @@ func (h *HTTPSource) Authentication(ident, namespace string, version int64) (*te
 	return authentication, nil
 }
 
-// Capabilities returns the Capabilities for the app.
+// Capabilities returns the Capabilities for the system.
 func (h *HTTPSource) Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error) {
 	capabilities := &capabilities.CapabilityConfig{}
 
@@ -181,7 +181,7 @@ func (h *HTTPSource) StaticFile(ident string, version int64, filename string) ([
 	return file, nil
 }
 
-// Queries returns the Queries for the app.
+// Queries returns the Queries for the system.
 func (h *HTTPSource) Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error) {
 	queries := make([]tenant.DBQuery, 0)
 

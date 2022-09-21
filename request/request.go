@@ -18,7 +18,7 @@ const (
 )
 
 // CoordinatedRequest represents a request whose fulfillment can be coordinated across multiple hosts
-// and is serializable to facilitate interoperation with Wasm Runnables and transmissible over the wire
+// and is serializable to facilitate interoperation with Wasm Modules and transmissible over the wire
 type CoordinatedRequest struct {
 	Method       string            `json:"method"`
 	URL          string            `json:"url"`

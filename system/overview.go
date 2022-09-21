@@ -7,13 +7,13 @@ type State struct {
 	SystemVersion int64 `json:"systemVersion"`
 }
 
-// Overview is an overview of all the applications within the system
+// Overview is an overview of all the tenants within the system
 type Overview struct {
 	State
 	TenantRefs References `json:"tenantReferences"`
 }
 
-// References are maps of all the available applications in the system
+// References are maps of all the available tenants in the system
 type References struct {
 	// map of all tenant idents to their latest tenant version
 	Identifiers map[string]int64 `json:"identifiers"`

@@ -8,7 +8,7 @@ type LoggerConfig struct {
 	Logger  *vlog.Logger `json:"-" yaml:"-"`
 }
 
-// LoggerCapability provides a logger to Runnables
+// LoggerCapability provides a logger to Modules
 type LoggerCapability interface {
 	Log(level int32, msg string, scope interface{})
 }

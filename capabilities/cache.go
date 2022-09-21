@@ -23,7 +23,7 @@ type CacheRules struct {
 	AllowDelete bool `json:"allowDelete" yaml:"allowDelete"`
 }
 
-// CacheCapability gives Runnables access to a key/value cache
+// CacheCapability gives Modules access to a key/value cache
 type CacheCapability interface {
 	Set(key string, val []byte, ttl int) error
 	Get(key string) ([]byte, error)

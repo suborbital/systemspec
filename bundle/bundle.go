@@ -14,7 +14,7 @@ import (
 	"github.com/suborbital/appspec/tenant"
 )
 
-// Bundle represents a Runnable bundle.
+// Bundle represents a Module bundle.
 type Bundle struct {
 	filepath     string
 	TenantConfig *tenant.Config
@@ -63,7 +63,7 @@ func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
 	return contents, nil
 }
 
-// Write writes a runnable bundle
+// Write writes a module bundle
 // based loosely on https://golang.org/src/archive/zip/example_test.go
 // staticFiles should be a map of *relative* filepaths to their associated files, with or without the `static/` prefix.
 func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]os.File, targetPath string) error {
@@ -207,14 +207,14 @@ func Read(path string) (*Bundle, error) {
 		// for now, the bundle spec only supports the default namespace
 		FQMN := fmt.Sprintf("/name/default/%s", strings.TrimSuffix(f.Name, ".wasm"))
 
-		runnable, err := bundle.TenantConfig.FindModule(FQMN)
+		module, err := bundle.TenantConfig.FindModule(FQMN)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to FindModule for %s (%s)", f.Name, FQMN)
-		} else if runnable == nil {
+		} else if module == nil {
 			return nil, fmt.Errorf("unable to find Module for Wasm file %s (%s)", f.Name, FQMN)
 		}
 
-		runnable.WasmRef = tenant.NewWasmModuleRef(f.Name, runnable.FQMN, wasmBytes)
+		module.WasmRef = tenant.NewWasmModuleRef(f.Name, module.FQMN, wasmBytes)
 	}
 
 	if bundle.TenantConfig == nil {

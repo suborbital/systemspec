@@ -32,7 +32,7 @@ func NewBundleSource(path string) system.Source {
 	return b
 }
 
-// Start initializes the app source.
+// Start initializes the system source.
 func (b *BundleSource) Start(opts system.Options) error {
 	b.opts = opts
 
@@ -68,7 +68,7 @@ func (b *BundleSource) Overview() (*system.Overview, error) {
 	return ovv, nil
 }
 
-// Runnables returns the Runnables for the app.
+// Modules returns the Modules for the system.
 func (b *BundleSource) TenantOverview(ident string) (*system.TenantOverview, error) {
 	if !b.checkIdentifier(ident) {
 		return nil, system.ErrTenantNotFound
@@ -90,7 +90,7 @@ func (b *BundleSource) TenantOverview(ident string) (*system.TenantOverview, err
 	return ovv, nil
 }
 
-// FindRunnable searches for and returns the requested runnable
+// FindRunnable searches for and returns the requested module
 // otherwise system.ErrFunctionNotFound.
 func (b *BundleSource) GetModule(FQMN string) (*tenant.Module, error) {
 	b.lock.RLock()
@@ -109,7 +109,7 @@ func (b *BundleSource) GetModule(FQMN string) (*tenant.Module, error) {
 	return nil, system.ErrModuleNotFound
 }
 
-// Schedules returns the schedules for the app.
+// Schedules returns the schedules for the system.
 func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error) {
 	if !b.checkIdentifier(ident) {
 		return nil, system.ErrTenantNotFound
@@ -135,7 +135,7 @@ func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]tena
 	return nil, system.ErrNamespaceNotFound
 }
 
-// Connections returns the Connections for the app.
+// Connections returns the Connections for the system.
 func (b *BundleSource) Connections(ident, namespace string, version int64) ([]tenant.Connection, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
@@ -161,7 +161,7 @@ func (b *BundleSource) Connections(ident, namespace string, version int64) ([]te
 	return nil, system.ErrTenantNotFound
 }
 
-// Authentication returns the Authentication for the app.
+// Authentication returns the Authentication for the system.
 func (b *BundleSource) Authentication(ident, namespace string, version int64) (*tenant.Authentication, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
@@ -187,7 +187,7 @@ func (b *BundleSource) Authentication(ident, namespace string, version int64) (*
 	return nil, system.ErrTenantNotFound
 }
 
-// Capabilities returns the configuration for the app's capabilities.
+// Capabilities returns the configuration for the system's capabilities.
 
 func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error) {
 	defaultConfig := capabilities.DefaultCapabilityConfig()
@@ -232,7 +232,7 @@ func (b *BundleSource) StaticFile(ident string, tenantVersion int64, filename st
 	return b.bundle.StaticFile(filename)
 }
 
-// Queries returns the Queries available to the app.
+// Queries returns the Queries available to the system.
 func (b *BundleSource) Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
@@ -287,7 +287,7 @@ func (b *BundleSource) findBundle() error {
 	return nil
 }
 
-// checkIdentifier checks whether the passed in identifier and version are for the current app running in the
+// checkIdentifier checks whether the passed in identifier and version are for the current system running in the
 // bundle or not. Returns true only if both match.
 func (b *BundleSource) checkIdentifier(identifier string) bool {
 	return b.bundle.TenantConfig.Identifier == identifier

@@ -37,6 +37,6 @@ package bundle
 // 	}
 
 // 	if !hasDefault {
-// 		t.Error("helloworld-rs.wasm runnable not found in bundle or missing ModuleReference")
+// 		t.Error("helloworld-rs.wasm module not found in bundle or missing ModuleReference")
 // 	}
 // }

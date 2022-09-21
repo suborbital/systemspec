@@ -16,15 +16,15 @@ import (
 // AppSourceVKRouter is a helper struct to generate a VK router that can serve
 // an HTTP Source based on an actual Source object.
 type AppSourceVKRouter struct {
-	appSource system.Source
-	options   system.Options
+	source  system.Source
+	options system.Options
 }
 
 // NewAppSourceVKRouter creates a new AppSourceVKRouter.
-func NewAppSourceVKRouter(appSource system.Source, opts system.Options) *AppSourceVKRouter {
+func NewAppSourceVKRouter(source system.Source, opts system.Options) *AppSourceVKRouter {
 	h := &AppSourceVKRouter{
-		appSource: appSource,
-		options:   opts,
+		source:  source,
+		options: opts,
 	}
 
 	return h
@@ -32,8 +32,8 @@ func NewAppSourceVKRouter(appSource system.Source, opts system.Options) *AppSour
 
 // GenerateRouter generates a VK router that uses an Source to serve data.
 func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
-	if err := a.appSource.Start(a.options); err != nil {
-		return nil, errors.Wrap(err, "failed to appSource.Start")
+	if err := a.source.Start(a.options); err != nil {
+		return nil, errors.Wrap(err, "failed to source.Start")
 	}
 
 	router := vk.NewRouter(a.options.Logger(), "")
@@ -60,14 +60,14 @@ func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
 // State is a handler to fetch the system State.
 func (a *AppSourceVKRouter) StateHandler() vk.HandlerFunc {
 	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
-		return a.appSource.State()
+		return a.source.State()
 	}
 }
 
 // OverviewHandler is a handler to fetch the system overview.
 func (a *AppSourceVKRouter) OverviewHandler() vk.HandlerFunc {
 	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
-		return a.appSource.Overview()
+		return a.source.Overview()
 	}
 }
 
@@ -76,7 +76,7 @@ func (a *AppSourceVKRouter) TenantOverviewHandler() vk.HandlerFunc {
 	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
 		ident := ctx.Params.ByName("ident")
 
-		return a.appSource.TenantOverview(ident)
+		return a.source.TenantOverview(ident)
 	}
 }
 
@@ -95,7 +95,7 @@ func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
 			return nil, vk.E(http.StatusInternalServerError, "something went wrong")
 		}
 
-		runnable, err := a.appSource.GetModule(fqmnString)
+		module, err := a.source.GetModule(fqmnString)
 		if err != nil {
 			ctx.Log.Error(errors.Wrap(err, "failed to GetFunction"))
 
@@ -108,7 +108,7 @@ func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
 			return nil, vk.E(http.StatusInternalServerError, "something went wrong")
 		}
 
-		return runnable, nil
+		return module, nil
 	}
 }
 
@@ -122,7 +122,7 @@ func (a *AppSourceVKRouter) WorkflowsHandler() vk.HandlerFunc {
 			return nil, vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		return a.appSource.Workflows(ident, namespace, int64(version))
+		return a.source.Workflows(ident, namespace, int64(version))
 	}
 }
 
@@ -136,7 +136,7 @@ func (a *AppSourceVKRouter) ConnectionsHandler() vk.HandlerFunc {
 			return nil, vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		return a.appSource.Connections(ident, namespace, int64(version))
+		return a.source.Connections(ident, namespace, int64(version))
 	}
 }
 
@@ -150,7 +150,7 @@ func (a *AppSourceVKRouter) AuthenticationHandler() vk.HandlerFunc {
 			return nil, vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		return a.appSource.Authentication(ident, namespace, int64(version))
+		return a.source.Authentication(ident, namespace, int64(version))
 	}
 }
 
@@ -164,7 +164,7 @@ func (a *AppSourceVKRouter) CapabilitiesHandler() vk.HandlerFunc {
 			return nil, vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		return a.appSource.Capabilities(ident, namespace, int64(version))
+		return a.source.Capabilities(ident, namespace, int64(version))
 	}
 }
 
@@ -179,7 +179,7 @@ func (a *AppSourceVKRouter) FileHandler() vk.HandlerFunc {
 			return nil, vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		fileBytes, err := a.appSource.StaticFile(ident, int64(version), filename)
+		fileBytes, err := a.source.StaticFile(ident, int64(version), filename)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				return nil, vk.E(http.StatusNotFound, "not found")
@@ -201,6 +201,6 @@ func (a *AppSourceVKRouter) QueriesHandler() vk.HandlerFunc {
 		if err != nil {
 			return nil, vk.E(http.StatusBadRequest, "bad request")
 		}
-		return a.appSource.Queries(ident, namespace, int64(version))
+		return a.source.Queries(ident, namespace, int64(version))
 	}
 }
