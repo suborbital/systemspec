@@ -112,13 +112,6 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 		return nil, system.ErrModuleNotFound
 	}
 
-	if h.authHeader != "" {
-		// if we get this far, we assume the token was used to successfully get
-		// the module from the control plane, and should therefore be used to
-		// authenticate further calls for this function, so we cache its hash.
-		module.TokenHash = system.TokenHash(h.authHeader)
-	}
-
 	return module, nil
 }
 
