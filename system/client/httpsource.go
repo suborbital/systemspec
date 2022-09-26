@@ -26,16 +26,23 @@ type HTTPSource struct {
 }
 
 // NewHTTPSource creates a new HTTPSource that looks for a bundle at [host].
-func NewHTTPSource(host string, creds system.CredentialSupplier) system.Source {
+func NewHTTPSource(host string, creds system.Credential) system.Source {
 	if !strings.HasPrefix(host, "http://") && !strings.HasPrefix(host, "https://") {
 		host = fmt.Sprintf("http://%s", host)
 	}
 
-	h := &HTTPSource{
-		host: host,
+	if creds == nil {
+		return &HTTPSource{
+			host:       host,
+			authHeader: "",
+		}
 	}
 
-	return h
+	return &HTTPSource{
+		host:       host,
+		authHeader: fmt.Sprintf("%s %s", creds.Scheme(), creds.Value()),
+	}
+
 }
 
 // Start initializes the system source.
@@ -103,13 +110,6 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 		}
 
 		return nil, system.ErrModuleNotFound
-	}
-
-	if h.authHeader != "" {
-		// if we get this far, we assume the token was used to successfully get
-		// the module from the control plane, and should therefore be used to
-		// authenticate further calls for this function, so we cache its hash.
-		module.TokenHash = system.TokenHash(h.authHeader)
 	}
 
 	return module, nil
@@ -215,7 +215,7 @@ func (h *HTTPSource) pingServer() error {
 
 // get performs a GET request against the configured host and given path.
 func (h *HTTPSource) get(path string, dest interface{}) (*http.Response, error) {
-	return h.authedGet(path, "", dest)
+	return h.authedGet(path, h.authHeader, dest)
 }
 
 // authedGet performs a GET request against the configured host and given path with the given auth header.
