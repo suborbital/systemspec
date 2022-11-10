@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
 	"github.com/suborbital/systemspec/capabilities"
 	fqmn "github.com/suborbital/systemspec/fqmn"
@@ -121,6 +122,18 @@ func (c *Config) Marshal() ([]byte, error) {
 // it also calculates a map of FQMNs for later use.
 func (c *Config) Unmarshal(in []byte) error {
 	if err := json.Unmarshal(in, c); err != nil {
+		return err
+	}
+
+	c.calculateFQMNs()
+
+	return nil
+}
+
+// UnmarshalYaml unmarshals YAML bytes into a TenantConfig struct
+// it also calculates a map of FQMNs for later use.
+func (c *Config) UnmarshalYaml(in []byte) error {
+	if err := yaml.Unmarshal(in, c); err != nil {
 		return err
 	}
 
