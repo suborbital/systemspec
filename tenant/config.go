@@ -79,9 +79,9 @@ type Trigger struct {
 
 // Connection describes a connection to an external resource
 type Connection struct {
-	Type   string           `yaml:"type" json:"type"`
-	Name   string           `yaml:"name" json:"name"`
-	Config ConnectionConfig `yaml:",inline" json:",inline"`
+	Type   string            `yaml:"type" json:"type"`
+	Name   string            `yaml:"name" json:"name"`
+	Config map[string]string `yaml:"config" json:"config"`
 }
 
 type Authentication struct {
