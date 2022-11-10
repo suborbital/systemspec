@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/suborbital/appspec/request"
+	"github.com/suborbital/systemspec/request"
 )
 
 const (

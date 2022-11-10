@@ -7,10 +7,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/bundle"
-	"github.com/suborbital/appspec/capabilities"
-	"github.com/suborbital/appspec/system"
-	"github.com/suborbital/appspec/tenant"
+	"github.com/suborbital/systemspec/bundle"
+	"github.com/suborbital/systemspec/capabilities"
+	"github.com/suborbital/systemspec/system"
+	"github.com/suborbital/systemspec/tenant"
 )
 
 // BundleSource is a Source backed by a bundle file.

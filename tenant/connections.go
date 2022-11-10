@@ -5,7 +5,7 @@ import (
 	"net/url"
 
 	"github.com/pkg/errors"
-	"github.com/suborbital/appspec/capabilities"
+	"github.com/suborbital/systemspec/capabilities"
 )
 
 const (

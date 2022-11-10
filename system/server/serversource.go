@@ -8,8 +8,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	fqmn "github.com/suborbital/appspec/fqmn"
-	"github.com/suborbital/appspec/system"
+	fqmn "github.com/suborbital/systemspec/fqmn"
+	"github.com/suborbital/systemspec/system"
 	"github.com/suborbital/vektor/vk"
 )
 

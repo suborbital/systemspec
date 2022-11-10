@@ -3,8 +3,8 @@ package system
 import (
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/capabilities"
-	"github.com/suborbital/appspec/tenant"
+	"github.com/suborbital/systemspec/capabilities"
+	"github.com/suborbital/systemspec/tenant"
 	"github.com/suborbital/vektor/vlog"
 )
 

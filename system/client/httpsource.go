@@ -12,10 +12,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/capabilities"
-	"github.com/suborbital/appspec/fqmn"
-	"github.com/suborbital/appspec/system"
-	"github.com/suborbital/appspec/tenant"
+	"github.com/suborbital/systemspec/capabilities"
+	"github.com/suborbital/systemspec/fqmn"
+	"github.com/suborbital/systemspec/system"
+	"github.com/suborbital/systemspec/tenant"
 )
 
 // HTTPSource is a Source backed by an HTTP client connected to a remote source.

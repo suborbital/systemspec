@@ -6,9 +6,9 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/capabilities"
-	fqmn "github.com/suborbital/appspec/fqmn"
-	"github.com/suborbital/appspec/tenant/executable"
+	"github.com/suborbital/systemspec/capabilities"
+	fqmn "github.com/suborbital/systemspec/fqmn"
+	"github.com/suborbital/systemspec/tenant/executable"
 )
 
 // InputTypeRequest and others represent consts for the tenantConfig.
