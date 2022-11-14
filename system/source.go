@@ -3,8 +3,8 @@ package system
 import (
 	"errors"
 
-	"github.com/suborbital/appspec/capabilities"
-	"github.com/suborbital/appspec/tenant"
+	"github.com/suborbital/systemspec/capabilities"
+	"github.com/suborbital/systemspec/tenant"
 )
 
 var (

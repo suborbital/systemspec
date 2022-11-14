@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 
-	"github.com/suborbital/appspec/capabilities"
-	fqmn "github.com/suborbital/appspec/fqmn"
-	"github.com/suborbital/appspec/tenant/executable"
+	"github.com/suborbital/systemspec/capabilities"
+	fqmn "github.com/suborbital/systemspec/fqmn"
+	"github.com/suborbital/systemspec/tenant/executable"
 )
 
 // InputTypeRequest and others represent consts for the tenantConfig.
@@ -79,9 +80,9 @@ type Trigger struct {
 
 // Connection describes a connection to an external resource
 type Connection struct {
-	Type   string           `yaml:"type" json:"type"`
-	Name   string           `yaml:"name" json:"name"`
-	Config ConnectionConfig `yaml:",inline" json:",inline"`
+	Type   string            `yaml:"type" json:"type"`
+	Name   string            `yaml:"name" json:"name"`
+	Config map[string]string `yaml:"config" json:"config"`
 }
 
 type Authentication struct {
@@ -121,6 +122,18 @@ func (c *Config) Marshal() ([]byte, error) {
 // it also calculates a map of FQMNs for later use.
 func (c *Config) Unmarshal(in []byte) error {
 	if err := json.Unmarshal(in, c); err != nil {
+		return err
+	}
+
+	c.calculateFQMNs()
+
+	return nil
+}
+
+// UnmarshalYaml unmarshals YAML bytes into a TenantConfig struct
+// it also calculates a map of FQMNs for later use.
+func (c *Config) UnmarshalYaml(in []byte) error {
+	if err := yaml.Unmarshal(in, c); err != nil {
 		return err
 	}
 

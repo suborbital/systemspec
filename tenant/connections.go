@@ -5,7 +5,7 @@ import (
 	"net/url"
 
 	"github.com/pkg/errors"
-	"github.com/suborbital/appspec/capabilities"
+	"github.com/suborbital/systemspec/capabilities"
 )
 
 const (
@@ -21,12 +21,21 @@ type ConnectionConfig interface {
 	Validate() error
 }
 
-// NATSConnection describes a connection to a NATS server.
-type NATSConnection struct {
+// NATSConfig describes a connection to a NATS server.
+type NATSConfig struct {
 	ServerAddress string `yaml:"serverAddress" json:"serverAddress"`
 }
 
-func (n *NATSConnection) Validate() error {
+// NATSConfigFromMap returns a Kafka config from a map
+func NATSConfigFromMap(orig map[string]string) *NATSConfig {
+	n := &NATSConfig{
+		ServerAddress: orig["serverAddress"],
+	}
+
+	return n
+}
+
+func (n *NATSConfig) Validate() error {
 	if n.ServerAddress == "" {
 		return errors.New("serverAddress is empty")
 	}
@@ -38,12 +47,21 @@ func (n *NATSConnection) Validate() error {
 	return nil
 }
 
-// KafkaConnection describes a connection to a Kafka broker.
-type KafkaConnection struct {
+// KafkaConfig describes a connection to a Kafka broker.
+type KafkaConfig struct {
 	BrokerAddress string `yaml:"brokerAddress" json:"brokerAddress"`
 }
 
-func (k *KafkaConnection) Validate() error {
+// KafkaConfigFromMap returns a NATS config from a map
+func KafkaConfigFromMap(orig map[string]string) *KafkaConfig {
+	k := &KafkaConfig{
+		BrokerAddress: orig["brokerAddress"],
+	}
+
+	return k
+}
+
+func (k *KafkaConfig) Validate() error {
 	if k.BrokerAddress == "" {
 		return errors.New("brokerAddress is empty")
 	}
@@ -55,12 +73,22 @@ func (k *KafkaConnection) Validate() error {
 	return nil
 }
 
-type DBConnection struct {
+type DBConfig struct {
 	Type             string `yaml:"type" json:"type"`
 	ConnectionString string `yaml:"connectionString" json:"connectionString"`
 }
 
-func (d *DBConnection) ToRCAPConfig(queries []DBQuery) (*capabilities.DatabaseConfig, error) {
+// DBConfigFromMap returns a DB config from a map
+func DBConfigFromMap(orig map[string]string) *DBConfig {
+	d := &DBConfig{
+		Type:             orig["type"],
+		ConnectionString: orig["connectionString"],
+	}
+
+	return d
+}
+
+func (d *DBConfig) ToRCAPConfig(queries []DBQuery) (*capabilities.DatabaseConfig, error) {
 	if d == nil {
 		return nil, nil
 	}
@@ -90,7 +118,7 @@ func (d *DBConnection) ToRCAPConfig(queries []DBQuery) (*capabilities.DatabaseCo
 	return config, nil
 }
 
-func (d *DBConnection) Validate() error {
+func (d *DBConfig) Validate() error {
 	if d.Type != ConnectionTypeMySQL && d.Type != ConnectionTypePostgres {
 		return fmt.Errorf("database type %s is invalid, must be 'mysql' or 'postgres'", d.Type)
 	}
@@ -102,14 +130,25 @@ func (d *DBConnection) Validate() error {
 	return nil
 }
 
-// RedisConnection describes a connection to a Redis cache.
-type RedisConnection struct {
+// RedisConfig describes a connection to a Redis cache.
+type RedisConfig struct {
 	ServerAddress string `yaml:"serverAddress" json:"serverAddress"`
 	Username      string `yaml:"username" json:"username"`
 	Password      string `yaml:"password" json:"password"`
 }
 
-func (r *RedisConnection) Validate() error {
+// RedisConfigFromMap returns a Redis config from a map
+func RedisConfigFromMap(orig map[string]string) *RedisConfig {
+	r := &RedisConfig{
+		ServerAddress: orig["serverAddress"],
+		Username:      orig["username"],
+		Password:      orig["password"],
+	}
+
+	return r
+}
+
+func (r *RedisConfig) Validate() error {
 	if r.ServerAddress == "" {
 		return errors.New("serverAddress is empty")
 	}

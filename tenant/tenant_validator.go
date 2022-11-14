@@ -5,8 +5,8 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/fqmn"
-	"github.com/suborbital/appspec/tenant/executable"
+	"github.com/suborbital/systemspec/fqmn"
+	"github.com/suborbital/systemspec/tenant/executable"
 )
 
 // Validate validates a Config

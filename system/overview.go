@@ -1,6 +1,6 @@
 package system
 
-import "github.com/suborbital/appspec/tenant"
+import "github.com/suborbital/systemspec/tenant"
 
 // State describes the state of the entire system
 type State struct {

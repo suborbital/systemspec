@@ -3,8 +3,8 @@ package system
 import (
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/capabilities"
-	"github.com/suborbital/appspec/tenant"
+	"github.com/suborbital/systemspec/capabilities"
+	"github.com/suborbital/systemspec/tenant"
 	"github.com/suborbital/vektor/vlog"
 )
 
@@ -54,7 +54,7 @@ func ResolveCapabilitiesFromSource(source Source, ident, namespace string, log *
 
 	for _, c := range connections {
 		if c.Type == tenant.ConnectionTypeRedis {
-			config := c.Config.(*tenant.RedisConnection)
+			config := tenant.RedisConfigFromMap(c.Config)
 
 			redisConfig := &capabilities.RedisConfig{
 				ServerAddress: config.ServerAddress,
@@ -71,7 +71,7 @@ func ResolveCapabilitiesFromSource(source Source, ident, namespace string, log *
 				return nil, errors.Wrap(err, "failed to get Queries")
 			}
 
-			config := c.Config.(*tenant.DBConnection)
+			config := tenant.DBConfigFromMap(c.Config)
 
 			dbConfig, err := config.ToRCAPConfig(queries)
 			if err != nil {

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/suborbital/appspec/capabilities"
+	"github.com/suborbital/systemspec/capabilities"
 )
 
 var (

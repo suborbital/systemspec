@@ -11,7 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/appspec/tenant"
+	"github.com/suborbital/systemspec/tenant"
 )
 
 // Bundle represents a Module bundle.

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/suborbital/appspec/tenant/executable"
+	"github.com/suborbital/systemspec/tenant/executable"
 )
 
 func TestYAMLMarshalUnmarshal(t *testing.T) {
