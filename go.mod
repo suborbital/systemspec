@@ -9,8 +9,9 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.1
-	github.com/suborbital/vektor v0.5.3-0.20220606154347-af1e678993a8
+	github.com/suborbital/vektor v0.5.3
 	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
@@ -33,6 +34,5 @@ require (
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
 	golang.org/x/net v0.0.0-20220615171555-694bf12d69de // indirect
 	golang.org/x/text v0.3.7 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
