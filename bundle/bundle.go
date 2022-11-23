@@ -67,7 +67,7 @@ func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
 // based loosely on https://golang.org/src/archive/zip/example_test.go
 // staticFiles should be a map of *relative* filepaths to their associated files, with or without the `static/` prefix.
 func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]os.File, targetPath string) error {
-	if tenantConfigBytes == nil || len(tenantConfigBytes) == 0 {
+	if len(tenantConfigBytes) == 0 {
 		return errors.New("tenant config must be provided")
 	}
 
