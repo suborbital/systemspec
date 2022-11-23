@@ -3,7 +3,7 @@ package request
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -35,7 +35,7 @@ type CoordinatedRequest struct {
 
 // FromVKRequest creates a CoordinatedRequest from an VK request handler
 func FromVKRequest(r *http.Request, ctx *vk.Ctx) (*CoordinatedRequest, error) {
-	reqBody, err := ioutil.ReadAll(r.Body)
+	reqBody, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, vk.E(http.StatusInternalServerError, "failed to read request body")
 	}
