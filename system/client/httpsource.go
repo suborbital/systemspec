@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -173,7 +173,7 @@ func (h *HTTPSource) StaticFile(ident string, version int64, filename string) ([
 	}
 
 	defer resp.Body.Close()
-	file, err := ioutil.ReadAll(resp.Body)
+	file, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to ReadAll")
 	}
@@ -245,7 +245,7 @@ func (h *HTTPSource) authedGet(path, auth string, dest interface{}) (*http.Respo
 
 	if dest != nil {
 		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to ReadAll body")
 		}

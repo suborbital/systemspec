@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 
@@ -100,7 +100,7 @@ func (g *defaultGraphQLClient) Do(auth AuthCapability, endpoint, query string) (
 
 	defer resp.Body.Close()
 
-	respJSON, err := ioutil.ReadAll(resp.Body)
+	respJSON, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to ReadAll body")
 	}

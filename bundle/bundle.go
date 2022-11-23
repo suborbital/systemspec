@@ -4,7 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -51,7 +51,7 @@ func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
 
 			defer file.Close()
 
-			contents, err = ioutil.ReadAll(file)
+			contents, err = io.ReadAll(file)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to ReadAll static file")
 			}
@@ -67,7 +67,7 @@ func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
 // based loosely on https://golang.org/src/archive/zip/example_test.go
 // staticFiles should be a map of *relative* filepaths to their associated files, with or without the `static/` prefix.
 func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]os.File, targetPath string) error {
-	if tenantConfigBytes == nil || len(tenantConfigBytes) == 0 {
+	if len(tenantConfigBytes) == 0 {
 		return errors.New("tenant config must be provided")
 	}
 
@@ -89,7 +89,7 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 			continue
 		}
 
-		contents, err := ioutil.ReadAll(&file)
+		contents, err := io.ReadAll(&file)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read file %s", file.Name())
 		}
@@ -101,7 +101,7 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 
 	// Add static files to the archive.
 	for path, file := range staticFiles {
-		contents, err := ioutil.ReadAll(&file)
+		contents, err := io.ReadAll(&file)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read file %s", file.Name())
 		}
@@ -116,7 +116,7 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 		return errors.Wrap(err, "failed to close bundle writer")
 	}
 
-	if err := ioutil.WriteFile(targetPath, buf.Bytes(), 0777); err != nil {
+	if err := os.WriteFile(targetPath, buf.Bytes(), 0777); err != nil {
 		return errors.Wrap(err, "failed to write bundle to disk")
 	}
 
@@ -199,7 +199,7 @@ func Read(path string) (*Bundle, error) {
 
 		defer rc.Close()
 
-		wasmBytes, err := ioutil.ReadAll(rc)
+		wasmBytes, err := io.ReadAll(rc)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to read %s from bundle", f.Name)
 		}
@@ -230,7 +230,7 @@ func readTenantConfig(f *zip.File) (*tenant.Config, error) {
 		return nil, errors.Wrapf(err, "failed to open %s from bundle", f.Name)
 	}
 
-	tenantConfigBytes, err := ioutil.ReadAll(file)
+	tenantConfigBytes, err := io.ReadAll(file)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to read %s from bundle", f.Name)
 	}
