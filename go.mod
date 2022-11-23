@@ -8,8 +8,8 @@ require (
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.7.1
-	github.com/suborbital/vektor v0.5.3
+	github.com/stretchr/testify v1.8.0
+	github.com/suborbital/vektor v0.6.1
 	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -30,8 +30,8 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/sethvargo/go-envconfig v0.7.0 // indirect
-	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
+	github.com/sethvargo/go-envconfig v0.8.2 // indirect
+	golang.org/x/crypto v0.0.0-20220926161630-eccd6366d1be // indirect
 	golang.org/x/net v0.0.0-20220615171555-694bf12d69de // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

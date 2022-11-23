@@ -57,32 +57,47 @@ func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
 	return router, nil
 }
 
-// State is a handler to fetch the system State.
+// StateHandler is a handler to fetch the system State.
 func (a *AppSourceVKRouter) StateHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
-		return a.source.State()
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
+		state, err := a.source.State()
+		if err != nil {
+			return vk.E(http.StatusInternalServerError, fmt.Sprintf("a.source.State(): %s", err.Error()))
+		}
+
+		return vk.RespondJSON(ctx.Context, w, state, http.StatusOK)
 	}
 }
 
 // OverviewHandler is a handler to fetch the system overview.
 func (a *AppSourceVKRouter) OverviewHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
-		return a.source.Overview()
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
+		overview, err := a.source.Overview()
+		if err != nil {
+			return vk.E(http.StatusInternalServerError, fmt.Sprintf("a.source.Overview(): %s", err.Error()))
+		}
+
+		return vk.RespondJSON(ctx.Context, w, overview, http.StatusOK)
 	}
 }
 
 // TenantOverviewHandler is a handler to fetch a particular tenant's overview.
 func (a *AppSourceVKRouter) TenantOverviewHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
 		ident := ctx.Params.ByName("ident")
 
-		return a.source.TenantOverview(ident)
+		tenantOverview, err := a.source.TenantOverview(ident)
+		if err != nil {
+			return vk.E(http.StatusInternalServerError, fmt.Sprintf("a.source.TenantOverview(%s): %s", ident, err.Error()))
+		}
+
+		return vk.RespondJSON(ctx.Context, w, tenantOverview, http.StatusOK)
 	}
 }
 
 // GetModuleHandler is a handler to find a single module.
 func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
 		ident := ctx.Params.ByName("ident")
 		ref := ctx.Params.ByName("ref")
 		namespace := ctx.Params.ByName("namespace")
@@ -92,7 +107,7 @@ func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
 		if err != nil {
 			ctx.Log.Error(errors.Wrap(err, "failed fqmn FromParts"))
 
-			return nil, vk.E(http.StatusInternalServerError, "something went wrong")
+			return vk.E(http.StatusInternalServerError, "something went wrong")
 		}
 
 		module, err := a.source.GetModule(fqmnString)
@@ -100,107 +115,133 @@ func (a *AppSourceVKRouter) GetModuleHandler() vk.HandlerFunc {
 			ctx.Log.Error(errors.Wrap(err, "failed to GetFunction"))
 
 			if errors.Is(err, system.ErrModuleNotFound) {
-				return nil, vk.Wrap(http.StatusNotFound, fmt.Errorf("failed to find function %s", fqmnString))
+				return vk.Wrap(http.StatusNotFound, fmt.Errorf("failed to find function %s", fqmnString))
 			} else if errors.Is(err, system.ErrAuthenticationFailed) {
-				return nil, vk.E(http.StatusUnauthorized, "unauthorized")
+				return vk.E(http.StatusUnauthorized, "unauthorized")
 			}
 
-			return nil, vk.E(http.StatusInternalServerError, "something went wrong")
+			return vk.E(http.StatusInternalServerError, "something went wrong")
 		}
 
-		return module, nil
+		return vk.RespondJSON(ctx.Context, w, module, http.StatusOK)
 	}
 }
 
 // WorkflowsHandler is a handler to fetch Workflows.
 func (a *AppSourceVKRouter) WorkflowsHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
 		ident := ctx.Params.ByName("ident")
 		namespace := ctx.Params.ByName("namespace")
 		version, err := strconv.Atoi(ctx.Params.ByName("version"))
 		if err != nil {
-			return nil, vk.E(http.StatusBadRequest, "bad request")
+			return vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		return a.source.Workflows(ident, namespace, int64(version))
+		workflows, err := a.source.Workflows(ident, namespace, int64(version))
+		if err != nil {
+			return vk.E(http.StatusInternalServerError, "something went wrong")
+		}
+
+		return vk.RespondJSON(ctx.Context, w, workflows, http.StatusOK)
 	}
 }
 
 // ConnectionsHandler is a handler to fetch Connection data.
 func (a *AppSourceVKRouter) ConnectionsHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
 		ident := ctx.Params.ByName("ident")
 		namespace := ctx.Params.ByName("namespace")
 		version, err := strconv.Atoi(ctx.Params.ByName("version"))
 		if err != nil {
-			return nil, vk.E(http.StatusBadRequest, "bad request")
+			return vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		return a.source.Connections(ident, namespace, int64(version))
+		connections, err := a.source.Connections(ident, namespace, int64(version))
+		if err != nil {
+			return vk.E(http.StatusInternalServerError, "something went wrong")
+		}
+
+		return vk.RespondJSON(ctx.Context, w, connections, http.StatusOK)
 	}
 }
 
 // AuthenticationHandler is a handler to fetch Authentication data.
 func (a *AppSourceVKRouter) AuthenticationHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
 		ident := ctx.Params.ByName("ident")
 		namespace := ctx.Params.ByName("namespace")
 		version, err := strconv.Atoi(ctx.Params.ByName("version"))
 		if err != nil {
-			return nil, vk.E(http.StatusBadRequest, "bad request")
+			return vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		return a.source.Authentication(ident, namespace, int64(version))
+		authentication, err := a.source.Authentication(ident, namespace, int64(version))
+		if err != nil {
+			return vk.E(http.StatusInternalServerError, "something went wrong")
+		}
+
+		return vk.RespondJSON(ctx.Context, w, authentication, http.StatusOK)
 	}
 }
 
 // CapabilitiesHandler is a handler to fetch Capabilities data.
 func (a *AppSourceVKRouter) CapabilitiesHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
 		ident := ctx.Params.ByName("ident")
 		namespace := ctx.Params.ByName("namespace")
 		version, err := strconv.Atoi(ctx.Params.ByName("version"))
 		if err != nil {
-			return nil, vk.E(http.StatusBadRequest, "bad request")
+			return vk.E(http.StatusBadRequest, "bad request")
 		}
 
-		return a.source.Capabilities(ident, namespace, int64(version))
+		caps, err := a.source.Capabilities(ident, namespace, int64(version))
+		if err != nil {
+			return vk.E(http.StatusInternalServerError, "something went wrong")
+		}
+
+		return vk.RespondJSON(ctx.Context, w, caps, http.StatusOK)
 	}
 }
 
 // FileHandler is a handler to fetch Files.
 func (a *AppSourceVKRouter) FileHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
 		ident := ctx.Params.ByName("ident")
 		filename := ctx.Params.ByName("filename")
 
 		version, err := strconv.Atoi(ctx.Params.ByName("version"))
 		if err != nil {
-			return nil, vk.E(http.StatusBadRequest, "bad request")
+			return vk.E(http.StatusBadRequest, "bad request")
 		}
 
 		fileBytes, err := a.source.StaticFile(ident, int64(version), filename)
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {
-				return nil, vk.E(http.StatusNotFound, "not found")
+				return vk.E(http.StatusNotFound, "not found")
 			}
 
-			return nil, vk.E(http.StatusInternalServerError, "something went wrong")
+			return vk.E(http.StatusInternalServerError, "something went wrong")
 		}
 
-		return fileBytes, nil
+		return vk.RespondBytes(ctx.Context, w, fileBytes, http.StatusOK)
 	}
 }
 
 // QueriesHandler is a handler to fetch queries.
 func (a *AppSourceVKRouter) QueriesHandler() vk.HandlerFunc {
-	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
+	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
 		ident := ctx.Params.ByName("ident")
 		namespace := ctx.Params.ByName("namespace")
 		version, err := strconv.Atoi(ctx.Params.ByName("version"))
 		if err != nil {
-			return nil, vk.E(http.StatusBadRequest, "bad request")
+			return vk.E(http.StatusBadRequest, "bad request")
 		}
-		return a.source.Queries(ident, namespace, int64(version))
+
+		queries, err := a.source.Queries(ident, namespace, int64(version))
+		if err != nil {
+			return vk.E(http.StatusInternalServerError, "something went wrong")
+		}
+
+		return vk.RespondJSON(ctx.Context, w, queries, http.StatusOK)
 	}
 }
