@@ -8,7 +8,7 @@ require (
 	github.com/jackc/pgx/v4 v4.17.2
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	github.com/suborbital/vektor v0.6.1
 	golang.org/x/exp v0.0.0-20220613132600-b0d781184e0d
 	gopkg.in/yaml.v2 v2.4.0
