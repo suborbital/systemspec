@@ -6,7 +6,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/suborbital/systemspec/fqmn"
-	"github.com/suborbital/systemspec/tenant/executable"
 )
 
 // Validate validates a Config
@@ -128,7 +127,7 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 			continue
 		}
 
-		stepsState := c.validateSteps(executableTypeHandler, w.Name, w.Steps, map[string]bool{}, problems)
+		c.validateSteps(executableTypeHandler, w.Name, w.Steps, problems)
 
 		if w.Schedule != nil {
 			if w.Schedule.Every.Seconds == 0 && w.Schedule.Every.Minutes == 0 && w.Schedule.Every.Hours == 0 && w.Schedule.Every.Days == 0 {
@@ -145,10 +144,6 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 		lastStep := w.Steps[len(w.Steps)-1]
 		if w.Response == "" && lastStep.IsGroup() {
 			problems.add(fmt.Errorf("workflow for %s has group as last step but does not include 'response' field", w.Name))
-		} else if w.Response != "" {
-			if _, exists := stepsState[w.Response]; !exists {
-				problems.add(fmt.Errorf("workflow for %s lists response state key that does not exist: %s", w.Name, w.Response))
-			}
 		}
 	}
 
@@ -175,108 +170,30 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 	return problems.render()
 }
 
-func (c *Config) validateSteps(exType executableType, name string, steps []executable.Executable, initialState map[string]bool, problems *problems) map[string]bool {
-	// keep track of the functions that have run so far at each step.
-	fullState := initialState
-
+func (c *Config) validateSteps(exType executableType, name string, steps []WorkflowStep, problems *problems) {
 	for j, s := range steps {
-		fnsToAdd := []string{}
-
 		if !s.IsFn() && !s.IsGroup() {
-			if s.ForEach != nil {
-				problems.add(fmt.Errorf("step at position %d for %s %s is a 'forEach', which was removed in v0.4.0", j, exType, name))
-			} else {
-				problems.add(fmt.Errorf("step at position %d for %s %s isn't an Fn or Group", j, exType, name))
-			}
+			problems.add(fmt.Errorf("step at position %d for %s %s isn't an Fn or Group", j, exType, name))
 		}
 
 		// this function is key as it compartmentalizes 'step validation', and importantly it
 		// ensures that a Module is available to handle it and binds it by setting the FQMN field.
-		validateFn := func(mod *executable.ExecutableMod) {
-			module, err := c.FindModule(mod.FQMN)
+		validateFqmn := func(fqmn string) {
+			module, err := c.FindModule(fqmn)
 			if err != nil {
-				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not have a properly formed FQMN: %s", exType, name, j, mod.FQMN))
+				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not have a properly formed FQMN: %s", exType, name, j, fqmn))
 			} else if module == nil {
-				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, mod.FQMN))
-			} else {
-				mod.FQMN = module.FQMN
+				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, fqmn))
 			}
-
-			for _, key := range mod.With {
-				// check if the literal key exists in state
-				if _, exists := fullState[key]; !exists {
-					// if not, iterate through the state keys
-					// and parse them as FQMNs. If the 'with'
-					// key matches a module's name, it's fine.
-
-					found := false
-
-					for stateKey := range fullState {
-						stateFQMN, err := fqmn.Parse(stateKey)
-						if err != nil {
-							// not a valid FQMN, that's fine
-							continue
-						} else {
-							if stateFQMN.Name == key {
-								found = true
-								break
-							}
-						}
-					}
-
-					if !found {
-						problems.add(fmt.Errorf("%s for %s has 'with' value at step %d referencing a key that is not yet available in the handler's state: %s", exType, name, j, key))
-					}
-				}
-			}
-
-			if mod.OnErr != nil {
-				// if codes are specificed, 'other' should be used, not 'any'.
-				if len(mod.OnErr.Code) > 0 && mod.OnErr.Any != "" {
-					problems.add(fmt.Errorf("%s for %s has 'onErr.any' value at step %d while specific codes are specified, use 'other' instead", exType, name, j))
-				} else if mod.OnErr.Any != "" {
-					if mod.OnErr.Any != "continue" && mod.OnErr.Any != "return" {
-						problems.add(fmt.Errorf("%s for %s has 'onErr.any' value at step %d with an invalid error directive: %s", exType, name, j, mod.OnErr.Any))
-					}
-				}
-
-				// if codes are NOT specificed, 'any' should be used, not 'other'.
-				if len(mod.OnErr.Code) == 0 && mod.OnErr.Other != "" {
-					problems.add(fmt.Errorf("%s for %s has 'onErr.other' value at step %d while specific codes are not specified, use 'any' instead", exType, name, j))
-				} else if mod.OnErr.Other != "" {
-					if mod.OnErr.Other != "continue" && mod.OnErr.Other != "return" {
-						problems.add(fmt.Errorf("%s for %s has 'onErr.any' value at step %d with an invalid error directive: %s", exType, name, j, mod.OnErr.Other))
-					}
-				}
-
-				for code, val := range mod.OnErr.Code {
-					if val != "return" && val != "continue" {
-						problems.add(fmt.Errorf("%s for %s has 'onErr.code' value at step %d with an invalid error directive for code %d: %s", exType, name, j, code, val))
-					}
-				}
-			}
-
-			key := mod.FQMN
-			if mod.As != "" {
-				key = mod.As
-			}
-
-			fnsToAdd = append(fnsToAdd, key)
 		}
 
 		// the steps below are referenced by index (j) to ensure the addition of the FQMN in validateFn 'sticks'.
 		if s.IsFn() {
-			validateFn(&steps[j].ExecutableMod)
+			validateFqmn(steps[j].FQMN)
 		} else if s.IsGroup() {
 			for p := range s.Group {
-				validateFn(&steps[j].Group[p])
+				validateFqmn(steps[j].Group[p])
 			}
 		}
-
-		for _, newFn := range fnsToAdd {
-			fullState[newFn] = true
-		}
 	}
-
-	return fullState
 }

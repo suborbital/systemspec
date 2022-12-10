@@ -3,8 +3,6 @@ package tenant
 import (
 	"fmt"
 	"testing"
-
-	"github.com/suborbital/systemspec/tenant/executable"
 )
 
 func TestYAMLMarshalUnmarshal(t *testing.T) {
@@ -35,21 +33,12 @@ func TestYAMLMarshalUnmarshal(t *testing.T) {
 							Topic:  "user-created",
 						},
 					},
-					Steps: []executable.Executable{
+					Steps: []WorkflowStep{
 						{
-							Group: []executable.ExecutableMod{
-								{
-									FQMN: "/name/db/getUser",
-								},
-								{
-									FQMN: "/name/db/getUserDetails",
-								},
-							},
+							Group: []string{"/name/db/getUser", "/name/db/getUserDetails"},
 						},
 						{
-							ExecutableMod: executable.ExecutableMod{
-								FQMN: "/name/api/returnUser",
-							},
+							FQMN: "/name/api/returnUser",
 						},
 					},
 				},
@@ -112,21 +101,12 @@ func TestConfigValidatorGroupLast(t *testing.T) {
 							Topic:  "add-user",
 						},
 					},
-					Steps: []executable.Executable{
+					Steps: []WorkflowStep{
 						{
-							ExecutableMod: executable.ExecutableMod{
-								FQMN: "/name/api/returnUser",
-							},
+							FQMN: "/name/api/returnUser",
 						},
 						{
-							Group: []executable.ExecutableMod{
-								{
-									FQMN: "/name/db/getUser",
-								},
-								{
-									FQMN: "/name/db/getUserDetails",
-								},
-							},
+							Group: []string{"/name/db/getUser", "/name/db/getUserDetails"},
 						},
 					},
 				},
@@ -168,16 +148,9 @@ func TestConfigValidatorMissingFns(t *testing.T) {
 							Topic:  "add-user",
 						},
 					},
-					Steps: []executable.Executable{
+					Steps: []WorkflowStep{
 						{
-							Group: []executable.ExecutableMod{
-								{
-									FQMN: "/name/db/getUser",
-								},
-								{
-									FQMN: "/name/db/getFoobar",
-								},
-							},
+							Group: []string{"/name/db/getUser", "/name/db/getFoobar"},
 						},
 					},
 				},
@@ -271,59 +244,5 @@ func TestConfigFQMNs(t *testing.T) {
 	mod5, _ := conf.FindModule("foo::bar")
 	if mod5 != nil {
 		t.Error("should not have found a Module for foo::bar")
-	}
-}
-
-func TestConfigValidatorWithMissingState(t *testing.T) {
-	conf := Config{
-		Identifier:    "dev.suborbital.appname",
-		TenantVersion: 1,
-		Modules: []Module{
-			{
-				Name:      "getUser",
-				Namespace: "db",
-			},
-			{
-				Name:      "getUserDetails",
-				Namespace: "db",
-			},
-			{
-				Name:      "returnUser",
-				Namespace: "api",
-			},
-		},
-		DefaultNamespace: NamespaceConfig{
-			Workflows: []Workflow{
-				{
-					Triggers: []Trigger{
-						{
-							Source: "nats",
-							Topic:  "add-user",
-						},
-					},
-					Steps: []executable.Executable{
-						{
-							Group: []executable.ExecutableMod{
-								{
-									FQMN: "/name/db/getUser",
-									With: map[string]string{
-										"data": "someData",
-									},
-								},
-								{
-									FQMN: "/name/db/getFoobar",
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
-	if err := conf.Validate(); err == nil {
-		t.Error("Config validation should have failed")
-	} else {
-		fmt.Println("Config validation properly failed:", err)
 	}
 }
