@@ -172,7 +172,7 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 
 func (c *Config) validateSteps(exType executableType, name string, steps []WorkflowStep, problems *problems) {
 	for j, s := range steps {
-		if !s.IsFn() && !s.IsGroup() {
+		if !s.IsSingle() && !s.IsGroup() {
 			problems.add(fmt.Errorf("step at position %d for %s %s isn't an Fn or Group", j, exType, name))
 		}
 
@@ -188,7 +188,7 @@ func (c *Config) validateSteps(exType executableType, name string, steps []Workf
 		}
 
 		// the steps below are referenced by index (j) to ensure the addition of the FQMN in validateFn 'sticks'.
-		if s.IsFn() {
+		if s.IsSingle() {
 			validateFqmn(steps[j].FQMN)
 		} else if s.IsGroup() {
 			for p := range s.Group {

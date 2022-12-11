@@ -21,7 +21,7 @@ func (e WorkflowStep) IsGroup() bool {
 	return e.FQMN == "" && e.Group != nil && len(e.Group) > 0
 }
 
-// IsFn returns true if the WorkflowStep is a group.
-func (e WorkflowStep) IsFn() bool {
+// IsSingle returns true if the WorkflowStep is a group.
+func (e WorkflowStep) IsSingle() bool {
 	return e.FQMN != "" && e.Group == nil
 }
