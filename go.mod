@@ -10,7 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.1
 	github.com/suborbital/vektor v0.6.1
-	golang.org/x/exp v0.0.0-20221207211629-99ab8fa1c11f
+	golang.org/x/exp v0.0.0-20221211140036-ad323defaf05
 	gopkg.in/yaml.v2 v2.4.0
 )
 
