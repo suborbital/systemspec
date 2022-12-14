@@ -9,7 +9,6 @@ import (
 
 	"github.com/suborbital/systemspec/capabilities"
 	fqmn "github.com/suborbital/systemspec/fqmn"
-	"github.com/suborbital/systemspec/tenant/executable"
 )
 
 // InputTypeRequest and others represent consts for the tenantConfig.
@@ -48,18 +47,18 @@ type NamespaceConfig struct {
 
 // Workflow represents the mapping between an input and a composition of functions.
 type Workflow struct {
-	Name     string                  `yaml:"name" json:"name"`
-	Steps    []executable.Executable `yaml:"steps" json:"steps"`
-	Response string                  `yaml:"response,omitempty" json:"response,omitempty"`
-	Schedule *Schedule               `yaml:"schedule,omitempty" json:"schedule,omitempty"`
-	Triggers []Trigger               `yaml:"triggers" json:"triggers"`
+	Name     string         `yaml:"name" json:"name"`
+	Steps    []WorkflowStep `yaml:"steps" json:"steps"`
+	Response string         `yaml:"response,omitempty" json:"response,omitempty"`
+	Schedule *Schedule      `yaml:"schedule,omitempty" json:"schedule,omitempty"`
+	Triggers []Trigger      `yaml:"triggers" json:"triggers"`
 }
 
 // Schedule represents the schedule settings for a workflow
 type Schedule struct {
-	Every ScheduleEvery           `yaml:"every" json:"every"`
-	State map[string]string       `yaml:"state,omitempty" json:"state,omitempty"`
-	Steps []executable.Executable `yaml:"steps" json:"steps"`
+	Every ScheduleEvery     `yaml:"every" json:"every"`
+	State map[string]string `yaml:"state,omitempty" json:"state,omitempty"`
+	Steps []WorkflowStep    `yaml:"steps" json:"steps"`
 }
 
 // ScheduleEvery represents the 'every' value for a schedule.
