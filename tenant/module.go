@@ -2,17 +2,16 @@ package tenant
 
 // Module is the structure of a .Module.yaml file.
 type Module struct {
-	Name       string           `yaml:"name" json:"name"`
-	Namespace  string           `yaml:"namespace" json:"namespace"`
-	Lang       string           `yaml:"lang" json:"lang"`
-	Ref        string           `yaml:"ref" json:"ref"`
-	DraftRef   string           `yaml:"draftRef,omitempty" json:"draftRef,omitempty"`
-	APIVersion string           `yaml:"apiVersion,omitempty" json:"apiVersion,omitempty"`
-	FQMN       string           `yaml:"fqmn,omitempty" json:"fqmn,omitempty"`
-	URI        string           `yaml:"uri" json:"uri,omitempty"`
-	Revisions  []ModuleRevision `yaml:"revisions" json:"revisions"`
-	WasmRef    *WasmModuleRef   `yaml:"-" json:"wasmRef,omitempty"`
-	TokenHash  []byte           `yaml:"-" json:"-"`
+	Name           string           `yaml:"name" json:"name"`
+	Namespace      string           `yaml:"namespace" json:"namespace"`
+	Lang           string           `yaml:"lang" json:"lang"`
+	Ref            string           `yaml:"ref" json:"ref"`
+	DraftRef       string           `yaml:"draftRef,omitempty" json:"draftRef,omitempty"`
+	APIVersion     string           `yaml:"apiVersion,omitempty" json:"apiVersion,omitempty"`         // the version of the API / SDK that this module was built with
+	HostEnvVersion int              `yaml:"hostEnvVersion,omitempty" json:"hostEnvVersion,omitempty"` // the version of the 'host environment' this module needs (0 = before Jan 2023 [legacy], 1 = after Jan 2023)
+	FQMN           string           `yaml:"fqmn,omitempty" json:"fqmn,omitempty"`
+	Revisions      []ModuleRevision `yaml:"revisions" json:"revisions"`
+	WasmRef        *WasmModuleRef   `yaml:"-" json:"wasmRef,omitempty"`
 }
 
 // WasmModuleRef is a reference to a Wasm module
