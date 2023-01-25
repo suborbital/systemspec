@@ -42,10 +42,4 @@ type Source interface {
 
 	// Capabilities provides the tenant's configured capabilities.
 	Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error)
-
-	// StaticFile is a source of static files for the tenant
-	StaticFile(identifier string, tenantVersion int64, path string) ([]byte, error)
-
-	// Queries returns the database queries that should be made available.
-	Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error)
 }

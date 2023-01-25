@@ -1,7 +1,6 @@
 package bundle
 
 import (
-	"os"
 	"sync"
 	"time"
 
@@ -207,48 +206,6 @@ func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*ca
 	for _, n := range b.bundle.TenantConfig.Namespaces {
 		if n.Name == namespace {
 			return n.Capabilities, nil
-		}
-	}
-
-	return nil, system.ErrTenantNotFound
-}
-
-// File returns a requested file.
-func (b *BundleSource) StaticFile(ident string, tenantVersion int64, filename string) ([]byte, error) {
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	if b.bundle == nil {
-		return nil, os.ErrNotExist
-	}
-
-	if !b.checkIdentifier(ident) {
-		return nil, os.ErrNotExist
-	}
-
-	return b.bundle.StaticFile(filename)
-}
-
-// Queries returns the Queries available to the system.
-func (b *BundleSource) Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error) {
-	b.lock.RLock()
-	defer b.lock.RUnlock()
-
-	if b.bundle == nil || b.bundle.TenantConfig.DefaultNamespace.Queries == nil {
-		return nil, system.ErrTenantNotFound
-	}
-
-	if !b.checkIdentifier(ident) {
-		return nil, system.ErrTenantNotFound
-	}
-
-	if namespace == "default" {
-		return b.bundle.TenantConfig.DefaultNamespace.Queries, nil
-	}
-
-	for _, n := range b.bundle.TenantConfig.Namespaces {
-		if n.Name == namespace {
-			return n.Queries, nil
 		}
 	}
 

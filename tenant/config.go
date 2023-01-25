@@ -36,7 +36,6 @@ type Config struct {
 type NamespaceConfig struct {
 	Name           string                         `yaml:"name" json:"name"`
 	Workflows      []Workflow                     `yaml:"workflows,omitempty" json:"workflows,omitempty"`
-	Queries        []DBQuery                      `yaml:"queries,omitempty" json:"queries,omitempty"`
 	Capabilities   *capabilities.CapabilityConfig `yaml:"capabilities,omitempty" json:"capabilities,omitempty"`
 	Connections    []Connection                   `yaml:"connections,omitempty" json:"connections,omitempty"`
 	Authentication *Authentication                `yaml:"authentication,omitempty" json:"authentication,omitempty"`
