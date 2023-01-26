@@ -30,7 +30,7 @@ type CoordinatedRequest struct {
 	State        map[string][]byte `json:"state"`
 	SequenceJSON []byte            `json:"sequence_json,omitempty"`
 
-	bodyValues map[string]interface{} `json:"-"`
+	bodyValues map[string]interface{}
 }
 
 // FromVKRequest creates a CoordinatedRequest from an VK request handler
