@@ -17,7 +17,7 @@ var (
 // Source describes how an entire system relays its state to a client
 type Source interface {
 	// Start indicates to the Source that it should prepare for system startup.
-	Start(opts Options) error
+	Start() error
 
 	// State returns the state of the entire system, used for cache invalidation and sync purposes
 	State() (*State, error)
