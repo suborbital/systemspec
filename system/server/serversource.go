@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
+	"github.com/suborbital/vektor/vlog"
 
 	fqmn "github.com/suborbital/systemspec/fqmn"
 	"github.com/suborbital/systemspec/system"
@@ -16,15 +17,13 @@ import (
 // AppSourceVKRouter is a helper struct to generate a VK router that can serve
 // an HTTP Source based on an actual Source object.
 type AppSourceVKRouter struct {
-	source  system.Source
-	options system.Options
+	source system.Source
 }
 
 // NewAppSourceVKRouter creates a new AppSourceVKRouter.
-func NewAppSourceVKRouter(source system.Source, opts system.Options) *AppSourceVKRouter {
+func NewAppSourceVKRouter(source system.Source) *AppSourceVKRouter {
 	h := &AppSourceVKRouter{
-		source:  source,
-		options: opts,
+		source: source,
 	}
 
 	return h
@@ -32,11 +31,11 @@ func NewAppSourceVKRouter(source system.Source, opts system.Options) *AppSourceV
 
 // GenerateRouter generates a VK router that uses a Source to serve data.
 func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
-	if err := a.source.Start(a.options); err != nil {
+	if err := a.source.Start(); err != nil {
 		return nil, errors.Wrap(err, "failed to source.Start")
 	}
 
-	router := vk.NewRouter(a.options.Logger(), "")
+	router := vk.NewRouter(vlog.Default(), "")
 
 	v1 := vk.Group("/system/v1")
 

@@ -22,7 +22,6 @@ import (
 type HTTPSource struct {
 	host       string
 	authHeader string
-	opts       system.Options
 }
 
 // NewHTTPSource creates a new HTTPSource that looks for a bundle at [host].
