@@ -2,15 +2,15 @@ package system
 
 import (
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog"
 
 	"github.com/suborbital/systemspec/capabilities"
 	"github.com/suborbital/systemspec/tenant"
-	"github.com/suborbital/vektor/vlog"
 )
 
 // ResolveCapabilitiesFromSource takes the ident, namespace, and version, and looks up the capabilities for that trio from the
 // Source applying the user overrides over the default configurations.
-func ResolveCapabilitiesFromSource(source Source, ident, namespace string, log *vlog.Logger) (*capabilities.CapabilityConfig, error) {
+func ResolveCapabilitiesFromSource(source Source, ident, namespace string, log zerolog.Logger) (*capabilities.CapabilityConfig, error) {
 	defaultConfig := capabilities.DefaultCapabilityConfig()
 
 	tenantOverview, err := source.TenantOverview(ident)

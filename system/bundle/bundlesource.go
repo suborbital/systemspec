@@ -16,7 +16,6 @@ import (
 // BundleSource is a Source backed by a bundle file.
 type BundleSource struct {
 	path   string
-	opts   system.Options
 	bundle *bundle.Bundle
 
 	lock sync.RWMutex
@@ -33,9 +32,7 @@ func NewBundleSource(path string) system.Source {
 }
 
 // Start initializes the system source.
-func (b *BundleSource) Start(opts system.Options) error {
-	b.opts = opts
-
+func (b *BundleSource) Start() error {
 	if err := b.findBundle(); err != nil {
 		return errors.Wrap(err, "failed to findBundle")
 	}
@@ -263,14 +260,10 @@ func (b *BundleSource) findBundle() error {
 	for {
 		bdl, err := bundle.Read(b.path)
 		if err != nil {
-
-			b.opts.Logger().Warn("failed to Read bundle, will try again:", err.Error())
 			time.Sleep(time.Second)
 
 			continue
 		}
-
-		b.opts.Logger().Debug("loaded bundle from", b.path)
 
 		b.lock.Lock()
 		defer b.lock.Unlock()

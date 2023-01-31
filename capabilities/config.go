@@ -1,8 +1,10 @@
 package capabilities
 
 import (
+	"os"
+
 	"github.com/pkg/errors"
-	"github.com/suborbital/vektor/vlog"
+	"github.com/rs/zerolog"
 )
 
 var ErrCapabilityNotEnabled = errors.New("capability is not enabled")
@@ -25,20 +27,20 @@ type CapabilityConfig struct {
 
 // DefaultCapabilityConfig returns the default all-enabled config (with a default logger)
 func DefaultCapabilityConfig() CapabilityConfig {
-	return DefaultConfigWithLogger(vlog.Default())
+	return DefaultConfigWithLogger(zerolog.New(os.Stderr))
 }
 
 // DefaultConfigWithLogger returns a capability config with a custom logger
-func DefaultConfigWithLogger(logger *vlog.Logger) CapabilityConfig {
+func DefaultConfigWithLogger(logger zerolog.Logger) CapabilityConfig {
 	return NewConfig(logger, "", "", nil)
 }
 
 // DefaultConfigWithDB returns a capability config with a custom logger and database configured
-func DefaultConfigWithDB(logger *vlog.Logger, dbType, dbConnString string, queries []Query) CapabilityConfig {
+func DefaultConfigWithDB(logger zerolog.Logger, dbType, dbConnString string, queries []Query) CapabilityConfig {
 	return NewConfig(logger, dbType, dbConnString, queries)
 }
 
-func NewConfig(logger *vlog.Logger, dbType, dbConnString string, queries []Query) CapabilityConfig {
+func NewConfig(logger zerolog.Logger, dbType, dbConnString string, queries []Query) CapabilityConfig {
 	c := CapabilityConfig{
 		Logger: &LoggerConfig{
 			Enabled: true,
