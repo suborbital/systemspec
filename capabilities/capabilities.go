@@ -2,7 +2,7 @@ package capabilities
 
 import (
 	"github.com/pkg/errors"
-	"github.com/suborbital/vektor/vlog"
+	"github.com/rs/zerolog"
 )
 
 var ErrCapabilityNotAvailable = errors.New("capability not available")
@@ -27,7 +27,7 @@ type Capabilities struct {
 }
 
 // New returns the default capabilities with the provided Logger
-func New(logger *vlog.Logger) *Capabilities {
+func New(logger zerolog.Logger) *Capabilities {
 	// this will never error with the default config, as the db capability is disabled
 	caps, _ := NewWithConfig(DefaultConfigWithLogger(logger))
 
