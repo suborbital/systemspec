@@ -76,10 +76,7 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 	if nc.Connections != nil && len(nc.Connections) > 0 {
 		for _, c := range nc.Connections {
 			if c.Type == "" || (c.Type != ConnectionTypeNATS &&
-				c.Type != ConnectionTypeKafka &&
-				c.Type != ConnectionTypeRedis &&
-				c.Type != ConnectionTypeMySQL &&
-				c.Type != ConnectionTypePostgres) {
+				c.Type != ConnectionTypeKafka) {
 				problems.add(fmt.Errorf("unknown connection type %s", c.Type))
 			}
 		}
@@ -144,26 +141,6 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 		lastStep := w.Steps[len(w.Steps)-1]
 		if w.Response == "" && lastStep.IsGroup() {
 			problems.add(fmt.Errorf("workflow for %s has group as last step but does not include 'response' field", w.Name))
-		}
-	}
-
-	for i, q := range nc.Queries {
-		if q.Name == "" {
-			problems.add(fmt.Errorf("query at position %d has no name", i))
-		}
-
-		if q.Query == "" {
-			problems.add(fmt.Errorf("query at position %d has no query value", i))
-		}
-
-		if q.Type != "" {
-			if q.Type != queryTypeInsert && q.Type != queryTypeSelect && q.Type != queryTypeUpdate && q.Type != queryTypeDelete {
-				problems.add(fmt.Errorf("query at position %d has invalid type %s", i, q.Type))
-			}
-		}
-
-		if q.VarCount < 0 {
-			problems.add(fmt.Errorf("query at position %d cannot have negative var count", i))
 		}
 	}
 

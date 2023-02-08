@@ -6,7 +6,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -149,35 +148,6 @@ func (h *HTTPSource) Capabilities(ident, namespace string, version int64) (*capa
 	}
 
 	return caps, nil
-}
-
-// StaticFile returns a requested file.
-func (h *HTTPSource) StaticFile(ident string, version int64, filename string) ([]byte, error) {
-	path := fmt.Sprintf("/system/v1/file/%s/%d/%s", ident, version, filename)
-
-	resp, err := h.get(path, nil)
-	if err != nil {
-		return nil, os.ErrNotExist
-	}
-
-	defer resp.Body.Close()
-	file, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to ReadAll")
-	}
-
-	return file, nil
-}
-
-// Queries returns the Queries for the system.
-func (h *HTTPSource) Queries(ident, namespace string, version int64) ([]tenant.DBQuery, error) {
-	queries := make([]tenant.DBQuery, 0)
-
-	if _, err := h.get(fmt.Sprintf("/system/v1/queries/%s/%s/%d", ident, namespace, version), &queries); err != nil {
-		return nil, errors.Wrap(err, "failed to get /queries")
-	}
-
-	return queries, nil
 }
 
 // pingServer loops forever until it finds a server at the configured host.

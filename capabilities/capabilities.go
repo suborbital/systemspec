@@ -11,14 +11,9 @@ var ErrCapabilityNotAvailable = errors.New("capability not available")
 type Capabilities struct {
 	config CapabilityConfig
 
-	Auth          AuthCapability
-	LoggerSource  LoggerCapability
-	HTTPClient    HTTPCapability
-	GraphQLClient GraphQLCapability
-	Cache         CacheCapability
-	FileSource    FileCapability
-	Database      DatabaseCapability
-	Secrets       SecretsCapability
+	Auth         AuthCapability
+	LoggerSource LoggerCapability
+	HTTPClient   HTTPCapability
 
 	// RequestHandler and doFunc are special because they are more
 	// sensitive; they could cause memory leaks or expose internal state,
@@ -29,27 +24,17 @@ type Capabilities struct {
 // New returns the default capabilities with the provided Logger
 func New(logger zerolog.Logger) *Capabilities {
 	// this will never error with the default config, as the db capability is disabled
-	caps, _ := NewWithConfig(DefaultConfigWithLogger(logger))
+	caps, _ := NewWithConfig(NewConfig(logger))
 
 	return caps
 }
 
 func NewWithConfig(config CapabilityConfig) (*Capabilities, error) {
-	database, err := NewSqlDatabase(config.DB)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to NewSqlDatabase")
-	}
-
 	caps := &Capabilities{
 		config:        config,
 		Auth:          DefaultAuthProvider(*config.Auth),
 		LoggerSource:  DefaultLoggerSource(*config.Logger),
 		HTTPClient:    DefaultHTTPClient(*config.HTTP),
-		GraphQLClient: DefaultGraphQLClient(*config.GraphQL),
-		Cache:         SetupCache(*config.Cache),
-		FileSource:    DefaultFileSource(*config.File),
-		Secrets:       NewEnvSecretsSource(*config.Secrets),
-		Database:      database,
 		RequestConfig: config.Request,
 	}
 

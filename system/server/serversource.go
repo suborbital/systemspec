@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -47,9 +46,6 @@ func (a *AppSourceVKRouter) GenerateRouter() (*vk.Router, error) {
 	v1.GET("/connections/:ident/:namespace/:version", a.ConnectionsHandler())
 	v1.GET("/authentication/:ident/:namespace/:version", a.AuthenticationHandler())
 	v1.GET("/capabilities/:ident/:namespace/:version", a.CapabilitiesHandler())
-	v1.GET("/queries/:ident/:namespace/:version", a.QueriesHandler())
-
-	v1.GET("/file/:ident/:version/*filename", a.FileHandler())
 
 	router.AddGroup(v1)
 
@@ -199,48 +195,5 @@ func (a *AppSourceVKRouter) CapabilitiesHandler() vk.HandlerFunc {
 		}
 
 		return vk.RespondJSON(ctx.Context, w, caps, http.StatusOK)
-	}
-}
-
-// FileHandler is a handler to fetch Files.
-func (a *AppSourceVKRouter) FileHandler() vk.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
-		ident := ctx.Params.ByName("ident")
-		filename := ctx.Params.ByName("filename")
-
-		version, err := strconv.Atoi(ctx.Params.ByName("version"))
-		if err != nil {
-			return vk.E(http.StatusBadRequest, "bad request")
-		}
-
-		fileBytes, err := a.source.StaticFile(ident, int64(version), filename)
-		if err != nil {
-			if errors.Is(err, os.ErrNotExist) {
-				return vk.E(http.StatusNotFound, "not found")
-			}
-
-			return vk.E(http.StatusInternalServerError, "something went wrong")
-		}
-
-		return vk.RespondBytes(ctx.Context, w, fileBytes, http.StatusOK)
-	}
-}
-
-// QueriesHandler is a handler to fetch queries.
-func (a *AppSourceVKRouter) QueriesHandler() vk.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request, ctx *vk.Ctx) error {
-		ident := ctx.Params.ByName("ident")
-		namespace := ctx.Params.ByName("namespace")
-		version, err := strconv.Atoi(ctx.Params.ByName("version"))
-		if err != nil {
-			return vk.E(http.StatusBadRequest, "bad request")
-		}
-
-		queries, err := a.source.Queries(ident, namespace, int64(version))
-		if err != nil {
-			return vk.E(http.StatusInternalServerError, "something went wrong")
-		}
-
-		return vk.RespondJSON(ctx.Context, w, queries, http.StatusOK)
 	}
 }

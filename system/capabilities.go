@@ -38,69 +38,15 @@ func ResolveCapabilitiesFromSource(source Source, ident, namespace string, log z
 		defaultConfig.HTTP = userConfig.HTTP
 	}
 
-	if userConfig.GraphQL != nil {
-		defaultConfig.GraphQL = userConfig.GraphQL
-	}
-
 	if userConfig.Auth != nil {
 		defaultConfig.Auth = userConfig.Auth
-	}
-
-	// defaultConfig for the cache can come from either the capabilities
-	// and/or connections sections of the tenant config.
-	if userConfig.Cache != nil {
-		defaultConfig.Cache = userConfig.Cache
-	}
-
-	for _, c := range connections {
-		if c.Type == tenant.ConnectionTypeRedis {
-			config := tenant.RedisConfigFromMap(c.Config)
-
-			redisConfig := &capabilities.RedisConfig{
-				ServerAddress: config.ServerAddress,
-				Username:      config.Username,
-				Password:      config.Password,
-			}
-
-			defaultConfig.Cache.RedisConfig = redisConfig
-		}
-
-		if c.Type == tenant.ConnectionTypeMySQL || c.Type == tenant.ConnectionTypePostgres {
-			queries, err := source.Queries(ident, namespace, tenantOverview.Config.TenantVersion)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to get Queries")
-			}
-
-			config := tenant.DBConfigFromMap(c.Config)
-
-			dbConfig, err := config.ToRCAPConfig(queries)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to ToRCAPConfig")
-			}
-
-			defaultConfig.DB = dbConfig
-		}
-	}
-
-	if userConfig.File != nil {
-		defaultConfig.File = userConfig.File
-	}
-
-	// Override the connections.Database struct
-	if userConfig.DB != nil && userConfig.DB.Enabled {
-		defaultConfig.DB = userConfig.DB
 	}
 
 	if userConfig.Request != nil {
 		defaultConfig.Request = userConfig.Request
 	}
 
-	f := func(pathName string) ([]byte, error) {
-		return source.StaticFile(ident, tenantOverview.Config.TenantVersion, pathName)
-	}
-
 	defaultConfig.Logger.Logger = log
-	defaultConfig.File.FileFunc = f
 
 	return &defaultConfig, nil
 }

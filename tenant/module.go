@@ -7,12 +7,10 @@ type Module struct {
 	Lang       string           `yaml:"lang" json:"lang"`
 	Ref        string           `yaml:"ref" json:"ref"`
 	DraftRef   string           `yaml:"draftRef,omitempty" json:"draftRef,omitempty"`
-	APIVersion string           `yaml:"apiVersion,omitempty" json:"apiVersion,omitempty"`
+	APIVersion string           `yaml:"apiVersion,omitempty" json:"apiVersion,omitempty"` // the version of the API / SDK that this module was built with
 	FQMN       string           `yaml:"fqmn,omitempty" json:"fqmn,omitempty"`
-	URI        string           `yaml:"uri" json:"uri,omitempty"`
 	Revisions  []ModuleRevision `yaml:"revisions" json:"revisions"`
 	WasmRef    *WasmModuleRef   `yaml:"-" json:"wasmRef,omitempty"`
-	TokenHash  []byte           `yaml:"-" json:"-"`
 }
 
 // WasmModuleRef is a reference to a Wasm module
