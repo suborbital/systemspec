@@ -24,7 +24,7 @@ type Capabilities struct {
 // New returns the default capabilities with the provided Logger
 func New(logger zerolog.Logger) *Capabilities {
 	// this will never error with the default config, as the db capability is disabled
-	caps, _ := NewWithConfig(DefaultConfigWithLogger(logger))
+	caps, _ := NewWithConfig(NewConfig(logger))
 
 	return caps
 }
