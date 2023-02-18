@@ -6,7 +6,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/suborbital/systemspec/bundle"
 	"github.com/suborbital/systemspec/capabilities"
 	"github.com/suborbital/systemspec/system"
 	"github.com/suborbital/systemspec/tenant"
@@ -15,7 +14,7 @@ import (
 // BundleSource is a Source backed by a bundle file.
 type BundleSource struct {
 	path   string
-	bundle *bundle.Bundle
+	bundle *Bundle
 
 	lock sync.RWMutex
 }
@@ -215,7 +214,7 @@ func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*ca
 // findBundle loops forever until it finds a bundle at the configured path.
 func (b *BundleSource) findBundle() error {
 	for {
-		bdl, err := bundle.Read(b.path)
+		bdl, err := Read(b.path)
 		if err != nil {
 			time.Sleep(time.Second)
 
