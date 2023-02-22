@@ -21,48 +21,6 @@ type Bundle struct {
 	staticFiles  map[string]bool
 }
 
-// StaticFile returns a static file from the bundle, if it exists.
-func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
-	// normalize in case the caller added `/` or `./` to the filename.
-	filePath = NormalizeStaticFilename(filePath)
-
-	if _, exists := b.staticFiles[filePath]; !exists {
-		return nil, os.ErrNotExist
-	}
-
-	r, err := zip.OpenReader(b.filepath)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to open bundle")
-	}
-
-	defer r.Close()
-
-	// re-add the static/ prefix to ensure sandboxing to the static directory.
-	staticFilePath := ensurePrefix(filePath, "static/")
-
-	var contents []byte
-
-	for _, f := range r.File {
-		if f.Name == staticFilePath {
-			file, err := f.Open()
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to Open static file")
-			}
-
-			defer file.Close()
-
-			contents, err = io.ReadAll(file)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to ReadAll static file")
-			}
-
-			break
-		}
-	}
-
-	return contents, nil
-}
-
 // Write writes a module bundle
 // based loosely on https://golang.org/src/archive/zip/example_test.go
 // staticFiles should be a map of *relative* filepaths to their associated files, with or without the `static/` prefix.
