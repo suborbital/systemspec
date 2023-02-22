@@ -37,12 +37,14 @@ type CoordinatedRequest struct {
 func FromEchoContext(c echo.Context) (*CoordinatedRequest, error) {
 	var err error
 	reqBody := make([]byte, 0)
+
 	if c.Request().Body != nil { // Read
 		reqBody, err = io.ReadAll(c.Request().Body)
 		if err != nil {
 			return nil, errors.Wrap(err, "io.ReadAll request body")
 		}
 	}
+
 	c.Request().Body = io.NopCloser(bytes.NewBuffer(reqBody)) // Reset
 
 	flatHeaders := map[string]string{}
@@ -59,7 +61,7 @@ func FromEchoContext(c echo.Context) (*CoordinatedRequest, error) {
 	return &CoordinatedRequest{
 		Method:      c.Request().Method,
 		URL:         c.Request().URL.RequestURI(),
-		ID:          c.Request().Header.Get("requestID"),
+		ID:          c.Request().Header.Get("X-Request-ID"),
 		Body:        reqBody,
 		Headers:     flatHeaders,
 		RespHeaders: map[string]string{},
