@@ -9,6 +9,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
+	kitHttp "github.com/suborbital/go-kit/web/http"
 )
 
 const (
@@ -61,7 +62,7 @@ func FromEchoContext(c echo.Context) (*CoordinatedRequest, error) {
 	return &CoordinatedRequest{
 		Method:      c.Request().Method,
 		URL:         c.Request().URL.RequestURI(),
-		ID:          c.Request().Header.Get("X-Request-ID"),
+		ID:          kitHttp.RID(c),
 		Body:        reqBody,
 		Headers:     flatHeaders,
 		RespHeaders: map[string]string{},
