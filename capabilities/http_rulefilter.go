@@ -57,9 +57,7 @@ func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 	// determine if the host is a CNAME record and resolve it
 	// to be checked in addition to the passed-in raw host
 	resolvedCNAME, err := net.LookupCNAME(req.URL.Host)
-	if err != nil {
-		// that's ok, it just means there is no CNAME
-	} else if resolvedCNAME != "" && resolvedCNAME != req.URL.Host {
+	if err == nil && resolvedCNAME != "" && resolvedCNAME != req.URL.Host {
 		hosts = append(hosts, resolvedCNAME)
 	}
 
@@ -158,9 +156,7 @@ func resolvesToPrivate(host string) error {
 	ips, err := net.LookupIP(host)
 	if err != nil {
 		dnsErr, isDNSErr := err.(*net.DNSError)
-		if isDNSErr && dnsErr.IsNotFound {
-			// that's ok, let things continue even if the host does not resolve
-		} else {
+		if !isDNSErr || !dnsErr.IsNotFound {
 			return errors.Wrap(err, "failed to LookupIP")
 		}
 	}
@@ -208,9 +204,7 @@ func matchesDomain(pattern, domain string) bool {
 		p := patternParts[j]
 		d := domainParts[i]
 
-		if p == "*" || p == d {
-			// do nothing, they match
-		} else {
+		if p != "*" && p != d {
 			return false
 		}
 
