@@ -105,8 +105,8 @@ func (b *BundleSource) GetModule(FQMN string) (*tenant.Module, error) {
 	return nil, system.ErrModuleNotFound
 }
 
-// Schedules returns the schedules for the system.
-func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error) {
+// Workflows returns the workflows for the system.
+func (b *BundleSource) Workflows(ident, namespace string, _ int64) ([]tenant.Workflow, error) {
 	if !b.checkIdentifier(ident) {
 		return nil, system.ErrTenantNotFound
 	}
@@ -132,7 +132,7 @@ func (b *BundleSource) Workflows(ident, namespace string, version int64) ([]tena
 }
 
 // Connections returns the Connections for the system.
-func (b *BundleSource) Connections(ident, namespace string, version int64) ([]tenant.Connection, error) {
+func (b *BundleSource) Connections(ident, namespace string, _ int64) ([]tenant.Connection, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
@@ -158,7 +158,7 @@ func (b *BundleSource) Connections(ident, namespace string, version int64) ([]te
 }
 
 // Authentication returns the Authentication for the system.
-func (b *BundleSource) Authentication(ident, namespace string, version int64) (*tenant.Authentication, error) {
+func (b *BundleSource) Authentication(ident, namespace string, _ int64) (*tenant.Authentication, error) {
 	b.lock.RLock()
 	defer b.lock.RUnlock()
 
@@ -185,7 +185,7 @@ func (b *BundleSource) Authentication(ident, namespace string, version int64) (*
 
 // Capabilities returns the configuration for the system's capabilities.
 
-func (b *BundleSource) Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error) {
+func (b *BundleSource) Capabilities(ident, namespace string, _ int64) (*capabilities.CapabilityConfig, error) {
 	defaultConfig := capabilities.DefaultCapabilityConfig()
 
 	b.lock.RLock()
