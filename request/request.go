@@ -36,13 +36,16 @@ type CoordinatedRequest struct {
 // FromEchoContext creates a CoordinatedRequest from an echo context.
 func FromEchoContext(c echo.Context) (*CoordinatedRequest, error) {
 	var err error
+
 	reqBody := make([]byte, 0)
+
 	if c.Request().Body != nil { // Read
 		reqBody, err = io.ReadAll(c.Request().Body)
 		if err != nil {
 			return nil, errors.Wrap(err, "io.ReadAll request body")
 		}
 	}
+
 	c.Request().Body = io.NopCloser(bytes.NewBuffer(reqBody)) // Reset
 
 	flatHeaders := map[string]string{}

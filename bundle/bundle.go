@@ -170,6 +170,7 @@ func Read(path string) (*Bundle, error) {
 			}
 
 			bundle.TenantConfig = tenantConfig
+
 			continue
 		}
 	}

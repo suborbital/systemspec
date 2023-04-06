@@ -17,6 +17,7 @@ func (c *CoordinatedResponse) ToJSON() ([]byte, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "json.Marshal")
 	}
+
 	return b, nil
 }
 

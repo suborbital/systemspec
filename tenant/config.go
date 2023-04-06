@@ -90,7 +90,6 @@ type Authentication struct {
 func (c *Config) FindModule(name string) (*Module, error) {
 	// if this is an FQMN, parse the identifier and bail out
 	// if it doesn't match this tenant.
-
 	FQMN, err := fqmn.Parse(name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fqmn.Parse")

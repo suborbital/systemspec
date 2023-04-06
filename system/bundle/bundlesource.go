@@ -231,6 +231,7 @@ func (b *BundleSource) findBundle() error {
 		}
 
 		b.lock.Unlock()
+
 		break
 	}
 

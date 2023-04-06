@@ -135,6 +135,7 @@ func readPort(url *url.URL) (int, error) {
 		if url.Scheme == "https" {
 			return 443, nil
 		}
+
 		return 80, nil
 	}
 
@@ -196,6 +197,7 @@ func matchesDomain(pattern, domain string) bool {
 	// iterate over the pattern and domain *backwards* to determine
 	// if the domain matches the pattern with wildcard support
 	j := len(patternParts) - 1
+
 	for i := len(domainParts) - 1; i >= 0; i-- {
 		if domainParts[i] == "" {
 			// skip over empty members

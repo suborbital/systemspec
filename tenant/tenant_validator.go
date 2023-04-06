@@ -101,6 +101,7 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 		if r := recover(); r != nil {
 			problems.add(fmt.Errorf("%s", r))
 		}
+
 		err = problems.render()
 	}()
 

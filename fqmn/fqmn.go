@@ -66,10 +66,11 @@ func Parse(fqmnString string) (FQMN, error) {
 }
 
 func parseTextFormat(fqmnString string) (FQMN, error) {
-	fqmnString = strings.TrimPrefix(fqmnString, "fqmn://")
-
-	refSegments := strings.SplitN(fqmnString, "@", 2)
 	var ref string
+
+	fqmnString = strings.TrimPrefix(fqmnString, "fqmn://")
+	refSegments := strings.SplitN(fqmnString, "@", 2)
+
 	if len(refSegments) == 2 {
 		ref = refSegments[1]
 	}
@@ -160,10 +161,10 @@ func parseRefUri(fqmnString string) (FQMN, error) {
 
 func MigrateV1ToV2(name, ref string) (FQMN, error) {
 	// Parse V1 format and swap version for ref
-
 	// if the name contains a #, parse that out as the tenant.
 	tenant := ""
 	tenantParts := strings.SplitN(name, "#", 2)
+
 	if len(tenantParts) == 2 {
 		tenant = tenantParts[0]
 		name = tenantParts[1]
@@ -174,6 +175,7 @@ func MigrateV1ToV2(name, ref string) (FQMN, error) {
 
 	namespace := NamespaceDefault
 	namespaceParts := strings.SplitN(name, "::", 2)
+
 	if len(namespaceParts) == 2 {
 		namespace = namespaceParts[0]
 		name = namespaceParts[1]
@@ -205,5 +207,6 @@ func FromParts(tenant, namespace, module, ref string) (string, error) {
 	if tenant == "" || namespace == "" || module == "" || ref == "" {
 		return "", ErrFQMNConstructionFailure
 	}
+
 	return fmt.Sprintf("fqmn://%s/%s/%s@%s", tenant, namespace, module, ref), nil
 }
