@@ -22,9 +22,9 @@ type Bundle struct {
 }
 
 // StaticFile returns a static file from the bundle, if it exists.
-func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
+func (b *Bundle) StaticFile(filePathIn string) ([]byte, error) {
 	// normalize in case the caller added `/` or `./` to the filename.
-	filePath = NormalizeStaticFilename(filePath)
+	filePath := NormalizeStaticFilename(filePathIn)
 
 	if _, exists := b.staticFiles[filePath]; !exists {
 		return nil, os.ErrNotExist

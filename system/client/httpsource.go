@@ -28,7 +28,8 @@ type HTTPSource struct {
 }
 
 // NewHTTPSource creates a new HTTPSource that looks for a bundle at [host].
-func NewHTTPSource(host string, creds system.Credential) system.Source {
+func NewHTTPSource(hostIn string, creds system.Credential) system.Source {
+	host := hostIn
 	if !strings.HasPrefix(host, "http://") && !strings.HasPrefix(host, "https://") {
 		host = fmt.Sprintf("http://%s", host)
 	}

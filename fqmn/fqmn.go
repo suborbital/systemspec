@@ -65,10 +65,10 @@ func Parse(fqmnString string) (FQMN, error) {
 	return FQMN{}, errors.Wrapf(errWrongPrefix, "failed to parse string %q", fqmnString)
 }
 
-func parseTextFormat(fqmnString string) (FQMN, error) {
+func parseTextFormat(fqmnIn string) (FQMN, error) {
 	var ref string
 
-	fqmnString = strings.TrimPrefix(fqmnString, "fqmn://")
+	fqmnString := strings.TrimPrefix(fqmnIn, "fqmn://")
 	refSegments := strings.SplitN(fqmnString, "@", 2)
 
 	if len(refSegments) == 2 {
@@ -108,8 +108,8 @@ func parseTextFormat(fqmnString string) (FQMN, error) {
 	return fqmn, nil
 }
 
-func parseNameUri(fqmnString string) (FQMN, error) {
-	fqmnString = strings.TrimPrefix(fqmnString, "/name/")
+func parseNameUri(fqmnStringIn string) (FQMN, error) {
+	fqmnString := strings.TrimPrefix(fqmnStringIn, "/name/")
 	segments := strings.Split(fqmnString, "/")
 
 	// There should be at least two segments
@@ -136,8 +136,8 @@ func parseNameUri(fqmnString string) (FQMN, error) {
 	return fqmn, nil
 }
 
-func parseRefUri(fqmnString string) (FQMN, error) {
-	fqmnString = strings.TrimPrefix(fqmnString, "/ref/")
+func parseRefUri(fqmnStringIn string) (FQMN, error) {
+	fqmnString := strings.TrimPrefix(fqmnStringIn, "/ref/")
 	segments := strings.Split(fqmnString, "/")
 
 	// If the last segment is empty, there was a trailing slash
@@ -159,11 +159,12 @@ func parseRefUri(fqmnString string) (FQMN, error) {
 	return fqmn, nil
 }
 
-func MigrateV1ToV2(name, ref string) (FQMN, error) {
+func MigrateV1ToV2(nameIn, ref string) (FQMN, error) {
 	// Parse V1 format and swap version for ref
 	// if the name contains a #, parse that out as the tenant.
 	tenant := ""
-	tenantParts := strings.SplitN(name, "#", 2)
+	name := nameIn
+	tenantParts := strings.SplitN(nameIn, "#", 2)
 
 	if len(tenantParts) == 2 {
 		tenant = tenantParts[0]
