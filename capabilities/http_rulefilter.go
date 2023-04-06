@@ -138,7 +138,12 @@ func readPort(url *url.URL) (int, error) {
 		return 80, nil
 	}
 
-	return strconv.Atoi(url.Port())
+	n, err := strconv.Atoi(url.Port())
+	if err != nil {
+		return 0, errors.Wrap(err, "strconv.Atoi")
+	}
+
+	return n, nil
 }
 
 // returns nil if the host does not resolve to an IP in a private range

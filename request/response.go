@@ -13,7 +13,11 @@ type CoordinatedResponse struct {
 
 // ToJSON returns a JSON representation of a CoordinatedRequest
 func (c *CoordinatedResponse) ToJSON() ([]byte, error) {
-	return json.Marshal(c)
+	b, err := json.Marshal(c)
+	if err != nil {
+		return nil, errors.Wrap(err, "json.Marshal")
+	}
+	return b, nil
 }
 
 // ResponseFromJSON unmarshalls a CoordinatedResponse from JSON

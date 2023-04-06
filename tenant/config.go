@@ -113,14 +113,19 @@ func (c *Config) FindModule(name string) (*Module, error) {
 func (c *Config) Marshal() ([]byte, error) {
 	c.calculateFQMNs()
 
-	return json.Marshal(c)
+	b, err := json.Marshal(c)
+	if err != nil {
+		return nil, errors.Wrap(err, "json.Marshal")
+	}
+
+	return b, nil
 }
 
 // Unmarshal unmarshals JSON bytes into a TenantConfig struct
 // it also calculates a map of FQMNs for later use.
 func (c *Config) Unmarshal(in []byte) error {
 	if err := json.Unmarshal(in, c); err != nil {
-		return err
+		return errors.Wrap(err, "json.Unmarshal")
 	}
 
 	c.calculateFQMNs()
@@ -132,7 +137,7 @@ func (c *Config) Unmarshal(in []byte) error {
 // it also calculates a map of FQMNs for later use.
 func (c *Config) UnmarshalYaml(in []byte) error {
 	if err := yaml.Unmarshal(in, c); err != nil {
-		return err
+		return errors.Wrap(err, "yaml.Unmarshal")
 	}
 
 	c.calculateFQMNs()
@@ -158,7 +163,12 @@ func (c *Config) calculateFQMNs() {
 }
 
 func (c *Config) FQMNForFunc(namespace, fn, ref string) (string, error) {
-	return fqmn.FromParts(c.Identifier, namespace, fn, ref)
+	fqmnString, err := fqmn.FromParts(c.Identifier, namespace, fn, ref)
+	if err != nil {
+		return "", errors.Wrap(err, "fqmn.FromParts")
+	}
+
+	return fqmnString, nil
 }
 
 // NumberOfSeconds calculates the total time in seconds for the schedule's 'every' value.

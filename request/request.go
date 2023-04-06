@@ -162,7 +162,12 @@ func FromJSON(jsonBytes []byte) (*CoordinatedRequest, error) {
 
 // ToJSON returns a JSON representation of a CoordinatedRequest
 func (c *CoordinatedRequest) ToJSON() ([]byte, error) {
-	return json.Marshal(c)
+	b, err := json.Marshal(c)
+	if err != nil {
+		return nil, errors.Wrap(err, "json.Marshal")
+	}
+
+	return b, nil
 }
 
 func (c *CoordinatedRequest) addState(stateJSON string) error {
