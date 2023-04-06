@@ -117,7 +117,7 @@ func TestConfigValidatorGroupLast(t *testing.T) {
 	if err := conf.Validate(); err == nil {
 		t.Error("Config validation should have failed")
 	} else {
-		fmt.Println("Config validation properly failed:", err)
+		_, _ = fmt.Println("Config validation properly failed:", err)
 	}
 }
 
@@ -161,7 +161,7 @@ func TestConfigValidatorMissingFns(t *testing.T) {
 	if err := conf.Validate(); err == nil {
 		t.Error("Config validation should have failed")
 	} else {
-		fmt.Println("Config validation properly failed:", err)
+		_, _ = fmt.Println("Config validation properly failed:", err)
 	}
 }
 
