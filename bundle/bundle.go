@@ -42,22 +42,27 @@ func (b *Bundle) StaticFile(filePathIn string) ([]byte, error) {
 
 	var contents []byte
 
+	var zipFile *zip.File
+
 	for _, f := range r.File {
 		if f.Name == staticFilePath {
-			file, err := f.Open()
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to Open static file")
-			}
-
-			defer file.Close()
-
-			contents, err = io.ReadAll(file)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to ReadAll static file")
-			}
-
+			zipFile = f
 			break
 		}
+	}
+
+	file, err := zipFile.Open()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Open static file")
+	}
+
+	defer func() {
+		_ = file.Close()
+	}()
+
+	contents, err = io.ReadAll(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to ReadAll static file")
 	}
 
 	return contents, nil
@@ -202,12 +207,13 @@ func Read(path string) (*Bundle, error) {
 			return nil, errors.Wrapf(err, "failed to open %s from bundle", f.Name)
 		}
 
-		defer rc.Close()
-
 		wasmBytes, err := io.ReadAll(rc)
 		if err != nil {
+			_ = rc.Close()
 			return nil, errors.Wrapf(err, "failed to read %s from bundle", f.Name)
 		}
+
+		_ = rc.Close()
 
 		// for now, the bundle spec only supports the default namespace
 		FQMN := fmt.Sprintf("/name/default/%s", strings.TrimSuffix(f.Name, ".wasm"))
