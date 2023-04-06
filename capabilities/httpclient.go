@@ -2,6 +2,7 @@ package capabilities
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -51,7 +52,10 @@ func (h *httpClient) Do(auth AuthCapability, method, urlString string, body []by
 		return nil, errors.Wrap(err, "failed to url.Parse")
 	}
 
-	req, err := http.NewRequest(method, urlObj.String(), bytes.NewBuffer(body))
+	ctx, cxl := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cxl()
+
+	req, err := http.NewRequestWithContext(ctx, method, urlObj.String(), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to NewRequest")
 	}

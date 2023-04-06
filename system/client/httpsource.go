@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -183,7 +184,10 @@ func (h *HTTPSource) authedGet(path, auth string, dest interface{}) error {
 		return errors.Wrap(err, "failed to url.Parse")
 	}
 
-	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
+	ctx, cxl := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cxl()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	if err != nil {
 		return errors.Wrap(err, "failed to NewRequest")
 	}
