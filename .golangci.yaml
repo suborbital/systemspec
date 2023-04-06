@@ -41,8 +41,6 @@ linters-settings:
     enable-all-rules: false
     confidence: 0.1
     rules:
-      - name: add-constant
-        maxLitCount: 1
       - name: bool-literal-in-expr
       - name: comment-spacings
       - name: context-as-argument
@@ -59,7 +57,6 @@ linters-settings:
       - name: error-return
       - name: error-strings
       - name: errorf
-      - name: exported
       - name: identical-branches
       - name: import-shadowing
         severity: error
@@ -69,7 +66,6 @@ linters-settings:
       - name: nested-structs
       - name: redefines-builtin-id
       - name: superfluous-else
-      - name: var-naming
       - name: unexported-return
       - name: unhandled-error
       - name: unnecessary-stmt
