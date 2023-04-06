@@ -120,7 +120,7 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 		return errors.Wrap(err, "failed to close bundle writer")
 	}
 
-	if err := os.WriteFile(targetPath, buf.Bytes(), 0777); err != nil {
+	if err := os.WriteFile(targetPath, buf.Bytes(), 0600); err != nil {
 		return errors.Wrap(err, "failed to write bundle to disk")
 	}
 
