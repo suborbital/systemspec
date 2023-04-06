@@ -40,7 +40,7 @@ func (b *BundleSource) Start() error {
 }
 
 // State returns the state of the entire system.
-func (b *BundleSource) State() (*system.State, error) {
+func (_ *BundleSource) State() (*system.State, error) {
 	s := &system.State{
 		SystemVersion: 1,
 	}
