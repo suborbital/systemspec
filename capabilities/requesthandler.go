@@ -83,35 +83,35 @@ func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 		}
 	case RequestFieldTypeBody:
 		bodyVal, err := r.req.BodyField(key)
-		if err == nil {
-			val = bodyVal
-		} else {
+		if err != nil {
 			return nil, errors.Wrap(err, "failed to get BodyField")
 		}
+
+		val = bodyVal
 	case RequestFieldTypeHeader:
 		// lowercase to make the search case-insensitive
 		lowerKey := strings.ToLower(key)
 		header, ok := r.req.Headers[lowerKey]
 
-		if ok {
-			val = header
-		} else {
+		if !ok {
 			return nil, ErrKeyNotFound
 		}
+
+		val = header
 	case RequestFieldTypeParams:
 		param, ok := r.req.Params[key]
-		if ok {
-			val = param
-		} else {
+		if !ok {
 			return nil, ErrKeyNotFound
 		}
+
+		val = param
 	case RequestFieldTypeState:
 		stateVal, ok := r.req.State[key]
-		if ok {
-			val = string(stateVal)
-		} else {
+		if !ok {
 			return nil, ErrKeyNotFound
 		}
+
+		val = string(stateVal)
 	case RequestFieldTypeQuery:
 		parsedURL, err := url.Parse(r.req.URL)
 		if err != nil {
