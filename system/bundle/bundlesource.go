@@ -223,7 +223,6 @@ func (b *BundleSource) findBundle() error {
 		}
 
 		b.lock.Lock()
-		defer b.lock.Unlock()
 
 		b.bundle = bdl
 
@@ -231,6 +230,7 @@ func (b *BundleSource) findBundle() error {
 			return errors.Wrap(err, "failed to Validate tenant config")
 		}
 
+		b.lock.Unlock()
 		break
 	}
 
