@@ -80,7 +80,6 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 				problems.add(fmt.Errorf("unknown connection type %s", c.Type))
 			}
 		}
-
 	}
 
 	if nc.Authentication != nil {

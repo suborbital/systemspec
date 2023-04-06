@@ -47,7 +47,6 @@ func NewHTTPSource(host string, creds system.Credential) system.Source {
 			Timeout: defaultTimeout,
 		},
 	}
-
 }
 
 // Start initializes the system source.
