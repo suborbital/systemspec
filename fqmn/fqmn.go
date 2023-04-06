@@ -41,7 +41,7 @@ type FQMN struct {
 }
 
 var ErrFQMNParseFailure = errors.New("FQMN failed to parse")
-var ErrFQMNConstructionFailure = errors.New("All FQMN must be defined")
+var ErrFQMNConstructionFailure = errors.New("all FQMN must be defined")
 
 var errWrongPrefix = errors.Wrap(ErrFQMNParseFailure, "FQMN must begin with 'fqmn://', '/name', or '/ref'")
 var errMustBeFullyQualified = errors.Wrap(ErrFQMNParseFailure, "FQMN text format must contain an tenant, ref, namespace, and module name")
