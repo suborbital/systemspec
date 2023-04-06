@@ -71,5 +71,10 @@ func (h *httpClient) Do(auth AuthCapability, method, urlString string, body []by
 
 	req.Header = headers
 
-	return h.client.Do(req)
+	resp, err := h.client.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "h.client.Do")
+	}
+
+	return resp, nil
 }
