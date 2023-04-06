@@ -30,7 +30,7 @@ type CoordinatedRequest struct {
 	State        map[string][]byte `json:"state"`
 	SequenceJSON []byte            `json:"sequence_json,omitempty"`
 
-	bodyValues map[string]interface{}
+	bodyValues map[string]any
 }
 
 // FromEchoContext creates a CoordinatedRequest from an echo context.
@@ -97,7 +97,7 @@ func (c *CoordinatedRequest) BodyField(key string) (string, error) {
 			return "", nil
 		}
 
-		vals := map[string]interface{}{}
+		vals := map[string]any{}
 
 		if err := json.Unmarshal(c.Body, &vals); err != nil {
 			return "", errors.Wrap(err, "failed to Unmarshal request body")
@@ -127,7 +127,7 @@ func (c *CoordinatedRequest) SetBodyField(key, val string) error {
 			return nil
 		}
 
-		vals := map[string]interface{}{}
+		vals := map[string]any{}
 
 		if err := json.Unmarshal(c.Body, &vals); err != nil {
 			return errors.Wrap(err, "failed to Unmarshal request body")

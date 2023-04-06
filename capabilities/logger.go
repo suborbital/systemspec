@@ -12,7 +12,7 @@ type LoggerConfig struct {
 
 // LoggerCapability provides a logger to Modules.
 type LoggerCapability interface {
-	Log(level int32, msg string, scope interface{})
+	Log(level int32, msg string, scope any)
 }
 
 type loggerSource struct {
@@ -33,7 +33,7 @@ func DefaultLoggerSource(config LoggerConfig) LoggerCapability {
 
 // Log writes a log line to the underlying logger using the data it got:
 // level int32, msg string, and scope interface.
-func (l *loggerSource) Log(level int32, msg string, scope interface{}) {
+func (l *loggerSource) Log(level int32, msg string, scope any) {
 	if !l.config.Enabled {
 		return
 	}

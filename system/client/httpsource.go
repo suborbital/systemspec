@@ -173,12 +173,12 @@ func (h *HTTPSource) pingServer() error {
 }
 
 // get performs a GET request against the configured host and given path.
-func (h *HTTPSource) get(path string, dest interface{}) error {
+func (h *HTTPSource) get(path string, dest any) error {
 	return h.authedGet(path, h.authHeader, dest)
 }
 
 // authedGet performs a GET request against the configured host and given path with the given auth header.
-func (h *HTTPSource) authedGet(path, auth string, dest interface{}) error {
+func (h *HTTPSource) authedGet(path, auth string, dest any) error {
 	parsedURL, err := url.Parse(fmt.Sprintf("%s%s", h.host, path))
 	if err != nil {
 		return errors.Wrap(err, "failed to parsedURL.Parse")
