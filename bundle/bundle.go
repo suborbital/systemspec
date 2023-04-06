@@ -84,6 +84,8 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 
 	// Add the Wasm modules to the archive.
 	for _, file := range modules {
+		file := file
+
 		if file.Name() == "tenant.json" {
 			// only allow the canonical tenant config that's passed in.
 			continue
@@ -101,6 +103,8 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 
 	// Add static files to the archive.
 	for path, file := range staticFiles {
+		file := file
+
 		contents, err := io.ReadAll(&file)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read file %s", file.Name())
