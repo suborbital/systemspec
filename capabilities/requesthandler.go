@@ -72,7 +72,7 @@ func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 		switch key {
 		case "method":
 			val = r.req.Method
-		case "url":
+		case "parsedURL":
 			val = r.req.URL
 		case "id":
 			val = r.req.ID
@@ -113,12 +113,12 @@ func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 			return nil, ErrKeyNotFound
 		}
 	case RequestFieldTypeQuery:
-		url, err := url.Parse(r.req.URL)
+		parsedURL, err := url.Parse(r.req.URL)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to url.Parse")
+			return nil, errors.Wrap(err, "failed to parsedURL.Parse")
 		}
 
-		val = url.Query().Get(key)
+		val = parsedURL.Query().Get(key)
 	default:
 		return nil, errors.Wrapf(ErrInvalidFieldType, "module requested field type %d", fieldType)
 	}

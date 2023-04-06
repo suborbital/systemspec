@@ -104,14 +104,14 @@ func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 }
 
 // portAllowed evaluates port allowance rules.
-func (h HTTPRules) portAllowed(url *url.URL) error {
+func (h HTTPRules) portAllowed(urlToCheck *url.URL) error {
 	// Backward Compatibility:
 	// Allow all ports if no allow/block list has been configured
 	if len(h.AllowedPorts)+len(h.BlockedPorts) == 0 {
 		return nil
 	}
 
-	port, err := readPort(url)
+	port, err := readPort(urlToCheck)
 	if err != nil {
 		return ErrPortDisallowed
 	}
@@ -130,16 +130,16 @@ func (h HTTPRules) portAllowed(url *url.URL) error {
 }
 
 // readPort returns normalized URL port.
-func readPort(url *url.URL) (int, error) {
-	if url.Port() == "" {
-		if url.Scheme == "https" {
+func readPort(fromURL *url.URL) (int, error) {
+	if fromURL.Port() == "" {
+		if fromURL.Scheme == "https" {
 			return 443, nil
 		}
 
 		return 80, nil
 	}
 
-	n, err := strconv.Atoi(url.Port())
+	n, err := strconv.Atoi(fromURL.Port())
 	if err != nil {
 		return 0, errors.Wrap(err, "strconv.Atoi")
 	}

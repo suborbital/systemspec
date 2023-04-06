@@ -178,15 +178,15 @@ func (h *HTTPSource) get(path string, dest interface{}) error {
 
 // authedGet performs a GET request against the configured host and given path with the given auth header.
 func (h *HTTPSource) authedGet(path, auth string, dest interface{}) error {
-	url, err := url.Parse(fmt.Sprintf("%s%s", h.host, path))
+	parsedURL, err := url.Parse(fmt.Sprintf("%s%s", h.host, path))
 	if err != nil {
-		return errors.Wrap(err, "failed to url.Parse")
+		return errors.Wrap(err, "failed to parsedURL.Parse")
 	}
 
 	ctx, cxl := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cxl()
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, parsedURL.String(), nil)
 	if err != nil {
 		return errors.Wrap(err, "failed to NewRequest")
 	}

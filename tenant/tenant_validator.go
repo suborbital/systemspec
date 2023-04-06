@@ -155,12 +155,12 @@ func (c *Config) validateSteps(exType executableType, name string, steps []Workf
 
 		// this function is key as it compartmentalizes 'step validation', and importantly it
 		// ensures that a Module is available to handle it and binds it by setting the FQMN field.
-		validateFqmn := func(fqmn string) {
-			module, err := c.FindModule(fqmn)
+		validateFqmn := func(fqmnString string) {
+			module, err := c.FindModule(fqmnString)
 			if err != nil {
-				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not have a properly formed FQMN: %s", exType, name, j, fqmn))
+				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not have a properly formed FQMN: %s", exType, name, j, fqmnString))
 			} else if module == nil {
-				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, fqmn))
+				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, fqmnString))
 			}
 		}
 
