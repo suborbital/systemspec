@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/pkg/errors"
 )
+
+const defaultTimeout = 10 * time.Second
 
 // HTTPConfig is configuration for the HTTP capability
 type HTTPConfig struct {
@@ -22,12 +25,16 @@ type HTTPCapability interface {
 
 type httpClient struct {
 	config HTTPConfig
+	client *http.Client
 }
 
 // DefaultHTTPClient creates an HTTP client with no restrictions
 func DefaultHTTPClient(config HTTPConfig) HTTPCapability {
 	d := &httpClient{
 		config: config,
+		client: &http.Client{
+			Timeout: defaultTimeout,
+		},
 	}
 
 	return d
@@ -60,5 +67,5 @@ func (h *httpClient) Do(auth AuthCapability, method, urlString string, body []by
 
 	req.Header = headers
 
-	return http.DefaultClient.Do(req)
+	return h.client.Do(req)
 }

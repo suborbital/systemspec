@@ -17,10 +17,13 @@ import (
 	"github.com/suborbital/systemspec/tenant"
 )
 
+const defaultTimeout = 10 * time.Second
+
 // HTTPSource is a Source backed by an HTTP client connected to a remote source.
 type HTTPSource struct {
 	host       string
 	authHeader string
+	client     *http.Client
 }
 
 // NewHTTPSource creates a new HTTPSource that looks for a bundle at [host].
@@ -39,6 +42,9 @@ func NewHTTPSource(host string, creds system.Credential) system.Source {
 	return &HTTPSource{
 		host:       host,
 		authHeader: fmt.Sprintf("%s %s", creds.Scheme(), creds.Value()),
+		client: &http.Client{
+			Timeout: defaultTimeout,
+		},
 	}
 
 }
@@ -186,17 +192,17 @@ func (h *HTTPSource) authedGet(path, auth string, dest interface{}) (*http.Respo
 		req.Header.Set("Authorization", auth)
 	}
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := h.client.Do(req)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to Do request")
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		return resp, fmt.Errorf("response returned non-200 status: %d", resp.StatusCode)
 	}
 
 	if dest != nil {
-		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to ReadAll body")
