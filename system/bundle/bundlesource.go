@@ -39,7 +39,7 @@ func (b *BundleSource) Start() error {
 	return nil
 }
 
-// State returns the state of the entire system
+// State returns the state of the entire system.
 func (b *BundleSource) State() (*system.State, error) {
 	s := &system.State{
 		SystemVersion: 1,

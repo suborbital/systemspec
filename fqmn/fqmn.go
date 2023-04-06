@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////
 // An FQMN (fully-qualified module name) is a "globally unique"
 // name for a specific module from a specific tenant ref
 // example: fqmn://suborbital.acmeco/api-users/add-user@98qhrfgo3089hafrouhqf48
@@ -25,7 +25,7 @@ import (
 //      e.g. /ref/<ref>
 // 		(addressing a module by module hash)
 //
-////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////
 
 // NamespaceDefault and others represent conts for namespaces.
 const (
@@ -200,7 +200,7 @@ func (f FQMN) URLPath() string {
 	return fmt.Sprintf("/%s/%s/%s/%s", f.Tenant, f.Ref, f.Namespace, f.Name)
 }
 
-// FromParts returns an FQMN from the provided parts
+// FromParts returns an FQMN from the provided parts.
 func FromParts(tenant, namespace, module, ref string) (string, error) {
 	if tenant == "" || namespace == "" || module == "" || ref == "" {
 		return "", ErrFQMNConstructionFailure

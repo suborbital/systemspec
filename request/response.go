@@ -11,7 +11,7 @@ type CoordinatedResponse struct {
 	RespHeaders map[string]string `json:"resp_headers"`
 }
 
-// ToJSON returns a JSON representation of a CoordinatedRequest
+// ToJSON returns a JSON representation of a CoordinatedRequest.
 func (c *CoordinatedResponse) ToJSON() ([]byte, error) {
 	b, err := json.Marshal(c)
 	if err != nil {
@@ -20,7 +20,7 @@ func (c *CoordinatedResponse) ToJSON() ([]byte, error) {
 	return b, nil
 }
 
-// ResponseFromJSON unmarshalls a CoordinatedResponse from JSON
+// ResponseFromJSON unmarshalls a CoordinatedResponse from JSON.
 func ResponseFromJSON(jsonBytes []byte) (*CoordinatedResponse, error) {
 	resp := CoordinatedResponse{}
 	if err := json.Unmarshal(jsonBytes, &resp); err != nil {

@@ -14,14 +14,14 @@ type Module struct {
 }
 
 // WasmModuleRef is a reference to a Wasm module
-// This is a duplicate of sat/engine/moduleref/WasmModuleRef (for JSON serialization purposes)
+// This is a duplicate of sat/engine/moduleref/WasmModuleRef (for JSON serialization purposes).
 type WasmModuleRef struct {
 	Name string `json:"name"`
 	FQMN string `json:"fqmn"`
 	Data []byte `json:"data"`
 }
 
-// ModuleRevision is a revision of a module
+// ModuleRevision is a revision of a module.
 type ModuleRevision struct {
 	Ref string `json:"ref"`
 }

@@ -14,7 +14,7 @@ var (
 	ErrAuthenticationFailed = errors.New("failed to authenticate")
 )
 
-// Source describes how an entire system relays its state to a client
+// Source describes how an entire system relays its state to a client.
 type Source interface {
 	// Start indicates to the Source that it should prepare for system startup.
 	Start() error

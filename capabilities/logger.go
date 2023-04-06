@@ -4,13 +4,13 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// LoggerConfig is configuration for the logger capability
+// LoggerConfig is configuration for the logger capability.
 type LoggerConfig struct {
 	Enabled bool           `json:"enabled" yaml:"enabled"`
 	Logger  zerolog.Logger `json:"-" yaml:"-"`
 }
 
-// LoggerCapability provides a logger to Modules
+// LoggerCapability provides a logger to Modules.
 type LoggerCapability interface {
 	Log(level int32, msg string, scope interface{})
 }
@@ -32,7 +32,7 @@ func DefaultLoggerSource(config LoggerConfig) LoggerCapability {
 }
 
 // Log writes a log line to the underlying logger using the data it got:
-// level int32, msg string, and scope interface
+// level int32, msg string, and scope interface.
 func (l *loggerSource) Log(level int32, msg string, scope interface{}) {
 	if !l.config.Enabled {
 		return

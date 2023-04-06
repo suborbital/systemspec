@@ -19,7 +19,7 @@ var (
 	ErrPortDisallowed    = errors.New("requests to this port are disallowed")
 )
 
-// HTTPRules is a set of rules that governs use of the HTTP capability
+// HTTPRules is a set of rules that governs use of the HTTP capability.
 type HTTPRules struct {
 	AllowedDomains []string `json:"allowedDomains" yaml:"allowedDomains"`
 	BlockedDomains []string `json:"blockedDomains" yaml:"blockedDomains"`
@@ -32,7 +32,7 @@ type HTTPRules struct {
 
 var standardPorts = []int{80, 443}
 
-// requestIsAllowed returns a non-nil error if the provided request is not allowed to proceed
+// requestIsAllowed returns a non-nil error if the provided request is not allowed to proceed.
 func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 	// Hostname removes port numbers as well as IPv6 [ and ]
 	hosts := []string{req.URL.Hostname()}
@@ -103,7 +103,7 @@ func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 	return nil
 }
 
-// portAllowed evaluates port allowance rules
+// portAllowed evaluates port allowance rules.
 func (h HTTPRules) portAllowed(url *url.URL) error {
 	// Backward Compatibility:
 	// Allow all ports if no allow/block list has been configured
@@ -129,7 +129,7 @@ func (h HTTPRules) portAllowed(url *url.URL) error {
 	return ErrPortDisallowed
 }
 
-// readPort returns normalized URL port
+// readPort returns normalized URL port.
 func readPort(url *url.URL) (int, error) {
 	if url.Port() == "" {
 		if url.Scheme == "https" {
@@ -147,7 +147,7 @@ func readPort(url *url.URL) (int, error) {
 }
 
 // returns nil if the host does not resolve to an IP in a private range
-// returns ErrPrivateDisallowed if it does
+// returns ErrPrivateDisallowed if it does.
 func resolvesToPrivate(host string) error {
 	if strings.Contains(host, "localhost") {
 		return ErrPrivateDisallowed
@@ -220,7 +220,7 @@ func matchesDomain(pattern, domain string) bool {
 	return true
 }
 
-// defaultHTTPRules returns the default rules with all requests allowed
+// defaultHTTPRules returns the default rules with all requests allowed.
 func defaultHTTPRules() HTTPRules {
 	h := HTTPRules{
 		AllowedDomains: []string{},

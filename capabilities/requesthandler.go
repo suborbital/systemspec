@@ -24,14 +24,14 @@ var (
 	ErrKeyNotFound      = errors.New("key not found")
 )
 
-// RequestHandlerConfig is configuration for the request capability
+// RequestHandlerConfig is configuration for the request capability.
 type RequestHandlerConfig struct {
 	Enabled       bool `json:"enabled" yaml:"enabled"`
 	AllowGetField bool `json:"allowGetField" yaml:"allowGetField"`
 	AllowSetField bool `json:"allowSetField" yaml:"allowSetField"`
 }
 
-// RequestHandlerCapability allows runnables to handle HTTP requests
+// RequestHandlerCapability allows runnables to handle HTTP requests.
 type RequestHandlerCapability interface {
 	GetField(fieldType int32, key string) ([]byte, error)
 	SetField(fieldType int32, key string, val string) error
@@ -43,7 +43,7 @@ type requestHandler struct {
 	req    *request.CoordinatedRequest
 }
 
-// NewRequestHandler provides a handler for the given request
+// NewRequestHandler provides a handler for the given request.
 func NewRequestHandler(config RequestHandlerConfig, req *request.CoordinatedRequest) RequestHandlerCapability {
 	d := &requestHandler{
 		config: config,
@@ -53,7 +53,7 @@ func NewRequestHandler(config RequestHandlerConfig, req *request.CoordinatedRequ
 	return d
 }
 
-// GetField gets a field from the attached request
+// GetField gets a field from the attached request.
 func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 	if !r.config.Enabled {
 		return nil, ErrCapabilityNotEnabled
@@ -125,7 +125,7 @@ func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 	return []byte(val), nil
 }
 
-// SetField sets a field on the attached request
+// SetField sets a field on the attached request.
 func (r *requestHandler) SetField(fieldType int32, key string, val string) error {
 	if !r.config.Enabled {
 		return ErrCapabilityNotEnabled
@@ -168,7 +168,7 @@ func (r *requestHandler) SetField(fieldType int32, key string, val string) error
 	return nil
 }
 
-// SetResponseHeader sets a header on the response
+// SetResponseHeader sets a header on the response.
 func (r *requestHandler) SetResponseHeader(key, val string) error {
 	if !r.config.Enabled {
 		return ErrCapabilityNotEnabled

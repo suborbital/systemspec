@@ -20,7 +20,7 @@ const (
 	InputSourceKafka  = "kafka"
 )
 
-// Config describes a tenant and its related config
+// Config describes a tenant and its related config.
 type Config struct {
 	Identifier       string            `yaml:"identifier" json:"identifier"`
 	SpecVersion      int               `yaml:"specVersion" json:"specVersion"`
@@ -32,7 +32,7 @@ type Config struct {
 	Modules []Module `yaml:"modules" json:"modules"`
 }
 
-// NamespaceConfig is the configuration for a namespace
+// NamespaceConfig is the configuration for a namespace.
 type NamespaceConfig struct {
 	Name           string                         `yaml:"name" json:"name"`
 	Workflows      []Workflow                     `yaml:"workflows,omitempty" json:"workflows,omitempty"`
@@ -53,7 +53,7 @@ type Workflow struct {
 	Triggers []Trigger      `yaml:"triggers" json:"triggers"`
 }
 
-// Schedule represents the schedule settings for a workflow
+// Schedule represents the schedule settings for a workflow.
 type Schedule struct {
 	Every ScheduleEvery     `yaml:"every" json:"every"`
 	State map[string]string `yaml:"state,omitempty" json:"state,omitempty"`
@@ -76,7 +76,7 @@ type Trigger struct {
 	SinkTopic string `yaml:"sinkTopic" json:"sinkTopic"`
 }
 
-// Connection describes a connection to an external resource
+// Connection describes a connection to an external resource.
 type Connection struct {
 	Type   string            `yaml:"type" json:"type"`
 	Name   string            `yaml:"name" json:"name"`

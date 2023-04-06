@@ -8,7 +8,7 @@ import (
 	"github.com/suborbital/systemspec/fqmn"
 )
 
-// Validate validates a Config
+// Validate validates a Config.
 func (c *Config) Validate() (err error) {
 	problems := &problems{}
 

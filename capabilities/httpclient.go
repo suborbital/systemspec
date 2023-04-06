@@ -13,13 +13,13 @@ import (
 
 const defaultTimeout = 10 * time.Second
 
-// HTTPConfig is configuration for the HTTP capability
+// HTTPConfig is configuration for the HTTP capability.
 type HTTPConfig struct {
 	Enabled bool      `json:"enabled" yaml:"enabled"`
 	Rules   HTTPRules `json:"rules" yaml:"rules"`
 }
 
-// HTTPCapability gives Modules the ability to make HTTP requests
+// HTTPCapability gives Modules the ability to make HTTP requests.
 type HTTPCapability interface {
 	Do(auth AuthCapability, method, urlString string, body []byte, headers http.Header) (*http.Response, error)
 }
@@ -29,7 +29,7 @@ type httpClient struct {
 	client *http.Client
 }
 
-// DefaultHTTPClient creates an HTTP client with no restrictions
+// DefaultHTTPClient creates an HTTP client with no restrictions.
 func DefaultHTTPClient(config HTTPConfig) HTTPCapability {
 	d := &httpClient{
 		config: config,
@@ -41,7 +41,7 @@ func DefaultHTTPClient(config HTTPConfig) HTTPCapability {
 	return d
 }
 
-// Do performs the provided request
+// Do performs the provided request.
 func (h *httpClient) Do(auth AuthCapability, method, urlString string, body []byte, headers http.Header) (*http.Response, error) {
 	if !h.config.Enabled {
 		return nil, ErrCapabilityNotEnabled

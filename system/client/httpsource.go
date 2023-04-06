@@ -59,7 +59,7 @@ func (h *HTTPSource) Start() error {
 	return nil
 }
 
-// State returns the state of the entire system
+// State returns the state of the entire system.
 func (h *HTTPSource) State() (*system.State, error) {
 	s := &system.State{}
 	if err := h.get("/system/v1/state", s); err != nil {
