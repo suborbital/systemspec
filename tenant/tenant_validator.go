@@ -111,13 +111,13 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 		if w.Name == "" {
 			problems.add(fmt.Errorf("workflow at position %d has no name", i))
 			continue
-		} else {
-			if _, exists := uniqueWorkflowNames[w.Name]; exists {
-				problems.add(fmt.Errorf("workflow at position %d has a non-unique name %s", i, w.Name))
-			}
-
-			uniqueWorkflowNames[w.Name] = struct{}{}
 		}
+
+		if _, exists := uniqueWorkflowNames[w.Name]; exists {
+			problems.add(fmt.Errorf("workflow at position %d has a non-unique name %s", i, w.Name))
+		}
+
+		uniqueWorkflowNames[w.Name] = struct{}{}
 
 		if len(w.Steps) == 0 {
 			problems.add(fmt.Errorf("workflow %s missing steps", w.Name))
