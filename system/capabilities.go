@@ -5,7 +5,6 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/suborbital/systemspec/capabilities"
-	"github.com/suborbital/systemspec/tenant"
 )
 
 // ResolveCapabilitiesFromSource takes the ident, namespace, and version, and looks up the capabilities for that trio from the
@@ -21,13 +20,6 @@ func ResolveCapabilitiesFromSource(source Source, ident, namespace string, log z
 	userConfig, err := source.Capabilities(ident, namespace, tenantOverview.Config.TenantVersion)
 	if err != nil || userConfig == nil {
 		return &defaultConfig, nil
-	}
-
-	connections, err := source.Connections(ident, namespace, tenantOverview.Config.TenantVersion)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get Connections")
-	} else if connections == nil {
-		connections = []tenant.Connection{}
 	}
 
 	if userConfig.Logger != nil {

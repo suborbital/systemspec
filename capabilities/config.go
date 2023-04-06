@@ -12,7 +12,7 @@ var ErrCapabilityNotEnabled = errors.New("capability is not enabled")
 // CapabilityConfig is configuration for a Module's capabilities
 // NOTE: if any of the individual configs are nil, it will cause a crash,
 // but we need to be able to determine if they're set or not, hence the pointers
-// we are going to leave capabilities undocumented until we come up with a more elegant solution
+// we are going to leave capabilities undocumented until we come up with a more elegant solution.
 type CapabilityConfig struct {
 	Logger  *LoggerConfig         `json:"logger,omitempty" yaml:"logger,omitempty"`
 	HTTP    *HTTPConfig           `json:"http,omitempty" yaml:"http,omitempty"`
@@ -20,7 +20,7 @@ type CapabilityConfig struct {
 	Request *RequestHandlerConfig `json:"requestHandler,omitempty" yaml:"requestHandler,omitempty"`
 }
 
-// DefaultCapabilityConfig returns the default all-enabled config (with a default logger)
+// DefaultCapabilityConfig returns the default all-enabled config (with a default logger).
 func DefaultCapabilityConfig() CapabilityConfig {
 	return NewConfig(zerolog.New(os.Stderr))
 }

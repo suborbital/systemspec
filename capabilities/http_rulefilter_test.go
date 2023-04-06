@@ -1,13 +1,17 @@
 package capabilities
 
 import (
+	"context"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func testRequestIsAllowed(t *testing.T, name string, rules HTTPRules, url string, shouldError bool) {
 	t.Run(name, func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, url, nil)
+		ctx, cxl := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cxl()
+		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 
 		err := rules.requestIsAllowed(req)
 

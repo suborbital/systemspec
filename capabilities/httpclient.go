@@ -2,6 +2,7 @@ package capabilities
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,13 +13,13 @@ import (
 
 const defaultTimeout = 10 * time.Second
 
-// HTTPConfig is configuration for the HTTP capability
+// HTTPConfig is configuration for the HTTP capability.
 type HTTPConfig struct {
 	Enabled bool      `json:"enabled" yaml:"enabled"`
 	Rules   HTTPRules `json:"rules" yaml:"rules"`
 }
 
-// HTTPCapability gives Modules the ability to make HTTP requests
+// HTTPCapability gives Modules the ability to make HTTP requests.
 type HTTPCapability interface {
 	Do(auth AuthCapability, method, urlString string, body []byte, headers http.Header) (*http.Response, error)
 }
@@ -28,7 +29,7 @@ type httpClient struct {
 	client *http.Client
 }
 
-// DefaultHTTPClient creates an HTTP client with no restrictions
+// DefaultHTTPClient creates an HTTP client with no restrictions.
 func DefaultHTTPClient(config HTTPConfig) HTTPCapability {
 	d := &httpClient{
 		config: config,
@@ -40,7 +41,7 @@ func DefaultHTTPClient(config HTTPConfig) HTTPCapability {
 	return d
 }
 
-// Do performs the provided request
+// Do performs the provided request.
 func (h *httpClient) Do(auth AuthCapability, method, urlString string, body []byte, headers http.Header) (*http.Response, error) {
 	if !h.config.Enabled {
 		return nil, ErrCapabilityNotEnabled
@@ -51,7 +52,10 @@ func (h *httpClient) Do(auth AuthCapability, method, urlString string, body []by
 		return nil, errors.Wrap(err, "failed to url.Parse")
 	}
 
-	req, err := http.NewRequest(method, urlObj.String(), bytes.NewBuffer(body))
+	ctx, cxl := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cxl()
+
+	req, err := http.NewRequestWithContext(ctx, method, urlObj.String(), bytes.NewBuffer(body))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to NewRequest")
 	}
@@ -67,5 +71,10 @@ func (h *httpClient) Do(auth AuthCapability, method, urlString string, body []by
 
 	req.Header = headers
 
-	return h.client.Do(req)
+	resp, err := h.client.Do(req)
+	if err != nil {
+		return nil, errors.Wrap(err, "h.client.Do")
+	}
+
+	return resp, nil
 }

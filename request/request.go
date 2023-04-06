@@ -18,7 +18,7 @@ const (
 )
 
 // CoordinatedRequest represents a request whose fulfillment can be coordinated across multiple hosts
-// and is serializable to facilitate interoperation with Wasm Modules and transmissible over the wire
+// and is serializable to facilitate interoperation with Wasm Modules and transmissible over the wire.
 type CoordinatedRequest struct {
 	Method       string            `json:"method"`
 	URL          string            `json:"url"`
@@ -30,19 +30,22 @@ type CoordinatedRequest struct {
 	State        map[string][]byte `json:"state"`
 	SequenceJSON []byte            `json:"sequence_json,omitempty"`
 
-	bodyValues map[string]interface{}
+	bodyValues map[string]any
 }
 
 // FromEchoContext creates a CoordinatedRequest from an echo context.
 func FromEchoContext(c echo.Context) (*CoordinatedRequest, error) {
 	var err error
+
 	reqBody := make([]byte, 0)
+
 	if c.Request().Body != nil { // Read
 		reqBody, err = io.ReadAll(c.Request().Body)
 		if err != nil {
 			return nil, errors.Wrap(err, "io.ReadAll request body")
 		}
 	}
+
 	c.Request().Body = io.NopCloser(bytes.NewBuffer(reqBody)) // Reset
 
 	flatHeaders := map[string]string{}
@@ -68,7 +71,7 @@ func FromEchoContext(c echo.Context) (*CoordinatedRequest, error) {
 	}, nil
 }
 
-// UseSuborbitalHeaders adds the values in the state and params headers JSON to the CoordinatedRequest's State and Params
+// UseSuborbitalHeaders adds the values in the state and params headers JSON to the CoordinatedRequest's State and Params.
 func (c *CoordinatedRequest) UseSuborbitalHeaders(ec echo.Context) error {
 	// fill in initial state from the state header
 	stateJSON := ec.Request().Header.Get(suborbitalStateHeader)
@@ -87,14 +90,14 @@ func (c *CoordinatedRequest) UseSuborbitalHeaders(ec echo.Context) error {
 	return nil
 }
 
-// BodyField returns a field from the request body as a string
+// BodyField returns a field from the request body as a string.
 func (c *CoordinatedRequest) BodyField(key string) (string, error) {
 	if c.bodyValues == nil {
 		if len(c.Body) == 0 {
 			return "", nil
 		}
 
-		vals := map[string]interface{}{}
+		vals := map[string]any{}
 
 		if err := json.Unmarshal(c.Body, &vals); err != nil {
 			return "", errors.Wrap(err, "failed to Unmarshal request body")
@@ -117,14 +120,14 @@ func (c *CoordinatedRequest) BodyField(key string) (string, error) {
 	return stringVal, nil
 }
 
-// SetBodyField sets a field in the JSON body to a new value
+// SetBodyField sets a field in the JSON body to a new value.
 func (c *CoordinatedRequest) SetBodyField(key, val string) error {
 	if c.bodyValues == nil {
 		if len(c.Body) == 0 {
 			return nil
 		}
 
-		vals := map[string]interface{}{}
+		vals := map[string]any{}
 
 		if err := json.Unmarshal(c.Body, &vals); err != nil {
 			return errors.Wrap(err, "failed to Unmarshal request body")
@@ -146,7 +149,7 @@ func (c *CoordinatedRequest) SetBodyField(key, val string) error {
 	return nil
 }
 
-// FromJSON unmarshalls a CoordinatedRequest from JSON
+// FromJSON unmarshalls a CoordinatedRequest from JSON.
 func FromJSON(jsonBytes []byte) (*CoordinatedRequest, error) {
 	req := CoordinatedRequest{}
 	if err := json.Unmarshal(jsonBytes, &req); err != nil {
@@ -160,9 +163,14 @@ func FromJSON(jsonBytes []byte) (*CoordinatedRequest, error) {
 	return &req, nil
 }
 
-// ToJSON returns a JSON representation of a CoordinatedRequest
+// ToJSON returns a JSON representation of a CoordinatedRequest.
 func (c *CoordinatedRequest) ToJSON() ([]byte, error) {
-	return json.Marshal(c)
+	b, err := json.Marshal(c)
+	if err != nil {
+		return nil, errors.Wrap(err, "json.Marshal")
+	}
+
+	return b, nil
 }
 
 func (c *CoordinatedRequest) addState(stateJSON string) error {

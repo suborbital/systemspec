@@ -19,7 +19,7 @@ var (
 	ErrPortDisallowed    = errors.New("requests to this port are disallowed")
 )
 
-// HTTPRules is a set of rules that governs use of the HTTP capability
+// HTTPRules is a set of rules that governs use of the HTTP capability.
 type HTTPRules struct {
 	AllowedDomains []string `json:"allowedDomains" yaml:"allowedDomains"`
 	BlockedDomains []string `json:"blockedDomains" yaml:"blockedDomains"`
@@ -32,7 +32,7 @@ type HTTPRules struct {
 
 var standardPorts = []int{80, 443}
 
-// requestIsAllowed returns a non-nil error if the provided request is not allowed to proceed
+// requestIsAllowed returns a non-nil error if the provided request is not allowed to proceed.
 func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 	// Hostname removes port numbers as well as IPv6 [ and ]
 	hosts := []string{req.URL.Hostname()}
@@ -57,9 +57,7 @@ func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 	// determine if the host is a CNAME record and resolve it
 	// to be checked in addition to the passed-in raw host
 	resolvedCNAME, err := net.LookupCNAME(req.URL.Host)
-	if err != nil {
-		// that's ok, it just means there is no CNAME
-	} else if resolvedCNAME != "" && resolvedCNAME != req.URL.Host {
+	if err == nil && resolvedCNAME != "" && resolvedCNAME != req.URL.Host {
 		hosts = append(hosts, resolvedCNAME)
 	}
 
@@ -103,15 +101,15 @@ func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 	return nil
 }
 
-// portAllowed evaluates port allowance rules
-func (h HTTPRules) portAllowed(url *url.URL) error {
+// portAllowed evaluates port allowance rules.
+func (h HTTPRules) portAllowed(urlToCheck *url.URL) error {
 	// Backward Compatibility:
 	// Allow all ports if no allow/block list has been configured
 	if len(h.AllowedPorts)+len(h.BlockedPorts) == 0 {
 		return nil
 	}
 
-	port, err := readPort(url)
+	port, err := readPort(urlToCheck)
 	if err != nil {
 		return ErrPortDisallowed
 	}
@@ -129,20 +127,26 @@ func (h HTTPRules) portAllowed(url *url.URL) error {
 	return ErrPortDisallowed
 }
 
-// readPort returns normalized URL port
-func readPort(url *url.URL) (int, error) {
-	if url.Port() == "" {
-		if url.Scheme == "https" {
+// readPort returns normalized URL port.
+func readPort(fromURL *url.URL) (int, error) {
+	if fromURL.Port() == "" {
+		if fromURL.Scheme == "https" {
 			return 443, nil
 		}
+
 		return 80, nil
 	}
 
-	return strconv.Atoi(url.Port())
+	n, err := strconv.Atoi(fromURL.Port())
+	if err != nil {
+		return 0, errors.Wrap(err, "strconv.Atoi")
+	}
+
+	return n, nil
 }
 
 // returns nil if the host does not resolve to an IP in a private range
-// returns ErrPrivateDisallowed if it does
+// returns ErrPrivateDisallowed if it does.
 func resolvesToPrivate(host string) error {
 	if strings.Contains(host, "localhost") {
 		return ErrPrivateDisallowed
@@ -152,9 +156,7 @@ func resolvesToPrivate(host string) error {
 	ips, err := net.LookupIP(host)
 	if err != nil {
 		dnsErr, isDNSErr := err.(*net.DNSError)
-		if isDNSErr && dnsErr.IsNotFound {
-			// that's ok, let things continue even if the host does not resolve
-		} else {
+		if !isDNSErr || !dnsErr.IsNotFound {
 			return errors.Wrap(err, "failed to LookupIP")
 		}
 	}
@@ -191,6 +193,7 @@ func matchesDomain(pattern, domain string) bool {
 	// iterate over the pattern and domain *backwards* to determine
 	// if the domain matches the pattern with wildcard support
 	j := len(patternParts) - 1
+
 	for i := len(domainParts) - 1; i >= 0; i-- {
 		if domainParts[i] == "" {
 			// skip over empty members
@@ -201,9 +204,7 @@ func matchesDomain(pattern, domain string) bool {
 		p := patternParts[j]
 		d := domainParts[i]
 
-		if p == "*" || p == d {
-			// do nothing, they match
-		} else {
+		if p != "*" && p != d {
 			return false
 		}
 
@@ -215,7 +216,7 @@ func matchesDomain(pattern, domain string) bool {
 	return true
 }
 
-// defaultHTTPRules returns the default rules with all requests allowed
+// defaultHTTPRules returns the default rules with all requests allowed.
 func defaultHTTPRules() HTTPRules {
 	h := HTTPRules{
 		AllowedDomains: []string{},

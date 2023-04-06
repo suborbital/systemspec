@@ -10,7 +10,7 @@ var (
 	ErrSequenceCompleted    = errors.New("sequence is complete, no steps to run")
 )
 
-// WorkflowStep represents a step in a workflow
+// WorkflowStep represents a step in a workflow.
 type WorkflowStep struct {
 	FQMN  string   `yaml:"fqmn" json:"fqmn"`
 	Group []string `yaml:"group,omitempty" json:"group,omitempty"`

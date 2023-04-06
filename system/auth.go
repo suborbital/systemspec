@@ -16,7 +16,11 @@ type Credential interface {
 // TokenHash creates a SHA-256 hash of the given string.
 func TokenHash(token string) []byte {
 	hasher := sha256.New()
-	hasher.Write([]byte(token))
+
+	_, err := hasher.Write([]byte(token))
+	if err != nil {
+		return nil
+	}
 
 	hashBytes := hasher.Sum(nil)
 

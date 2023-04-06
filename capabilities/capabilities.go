@@ -7,7 +7,7 @@ import (
 
 var ErrCapabilityNotAvailable = errors.New("capability not available")
 
-// Capabilities define the capabilities available to a Module
+// Capabilities define the capabilities available to a Module.
 type Capabilities struct {
 	config CapabilityConfig
 
@@ -21,7 +21,7 @@ type Capabilities struct {
 	RequestConfig *RequestHandlerConfig
 }
 
-// New returns the default capabilities with the provided Logger
+// New returns the default capabilities with the provided Logger.
 func New(logger zerolog.Logger) *Capabilities {
 	// this will never error with the default config, as the db capability is disabled
 	caps, _ := NewWithConfig(NewConfig(logger))
@@ -43,7 +43,7 @@ func NewWithConfig(config CapabilityConfig) (*Capabilities, error) {
 
 // Config returns the configuration that was used to create the Capabilities
 // the config cannot be changed, but it can be used to determine what was
-// previously set so that the orginal config (like enabled settings) can be respected
+// previously set so that the orginal config (like enabled settings) can be respected.
 func (c Capabilities) Config() CapabilityConfig {
 	return c.config
 }

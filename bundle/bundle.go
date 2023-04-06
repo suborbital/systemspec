@@ -22,9 +22,9 @@ type Bundle struct {
 }
 
 // StaticFile returns a static file from the bundle, if it exists.
-func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
+func (b *Bundle) StaticFile(filePathIn string) ([]byte, error) {
 	// normalize in case the caller added `/` or `./` to the filename.
-	filePath = NormalizeStaticFilename(filePath)
+	filePath := NormalizeStaticFilename(filePathIn)
 
 	if _, exists := b.staticFiles[filePath]; !exists {
 		return nil, os.ErrNotExist
@@ -42,22 +42,27 @@ func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
 
 	var contents []byte
 
+	var zipFile *zip.File
+
 	for _, f := range r.File {
 		if f.Name == staticFilePath {
-			file, err := f.Open()
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to Open static file")
-			}
-
-			defer file.Close()
-
-			contents, err = io.ReadAll(file)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to ReadAll static file")
-			}
-
+			zipFile = f
 			break
 		}
+	}
+
+	file, err := zipFile.Open()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Open static file")
+	}
+
+	defer func() {
+		_ = file.Close()
+	}()
+
+	contents, err = io.ReadAll(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to ReadAll static file")
 	}
 
 	return contents, nil
@@ -84,6 +89,8 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 
 	// Add the Wasm modules to the archive.
 	for _, file := range modules {
+		file := file
+
 		if file.Name() == "tenant.json" {
 			// only allow the canonical tenant config that's passed in.
 			continue
@@ -101,6 +108,8 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 
 	// Add static files to the archive.
 	for path, file := range staticFiles {
+		file := file
+
 		contents, err := io.ReadAll(&file)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read file %s", file.Name())
@@ -116,7 +125,7 @@ func Write(tenantConfigBytes []byte, modules []os.File, staticFiles map[string]o
 		return errors.Wrap(err, "failed to close bundle writer")
 	}
 
-	if err := os.WriteFile(targetPath, buf.Bytes(), 0777); err != nil {
+	if err := os.WriteFile(targetPath, buf.Bytes(), 0600); err != nil {
 		return errors.Wrap(err, "failed to write bundle to disk")
 	}
 
@@ -170,6 +179,7 @@ func Read(path string) (*Bundle, error) {
 			}
 
 			bundle.TenantConfig = tenantConfig
+
 			continue
 		}
 	}
@@ -197,12 +207,13 @@ func Read(path string) (*Bundle, error) {
 			return nil, errors.Wrapf(err, "failed to open %s from bundle", f.Name)
 		}
 
-		defer rc.Close()
-
 		wasmBytes, err := io.ReadAll(rc)
 		if err != nil {
+			_ = rc.Close()
 			return nil, errors.Wrapf(err, "failed to read %s from bundle", f.Name)
 		}
+
+		_ = rc.Close()
 
 		// for now, the bundle spec only supports the default namespace
 		FQMN := fmt.Sprintf("/name/default/%s", strings.TrimSuffix(f.Name, ".wasm"))

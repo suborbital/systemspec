@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -27,7 +28,8 @@ type HTTPSource struct {
 }
 
 // NewHTTPSource creates a new HTTPSource that looks for a bundle at [host].
-func NewHTTPSource(host string, creds system.Credential) system.Source {
+func NewHTTPSource(hostIn string, creds system.Credential) system.Source {
+	host := hostIn
 	if !strings.HasPrefix(host, "http://") && !strings.HasPrefix(host, "https://") {
 		host = fmt.Sprintf("http://%s", host)
 	}
@@ -46,7 +48,6 @@ func NewHTTPSource(host string, creds system.Credential) system.Source {
 			Timeout: defaultTimeout,
 		},
 	}
-
 }
 
 // Start initializes the system source.
@@ -58,10 +59,10 @@ func (h *HTTPSource) Start() error {
 	return nil
 }
 
-// State returns the state of the entire system
+// State returns the state of the entire system.
 func (h *HTTPSource) State() (*system.State, error) {
 	s := &system.State{}
-	if _, err := h.get("/system/v1/state", s); err != nil {
+	if err := h.get("/system/v1/state", s); err != nil {
 		return nil, errors.Wrap(err, "failed to get /state")
 	}
 
@@ -71,7 +72,7 @@ func (h *HTTPSource) State() (*system.State, error) {
 // Overview gets the overview for the entire system.
 func (h *HTTPSource) Overview() (*system.Overview, error) {
 	ovv := &system.Overview{}
-	if _, err := h.get("/system/v1/overview", ovv); err != nil {
+	if err := h.get("/system/v1/overview", ovv); err != nil {
 		return nil, errors.Wrap(err, "failed to get /overview")
 	}
 
@@ -82,7 +83,7 @@ func (h *HTTPSource) Overview() (*system.Overview, error) {
 func (h *HTTPSource) TenantOverview(ident string) (*system.TenantOverview, error) {
 	ovv := &system.TenantOverview{}
 
-	if _, err := h.get(fmt.Sprintf("/system/v1/tenant/%s", ident), ovv); err != nil {
+	if err := h.get(fmt.Sprintf("/system/v1/tenant/%s", ident), ovv); err != nil {
 		return nil, errors.Wrap(err, "failed to get tenant overview")
 	}
 
@@ -101,8 +102,8 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 	path := fmt.Sprintf("/system/v1/module%s", f.URLPath())
 
 	module := &tenant.Module{}
-	if resp, err := h.authedGet(path, h.authHeader, module); err != nil {
-		if resp.StatusCode == http.StatusUnauthorized {
+	if err := h.authedGet(path, h.authHeader, module); err != nil {
+		if errors.Is(err, system.ErrAuthenticationFailed) {
 			return nil, system.ErrAuthenticationFailed
 		}
 
@@ -116,7 +117,7 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]tenant.Workflow, error) {
 	workflows := make([]tenant.Workflow, 0)
 
-	if _, err := h.get(fmt.Sprintf("/system/v1/workflows/%s/%s/%d", ident, namespace, version), &workflows); err != nil {
+	if err := h.get(fmt.Sprintf("/system/v1/workflows/%s/%s/%d", ident, namespace, version), &workflows); err != nil {
 		return nil, errors.Wrap(err, "failed to get /schedules")
 	}
 
@@ -127,7 +128,7 @@ func (h *HTTPSource) Workflows(ident, namespace string, version int64) ([]tenant
 func (h *HTTPSource) Connections(ident, namespace string, version int64) ([]tenant.Connection, error) {
 	connections := make([]tenant.Connection, 0)
 
-	if _, err := h.get(fmt.Sprintf("/system/v1/connections/%s/%s/%d", ident, namespace, version), &connections); err != nil {
+	if err := h.get(fmt.Sprintf("/system/v1/connections/%s/%s/%d", ident, namespace, version), &connections); err != nil {
 		return nil, errors.Wrap(err, "failed to get /connections")
 	}
 
@@ -138,7 +139,7 @@ func (h *HTTPSource) Connections(ident, namespace string, version int64) ([]tena
 func (h *HTTPSource) Authentication(ident, namespace string, version int64) (*tenant.Authentication, error) {
 	authentication := &tenant.Authentication{}
 
-	if _, err := h.get(fmt.Sprintf("/system/v1/authentication/%s/%s/%d", ident, namespace, version), authentication); err != nil {
+	if err := h.get(fmt.Sprintf("/system/v1/authentication/%s/%s/%d", ident, namespace, version), authentication); err != nil {
 		return nil, errors.Wrap(err, "failed to get /authentication")
 	}
 
@@ -149,7 +150,7 @@ func (h *HTTPSource) Authentication(ident, namespace string, version int64) (*te
 func (h *HTTPSource) Capabilities(ident, namespace string, version int64) (*capabilities.CapabilityConfig, error) {
 	caps := &capabilities.CapabilityConfig{}
 
-	if _, err := h.get(fmt.Sprintf("/system/v1/caps/%s/%s/%d", ident, namespace, version), caps); err != nil {
+	if err := h.get(fmt.Sprintf("/system/v1/caps/%s/%s/%d", ident, namespace, version), caps); err != nil {
 		return nil, errors.Wrap(err, "failed to get /caps")
 	}
 
@@ -159,7 +160,7 @@ func (h *HTTPSource) Capabilities(ident, namespace string, version int64) (*capa
 // pingServer loops forever until it finds a server at the configured host.
 func (h *HTTPSource) pingServer() error {
 	for {
-		if _, err := h.get("/system/v1/state", nil); err != nil {
+		if err := h.get("/system/v1/state", nil); err != nil {
 			time.Sleep(time.Second)
 
 			continue
@@ -172,20 +173,23 @@ func (h *HTTPSource) pingServer() error {
 }
 
 // get performs a GET request against the configured host and given path.
-func (h *HTTPSource) get(path string, dest interface{}) (*http.Response, error) {
+func (h *HTTPSource) get(path string, dest any) error {
 	return h.authedGet(path, h.authHeader, dest)
 }
 
 // authedGet performs a GET request against the configured host and given path with the given auth header.
-func (h *HTTPSource) authedGet(path, auth string, dest interface{}) (*http.Response, error) {
-	url, err := url.Parse(fmt.Sprintf("%s%s", h.host, path))
+func (h *HTTPSource) authedGet(path, auth string, dest any) error {
+	parsedURL, err := url.Parse(fmt.Sprintf("%s%s", h.host, path))
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to url.Parse")
+		return errors.Wrap(err, "failed to parsedURL.Parse")
 	}
 
-	req, err := http.NewRequest(http.MethodGet, url.String(), nil)
+	ctx, cxl := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cxl()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, parsedURL.String(), nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to NewRequest")
+		return errors.Wrap(err, "failed to NewRequest")
 	}
 
 	if auth != "" {
@@ -194,24 +198,32 @@ func (h *HTTPSource) authedGet(path, auth string, dest interface{}) (*http.Respo
 
 	resp, err := h.client.Do(req)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to Do request")
+		return errors.Wrap(err, "failed to Do request")
+	}
+
+	if resp.StatusCode == http.StatusUnauthorized {
+		return system.ErrAuthenticationFailed
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return resp, fmt.Errorf("response returned non-200 status: %d", resp.StatusCode)
+		return fmt.Errorf("response returned non-200 status: %d", resp.StatusCode)
 	}
+
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 
 	if dest != nil {
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to ReadAll body")
+			return errors.Wrap(err, "failed to ReadAll body")
 		}
 
 		if err := json.Unmarshal(body, dest); err != nil {
-			return nil, errors.Wrap(err, "failed to json.Unmarshal")
+			return errors.Wrap(err, "failed to json.Unmarshal")
 		}
 	}
 
-	return resp, nil
+	return nil
 }

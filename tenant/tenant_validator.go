@@ -8,7 +8,7 @@ import (
 	"github.com/suborbital/systemspec/fqmn"
 )
 
-// Validate validates a Config
+// Validate validates a Config.
 func (c *Config) Validate() (err error) {
 	problems := &problems{}
 
@@ -80,7 +80,6 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 				problems.add(fmt.Errorf("unknown connection type %s", c.Type))
 			}
 		}
-
 	}
 
 	if nc.Authentication != nil {
@@ -102,6 +101,7 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 		if r := recover(); r != nil {
 			problems.add(fmt.Errorf("%s", r))
 		}
+
 		err = problems.render()
 	}()
 
@@ -111,13 +111,13 @@ func (c *Config) validateNamespaceConfig(nc NamespaceConfig) (err error) {
 		if w.Name == "" {
 			problems.add(fmt.Errorf("workflow at position %d has no name", i))
 			continue
-		} else {
-			if _, exists := uniqueWorkflowNames[w.Name]; exists {
-				problems.add(fmt.Errorf("workflow at position %d has a non-unique name %s", i, w.Name))
-			}
-
-			uniqueWorkflowNames[w.Name] = struct{}{}
 		}
+
+		if _, exists := uniqueWorkflowNames[w.Name]; exists {
+			problems.add(fmt.Errorf("workflow at position %d has a non-unique name %s", i, w.Name))
+		}
+
+		uniqueWorkflowNames[w.Name] = struct{}{}
 
 		if len(w.Steps) == 0 {
 			problems.add(fmt.Errorf("workflow %s missing steps", w.Name))
@@ -155,12 +155,12 @@ func (c *Config) validateSteps(exType executableType, name string, steps []Workf
 
 		// this function is key as it compartmentalizes 'step validation', and importantly it
 		// ensures that a Module is available to handle it and binds it by setting the FQMN field.
-		validateFqmn := func(fqmn string) {
-			module, err := c.FindModule(fqmn)
+		validateFqmn := func(fqmnString string) {
+			module, err := c.FindModule(fqmnString)
 			if err != nil {
-				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not have a properly formed FQMN: %s", exType, name, j, fqmn))
+				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not have a properly formed FQMN: %s", exType, name, j, fqmnString))
 			} else if module == nil {
-				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, fqmn))
+				problems.add(fmt.Errorf("%s for %s lists mod at step %d that does not exist: %s (did you forget a namespace?)", exType, name, j, fqmnString))
 			}
 		}
 

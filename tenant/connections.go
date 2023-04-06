@@ -11,7 +11,7 @@ const (
 	ConnectionTypeKafka = "kafka"
 )
 
-// ConnectionConfig is an interface that defines a connection configuration
+// ConnectionConfig is an interface that defines a connection configuration.
 type ConnectionConfig interface {
 	Validate() error
 }
@@ -21,7 +21,7 @@ type NATSConfig struct {
 	ServerAddress string `yaml:"serverAddress" json:"serverAddress"`
 }
 
-// NATSConfigFromMap returns a Kafka config from a map
+// NATSConfigFromMap returns a Kafka config from a map.
 func NATSConfigFromMap(orig map[string]string) *NATSConfig {
 	n := &NATSConfig{
 		ServerAddress: orig["serverAddress"],
@@ -47,7 +47,7 @@ type KafkaConfig struct {
 	BrokerAddress string `yaml:"brokerAddress" json:"brokerAddress"`
 }
 
-// KafkaConfigFromMap returns a NATS config from a map
+// KafkaConfigFromMap returns a NATS config from a map.
 func KafkaConfigFromMap(orig map[string]string) *KafkaConfig {
 	k := &KafkaConfig{
 		BrokerAddress: orig["brokerAddress"],

@@ -20,7 +20,7 @@ const (
 	InputSourceKafka  = "kafka"
 )
 
-// Config describes a tenant and its related config
+// Config describes a tenant and its related config.
 type Config struct {
 	Identifier       string            `yaml:"identifier" json:"identifier"`
 	SpecVersion      int               `yaml:"specVersion" json:"specVersion"`
@@ -32,7 +32,7 @@ type Config struct {
 	Modules []Module `yaml:"modules" json:"modules"`
 }
 
-// NamespaceConfig is the configuration for a namespace
+// NamespaceConfig is the configuration for a namespace.
 type NamespaceConfig struct {
 	Name           string                         `yaml:"name" json:"name"`
 	Workflows      []Workflow                     `yaml:"workflows,omitempty" json:"workflows,omitempty"`
@@ -53,7 +53,7 @@ type Workflow struct {
 	Triggers []Trigger      `yaml:"triggers" json:"triggers"`
 }
 
-// Schedule represents the schedule settings for a workflow
+// Schedule represents the schedule settings for a workflow.
 type Schedule struct {
 	Every ScheduleEvery     `yaml:"every" json:"every"`
 	State map[string]string `yaml:"state,omitempty" json:"state,omitempty"`
@@ -76,7 +76,7 @@ type Trigger struct {
 	SinkTopic string `yaml:"sinkTopic" json:"sinkTopic"`
 }
 
-// Connection describes a connection to an external resource
+// Connection describes a connection to an external resource.
 type Connection struct {
 	Type   string            `yaml:"type" json:"type"`
 	Name   string            `yaml:"name" json:"name"`
@@ -90,7 +90,6 @@ type Authentication struct {
 func (c *Config) FindModule(name string) (*Module, error) {
 	// if this is an FQMN, parse the identifier and bail out
 	// if it doesn't match this tenant.
-
 	FQMN, err := fqmn.Parse(name)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fqmn.Parse")
@@ -113,14 +112,19 @@ func (c *Config) FindModule(name string) (*Module, error) {
 func (c *Config) Marshal() ([]byte, error) {
 	c.calculateFQMNs()
 
-	return json.Marshal(c)
+	b, err := json.Marshal(c)
+	if err != nil {
+		return nil, errors.Wrap(err, "json.Marshal")
+	}
+
+	return b, nil
 }
 
 // Unmarshal unmarshals JSON bytes into a TenantConfig struct
 // it also calculates a map of FQMNs for later use.
 func (c *Config) Unmarshal(in []byte) error {
 	if err := json.Unmarshal(in, c); err != nil {
-		return err
+		return errors.Wrap(err, "json.Unmarshal")
 	}
 
 	c.calculateFQMNs()
@@ -132,7 +136,7 @@ func (c *Config) Unmarshal(in []byte) error {
 // it also calculates a map of FQMNs for later use.
 func (c *Config) UnmarshalYaml(in []byte) error {
 	if err := yaml.Unmarshal(in, c); err != nil {
-		return err
+		return errors.Wrap(err, "yaml.Unmarshal")
 	}
 
 	c.calculateFQMNs()
@@ -158,7 +162,12 @@ func (c *Config) calculateFQMNs() {
 }
 
 func (c *Config) FQMNForFunc(namespace, fn, ref string) (string, error) {
-	return fqmn.FromParts(c.Identifier, namespace, fn, ref)
+	fqmnString, err := fqmn.FromParts(c.Identifier, namespace, fn, ref)
+	if err != nil {
+		return "", errors.Wrap(err, "fqmn.FromParts")
+	}
+
+	return fqmnString, nil
 }
 
 // NumberOfSeconds calculates the total time in seconds for the schedule's 'every' value.

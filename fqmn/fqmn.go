@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////
 // An FQMN (fully-qualified module name) is a "globally unique"
 // name for a specific module from a specific tenant ref
 // example: fqmn://suborbital.acmeco/api-users/add-user@98qhrfgo3089hafrouhqf48
@@ -25,7 +25,7 @@ import (
 //      e.g. /ref/<ref>
 // 		(addressing a module by module hash)
 //
-////////////////////////////////////////////////////////////////////////////////////
+// //////////////////////////////////////////////////////////////////////////////////
 
 // NamespaceDefault and others represent conts for namespaces.
 const (
@@ -41,7 +41,7 @@ type FQMN struct {
 }
 
 var ErrFQMNParseFailure = errors.New("FQMN failed to parse")
-var ErrFQMNConstructionFailure = errors.New("All FQMN must be defined")
+var ErrFQMNConstructionFailure = errors.New("all FQMN must be defined")
 
 var errWrongPrefix = errors.Wrap(ErrFQMNParseFailure, "FQMN must begin with 'fqmn://', '/name', or '/ref'")
 var errMustBeFullyQualified = errors.Wrap(ErrFQMNParseFailure, "FQMN text format must contain an tenant, ref, namespace, and module name")
@@ -65,11 +65,12 @@ func Parse(fqmnString string) (FQMN, error) {
 	return FQMN{}, errors.Wrapf(errWrongPrefix, "failed to parse string %q", fqmnString)
 }
 
-func parseTextFormat(fqmnString string) (FQMN, error) {
-	fqmnString = strings.TrimPrefix(fqmnString, "fqmn://")
-
-	refSegments := strings.SplitN(fqmnString, "@", 2)
+func parseTextFormat(fqmnIn string) (FQMN, error) {
 	var ref string
+
+	fqmnString := strings.TrimPrefix(fqmnIn, "fqmn://")
+	refSegments := strings.SplitN(fqmnString, "@", 2)
+
 	if len(refSegments) == 2 {
 		ref = refSegments[1]
 	}
@@ -107,8 +108,8 @@ func parseTextFormat(fqmnString string) (FQMN, error) {
 	return fqmn, nil
 }
 
-func parseNameUri(fqmnString string) (FQMN, error) {
-	fqmnString = strings.TrimPrefix(fqmnString, "/name/")
+func parseNameUri(fqmnStringIn string) (FQMN, error) {
+	fqmnString := strings.TrimPrefix(fqmnStringIn, "/name/")
 	segments := strings.Split(fqmnString, "/")
 
 	// There should be at least two segments
@@ -135,8 +136,8 @@ func parseNameUri(fqmnString string) (FQMN, error) {
 	return fqmn, nil
 }
 
-func parseRefUri(fqmnString string) (FQMN, error) {
-	fqmnString = strings.TrimPrefix(fqmnString, "/ref/")
+func parseRefUri(fqmnStringIn string) (FQMN, error) {
+	fqmnString := strings.TrimPrefix(fqmnStringIn, "/ref/")
 	segments := strings.Split(fqmnString, "/")
 
 	// If the last segment is empty, there was a trailing slash
@@ -158,12 +159,13 @@ func parseRefUri(fqmnString string) (FQMN, error) {
 	return fqmn, nil
 }
 
-func MigrateV1ToV2(name, ref string) (FQMN, error) {
+func MigrateV1ToV2(nameIn, ref string) (FQMN, error) {
 	// Parse V1 format and swap version for ref
-
 	// if the name contains a #, parse that out as the tenant.
 	tenant := ""
-	tenantParts := strings.SplitN(name, "#", 2)
+	name := nameIn
+	tenantParts := strings.SplitN(nameIn, "#", 2)
+
 	if len(tenantParts) == 2 {
 		tenant = tenantParts[0]
 		name = tenantParts[1]
@@ -174,6 +176,7 @@ func MigrateV1ToV2(name, ref string) (FQMN, error) {
 
 	namespace := NamespaceDefault
 	namespaceParts := strings.SplitN(name, "::", 2)
+
 	if len(namespaceParts) == 2 {
 		namespace = namespaceParts[0]
 		name = namespaceParts[1]
@@ -200,10 +203,11 @@ func (f FQMN) URLPath() string {
 	return fmt.Sprintf("/%s/%s/%s/%s", f.Tenant, f.Ref, f.Namespace, f.Name)
 }
 
-// FromParts returns an FQMN from the provided parts
+// FromParts returns an FQMN from the provided parts.
 func FromParts(tenant, namespace, module, ref string) (string, error) {
 	if tenant == "" || namespace == "" || module == "" || ref == "" {
 		return "", ErrFQMNConstructionFailure
 	}
+
 	return fmt.Sprintf("fqmn://%s/%s/%s@%s", tenant, namespace, module, ref), nil
 }
