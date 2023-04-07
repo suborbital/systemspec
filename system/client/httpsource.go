@@ -34,20 +34,18 @@ func NewHTTPSource(hostIn string, creds system.Credential) system.Source {
 		host = fmt.Sprintf("http://%s", host)
 	}
 
-	if creds == nil {
-		return &HTTPSource{
-			host:       host,
-			authHeader: "",
-		}
-	}
-
-	return &HTTPSource{
-		host:       host,
-		authHeader: fmt.Sprintf("%s %s", creds.Scheme(), creds.Value()),
+	source := &HTTPSource{
+		host: host,
 		client: &http.Client{
 			Timeout: defaultTimeout,
 		},
 	}
+
+	if creds != nil {
+		source.authHeader = fmt.Sprintf("%s %s", creds.Scheme(), creds.Value())
+	}
+
+	return source
 }
 
 // Start initializes the system source.
