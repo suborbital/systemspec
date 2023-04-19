@@ -62,7 +62,7 @@ func FromEchoContext(c echo.Context) (*CoordinatedRequest, error) {
 	return &CoordinatedRequest{
 		Method:      c.Request().Method,
 		URL:         c.Request().URL.RequestURI(),
-		ID:          c.Request().Header.Get("requestID"),
+		ID:          c.Response().Header().Get(echo.HeaderXRequestID),
 		Body:        reqBody,
 		Headers:     flatHeaders,
 		RespHeaders: map[string]string{},
@@ -85,7 +85,7 @@ func (c *CoordinatedRequest) UseSuborbitalHeaders(ec echo.Context) error {
 		return err
 	}
 
-	ec.Response().Header()[suborbitalRequestIDHeader] = []string{ec.Request().Header.Get("requestID")}
+	ec.Response().Header()[suborbitalRequestIDHeader] = []string{ec.Response().Header().Get(echo.HeaderXRequestID)}
 
 	return nil
 }
