@@ -182,7 +182,7 @@ func (h *HTTPSource) authedGet(path, auth string, dest any) error {
 		return errors.Wrap(err, "failed to parsedURL.Parse")
 	}
 
-	ctx, cxl := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cxl := context.WithTimeout(context.Background(), defaultTimeout)
 	defer cxl()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, parsedURL.String(), nil)
