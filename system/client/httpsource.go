@@ -198,26 +198,22 @@ func (h *HTTPSource) authedGet(path, auth string, dest any) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to Do request")
 	}
-
-	if resp.StatusCode == http.StatusUnauthorized {
-		return system.ErrAuthenticationFailed
-	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("response returned non-200 status: %d", resp.StatusCode)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return errors.Wrap(err, "failed to ReadAll body")
 	}
 
-	defer func() {
-		_ = resp.Body.Close()
-	}()
+	if resp.StatusCode == http.StatusUnauthorized {
+		return errors.WithMessage(system.ErrAuthenticationFailed, fmt.Sprintf("response body: %s", string(body)))
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("response returned non-200 status: %d with error message: %s", resp.StatusCode, string(body))
+	}
 
 	if dest != nil {
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return errors.Wrap(err, "failed to ReadAll body")
-		}
-
 		if err := json.Unmarshal(body, dest); err != nil {
 			return errors.Wrap(err, "failed to json.Unmarshal")
 		}
