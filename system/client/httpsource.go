@@ -102,10 +102,10 @@ func (h *HTTPSource) GetModule(FQMN string) (*tenant.Module, error) {
 	module := &tenant.Module{}
 	if err := h.authedGet(path, h.authHeader, module); err != nil {
 		if errors.Is(err, system.ErrAuthenticationFailed) {
-			return nil, system.ErrAuthenticationFailed
+			return nil, errors.Wrap(err, system.ErrAuthenticationFailed.Error())
 		}
 
-		return nil, system.ErrModuleNotFound
+		return nil, errors.Wrap(err, system.ErrModuleNotFound.Error())
 	}
 
 	return module, nil
