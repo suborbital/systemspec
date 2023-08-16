@@ -7,7 +7,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.30.0
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/exp v0.0.0-20230206171751-46f607a40771
+	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb
 	gopkg.in/yaml.v2 v2.4.0
 )
 
